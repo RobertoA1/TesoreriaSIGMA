@@ -17,7 +17,23 @@ class ConceptoPagoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'descripcion' => fake()-> randomElement([
+                'RATIFICACION DE MATRICULA', 
+                'PENSION MARZO', 
+                'PENSION ABRIL', 
+                'PENSION MAYO', 
+                'PENSION JUNIO', 
+                'PENSION JULIO',
+                'PENSION AGOSTO',
+                'PENSION SEPTIEMBRE',
+                'PENSION OCTUBRE',
+                'PENSION NOVIEMBRE',
+                'PENSION DICIEMBRE',
+            ]),
+
+            'escala' => fake()->randomElement(['A', 'B', 'C', 'D', 'E']),
+            'monto' => fake()->randomFloat(2, 10, 1000), 
+            'estado' => '1'
         ];
     }
 }

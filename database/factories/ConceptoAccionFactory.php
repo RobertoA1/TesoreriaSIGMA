@@ -17,7 +17,8 @@ class ConceptoAccionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'descripcion' => fake()->randomElement(['Acción 1', 'Acción 2', 'Acción 3', 'Acción 4']),
+            'estado' => '1',
         ];
     }
 }

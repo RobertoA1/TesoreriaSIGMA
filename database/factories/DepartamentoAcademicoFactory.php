@@ -17,7 +17,8 @@ class DepartamentoAcademicoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nombre' => fake()->randomElement(['Primaria','Secundaria']),
+            'estado' => '1'
         ];
     }
 }
