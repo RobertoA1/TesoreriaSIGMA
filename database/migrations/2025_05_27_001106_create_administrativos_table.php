@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('primer_nombre', 20);
             $table->string('otros_nombres', 40);
             $table->string('dni', 8);
-            $table->string('direccion', 50);
+            $table->string('direccion', 80);
             $table->char('estado_civil', 1);
             $table->string('telefono', 20);
             $table->string('seguro_social', 20);
