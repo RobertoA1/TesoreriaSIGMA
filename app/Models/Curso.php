@@ -15,7 +15,7 @@ class Curso extends Model
 
     protected $keyType = 'int';
 
-    protected $filliable = [
+    protected $fillable = [
         'codigo_curso',
         'nombre_curso',
         'id_nivel'

@@ -17,7 +17,10 @@ class Personal extends Model
     protected $fillable = [
         'id_usuario',
         'codigo_personal',
-        'apellidos_nombres',
+        'apellido_paterno',
+        'apellido_materno',
+        'primer_nombre',
+        'otros_nombres',
         'dni',
         'direccion',
         'estado_civil',

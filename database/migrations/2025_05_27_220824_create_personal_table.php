@@ -17,7 +17,10 @@ return new class extends Migration
                   ->constrained('users', 'id_usuario') 
                   ->onDelete('cascade');
             $table->string('codigo_personal', 10)->nullable();
-            $table->string('apellidos_nombres', 100);
+            $table->string('apellido_paterno', 50);
+            $table->string('apellido_materno', 50);
+            $table->string('primer_nombre', 50);
+            $table->string('otros_nombres', 50)->nullable();
             $table->string('dni', 20)->unique();
             $table->string('direccion', 255)->nullable();
             $table->string('estado_civil', 50)->nullable();
