@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('otros_nombres', 50)->nullable();
             $table->string('dni', 20)->unique();
             $table->string('direccion', 255)->nullable();
-            $table->string('estado_civil', 50)->nullable();
+            $table->char('estado_civil', 1)->nullable();
             $table->string('telefono', 20)->nullable();
             $table->string('seguro_social', 50)->nullable();
             $table->date('fecha_ingreso')->nullable();

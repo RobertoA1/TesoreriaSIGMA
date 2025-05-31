@@ -28,7 +28,7 @@ class PersonalFactory extends Factory
             'otros_nombres' => fake()->randomElement([fake()->name(), fake()->name() . " " . fake()->name()]),
             'dni' => fake()->numberBetween(10000000, 99999999),
             'direccion' => fake()->optional()->address(), 
-            'estado_civil' => fake()->randomElement(['SOLTERO', 'CASADO', 'VIUDO', 'DIVORSIADO']),
+            'estado_civil' => fake()->randomElement(['S', 'C', 'V', 'D']),
             'telefono' => fake()->optional()->phoneNumber(), 
             'seguro_social' => fake()->optional()->numberBetween(1000000000, 9999999999),
             'fecha_ingreso' => fake()->dateTimeThisDecade(),
