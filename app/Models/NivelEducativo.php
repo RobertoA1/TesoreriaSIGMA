@@ -15,7 +15,7 @@ class NivelEducativo extends Model
 
     protected $keyType = 'int';
 
-    protected $filliable = [
+    protected $fillable = [
         'nombre_nivel',
         'descripcion'
     ];

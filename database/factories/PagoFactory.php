@@ -17,7 +17,11 @@ class PagoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nro_recibo' => fake()->unique()->numerify('REC-#####'),
+            'fecha_pago' => fake()->dateTimeThisYear(),
+            'monto' => fake()->randomFloat(2, 10, 1000),
+            'observaciones' => fake()->optional()->sentence(),
+            'estado' => '1'
         ];
     }
 }

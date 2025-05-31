@@ -17,7 +17,8 @@ class NivelEducativoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nombre_nivel' => fake()->randomElement(['PRIMARIA', 'SECUNDARIA']),
+            'descripcion' => fake()->optional()->sentence()
         ];
     }
 }
