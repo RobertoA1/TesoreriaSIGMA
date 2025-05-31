@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('numero_contacto', 45)->nullable();
             $table->string('correo_electronico', 45)->nullable();
             $table->foreignId('id_usuario')->constrained('users', 'id_usuario')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

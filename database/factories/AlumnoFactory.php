@@ -23,15 +23,14 @@ class AlumnoFactory extends Factory
         $customUsername = $firstName . "." . $fatherLastName;
 
         return [
-            'codigo_educando' => fake()->unique()->numerify(''),
-            'nro_matricula' => fake()->unique()->numerify(''),
-            'codigo_modular' => fake()->unique()->numerify(''),
+            'codigo_educando' => fake()->numberBetween(100000, 999999),
+            'codigo_modular' => fake()->numberBetween(100000, 999999),
             'año_ingreso' => fake()->year(),
             'dni' => fake()->numberBetween(10000000, 99999999),
             'apellido_paterno' => $fatherLastName,
             'apellido_materno' => $apellidoMaterno,
             'primer_nombre' => fake()->firstName(),
-            'otros_nombres' => fake()->randomElement([fake()->name(), fake()->name() . " " . fake()->name()]),
+            'otros_nombres' => fake()->name(),
             'sexo' => fake()->randomElement(['M', 'F']),
             'fecha_nacimiento' => fake()->date(),
             'pais' => fake()->country(),
@@ -39,7 +38,7 @@ class AlumnoFactory extends Factory
             'provincia' => fake()->city(),
             'distrito' => fake()->city(),
             'lengua_materna' => fake()->randomElement(['CASTELLANO', 'QUECHUA', 'AIMARA', 'OTRO']),
-            'estado_civil' => fake()->randomElement(['SOLTERO', 'CASADO', 'VIUDO', 'DIVORCIADO']),
+            'estado_civil' => fake()->randomElement(['S', 'C', 'V', 'D']),
             'religion' => fake()->optional()->word(),
             'fecha_bautizo' => fake()->optional()->date(),
             'parroquia_bautizo' => fake()->optional()->sentence(3),

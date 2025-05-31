@@ -23,13 +23,13 @@ return new class extends Migration
             $table->string('apellido_paterno', 50);
             $table->string('apellido_materno', 50);
             $table->string('primer_nombre', 50);
-            $table->string('otros_nombres', 100)->nullable();
+            $table->string('otros_nombres', 50)->nullable();
             $table->char('sexo', 1); 
             $table->date('fecha_nacimiento');
-            $table->string('pais', 10)->nullable();
-            $table->string('departamento', 10)->nullable();
-            $table->string('provincia', 10)->nullable();
-            $table->string('distrito', 10)->nullable();
+            $table->string('pais', 20)->nullable();
+            $table->string('departamento', 20)->nullable();
+            $table->string('provincia', 20)->nullable();
+            $table->string('distrito', 20)->nullable();
             $table->string('lengua_materna', 50)->nullable();
             $table->char('estado_civil', 1)->nullable();
             $table->string('religion', 50)->nullable();
@@ -50,6 +50,7 @@ return new class extends Migration
             $table->string('situacion_vivienda', 100)->nullable();
             $table->char('escala', 2)->nullable();
             $table->boolean('estado')->default(true);
+            $table->timestamps();
         });
     }
 

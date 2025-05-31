@@ -15,10 +15,10 @@ return new class extends Migration
         Schema::create('administrativos', function (Blueprint $table) {
             $table->id("id_administrativo");
             $table->foreignIdFor(User::class, "id_usuario")->constrained()->cascadeOnDelete();
-            $table->string('apellido_paterno', 20);
-            $table->string('apellido_materno', 20);
-            $table->string('primer_nombre', 20);
-            $table->string('otros_nombres', 40);
+            $table->string('apellido_paterno', 50);
+            $table->string('apellido_materno', 50);
+            $table->string('primer_nombre', 50);
+            $table->string('otros_nombres', 50);
             $table->string('dni', 8);
             $table->string('direccion', 80);
             $table->char('estado_civil', 1);

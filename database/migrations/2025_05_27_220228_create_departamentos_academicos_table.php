@@ -15,6 +15,7 @@ return new class extends Migration
             $table->increments('id_departamento');
             $table->string('nombre',90);
             $table->boolean('estado');
+            $table->timestamps();
         });
     }
 

@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\ConceptoPago;
+use App\Models\Deuda;
+use App\Models\Pago;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

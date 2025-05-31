@@ -23,7 +23,7 @@ class Matricula extends Model
         'nombreSeccion',
         'estado'
     ];
-    public $timestamps = false;
+
 
     public function alumno()
     {

@@ -46,6 +46,8 @@ return new class extends Migration
             $table->foreignId('id_uafectado')
                   ->constrained('users', 'id_usuario') // 'users' es el nombre de la tabla, 'id_usuario' es la PK.
                   ->onDelete('cascade');
+
+            $table->timestamps();
         });
     }
 

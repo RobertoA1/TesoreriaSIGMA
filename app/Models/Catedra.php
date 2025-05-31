@@ -20,7 +20,6 @@ class Catedra extends Model
         'id_grado',
         'secciones_nombreSeccion',
     ];
-    public $timestamps = false;
     public function cursoGrado()
     {
         return $this->belongsTo(Curso_Grado::class, 'id_curso_grado', 'id_curso_grado');

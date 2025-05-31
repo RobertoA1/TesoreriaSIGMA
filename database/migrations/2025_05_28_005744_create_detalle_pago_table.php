@@ -40,6 +40,8 @@ return new class extends Migration
                   ->references('id_concepto')
                   ->on('conceptos_pago')
                   ->onDelete('cascade');
+
+            $table->timestamps();
         });
     }
 

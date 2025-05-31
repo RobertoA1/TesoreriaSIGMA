@@ -9,6 +9,7 @@ class Familiar extends Model
 {
     use HasFactory;
 
+    protected $table = "familiares";
     protected $primaryKey = 'idFamiliar';
 
     public $incrementing = true;
@@ -26,7 +27,6 @@ class Familiar extends Model
         'correo_electronico',
     ];
 
-    public $timestamps = false;
 
     public function user()
     {

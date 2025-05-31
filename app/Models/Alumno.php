@@ -53,8 +53,6 @@ class Alumno extends Model
         'estado',
     ];
 
-    public $timestamps = false;
-
     protected function casts(): array{
         return [
             'fecha_nacimiento' => 'date',

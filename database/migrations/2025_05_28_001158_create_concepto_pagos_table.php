@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('monto', 10, 2);
 
             $table->boolean('estado')->default(true);
+            $table->timestamps();
         });
     }
 

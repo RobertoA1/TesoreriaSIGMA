@@ -20,8 +20,6 @@ class ConceptoAccion extends Model
         'estado',
     ];
 
-    public $timestamps = false;
-
  
     protected function casts(): array
     {

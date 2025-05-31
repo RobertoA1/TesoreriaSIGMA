@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\DepartamentoAcademico;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +22,7 @@ class PersonalFactory extends Factory
         $fatherLastName = fake()->lastName();
         $customUsername = $firstName . "." . $fatherLastName;
         return [
-            'id_usuario' =>Usser::factory(['tipo' => 'Personal', 'username' => fake()->unique()->userName()]),
+            'id_usuario' =>User::factory(['tipo' => 'Personal', 'username' => fake()->unique()->userName()]),
             'codigo_personal' => fake()->unique()->numberBetween(1000, 9999),
             'apellido_paterno' => $fatherLastName,
             'apellido_materno' => fake()->lastName(),

@@ -9,6 +9,8 @@ class NivelEducativo extends Model
 {
     use HasFactory;
 
+    protected $table = "niveles_educativos";
+
     protected $primaryKey = "id_nivel";
 
     public $incrementing = true;

@@ -15,8 +15,6 @@ class Seccion extends Model
 
     protected $primaryKey = ['id_grado', 'nombreSeccion'];
 
-    public $timestamps = false;
-
     protected $fillable = [
         'id_grado',
         'nombre_seccion'

@@ -24,6 +24,8 @@ return new class extends Migration
                 ->references('idFamiliar') 
                 ->on('familiares')
                 ->onDelete('cascade');
+
+            $table->timestamps();
         });
     }
 

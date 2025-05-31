@@ -19,8 +19,11 @@ return new class extends Migration
             $table->foreign('id_nivel')
                   ->references('id_nivel')
                   ->on('niveles_educativos')
-                  ->onDelete('cascade');        
+                  ->onDelete('cascade');
+
+            $table->timestamps();
             });
+            
     }
 
     /**

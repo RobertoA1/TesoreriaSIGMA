@@ -35,6 +35,7 @@ return new class extends Migration
                   ->on('departamentos_academicos')
                   ->onDelete('cascade');
             $table->boolean('estado')->default(true);
+            $table->timestamps();
         });
     }
 

@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Alumno;
+use App\Models\ConceptoPago;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

@@ -26,7 +26,6 @@ class DetallePago extends Model
         'estado',
     ];
 
-    public $timestamps = false;
 
     protected function casts(): array
     {

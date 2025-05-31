@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('id_nivel');
             $table->foreign('id_nivel')->references('id_nivel')->on('niveles_educativos')->onDelete('cascade');
             $table->string('nombre_grado',50);
+            $table->timestamps();
         });
     }
 

@@ -18,7 +18,6 @@ class Curso_Grado extends Model
         'id_grado',
         'año_escolar',
     ];
-    public $timestamps = false;
 
     public function curso()
     {

@@ -9,12 +9,11 @@ class DepartamentoAcademico extends Model
 {
     use HasFactory;
 
+    protected $table = "departamentos_academicos";
     protected $primaryKey = 'id_departamento';
 
     public $incrementing = true;
     protected $keyType = 'int';
-
-    public $timestamps = false;
 
     protected $fillable = [
         'nombre',

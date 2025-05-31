@@ -2,6 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\Alumno;
+use App\Models\Grado;
+use App\Models\Matricula;
+use App\Models\Seccion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,8 +27,8 @@ class MatriculaFactory extends Factory
             'fecha_matricula' => fake()->dateTimeBetween('-1 year', 'now'),
             'escala' => fake()->randomElement(['A', 'B', 'C', 'D', 'E']),
             'observaciones' => fake()->sentence(),
-            'id_grado' => $seccion?->id_grado,
-            'secciones_nombreSeccion' => $seccion?->nombreSeccion,
+            'id_grado' => Grado::factory(),
+            'nombreSeccion' => Seccion::factory(),
             'estado'=>'1'
         ];
     }

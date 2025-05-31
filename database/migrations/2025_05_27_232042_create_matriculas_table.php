@@ -29,6 +29,7 @@ return new class extends Migration
                   ->references(['id_grado', 'nombreSeccion']) 
                   ->on('secciones')                          
                   ->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

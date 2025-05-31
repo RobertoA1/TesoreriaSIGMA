@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\ConceptoAccion;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,9 +19,9 @@ class RegistroHistoricoFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_autor' => Usser::factory(['tipo' => 'Autor']),
+            'id_autor' => User::factory(['tipo' => 'Autor']),
             'id_concepto_accion' => ConceptoAccion::factory(),
-            'id_usuario_afectado' => Usser::factory(),
+            'id_usuario_afectado' => User::factory(),
             'fecha_accion' => fake()->dateTimeBetween('-1 year', 'now'),
             'observacion' => fake()->sentence(),
             'estado' => '1'

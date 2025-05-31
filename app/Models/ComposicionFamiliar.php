@@ -15,5 +15,4 @@ class ComposicionFamiliar extends Model
 
     protected $fillable = [
     ];
-    public $timestamps = false;
 }
