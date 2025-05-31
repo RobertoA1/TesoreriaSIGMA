@@ -17,7 +17,8 @@ class SeccionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'id_grado'=> Grado::factory(),
+            'nombreSeccion' => fake()->randomElement(['A', 'B', 'C', 'D', 'E', 'F']),
         ];
     }
 }

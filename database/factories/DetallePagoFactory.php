@@ -17,7 +17,13 @@ class DetallePagoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'id_pago'=> Pago::factory(),
+            'id_deuda' => Deuda::factory(),
+            'id_concepto' => ConceptoPago::factory(),
+            'fecha_pago' => fake()->dateTimeBetween('-1 year', 'now'),
+            'monto' => fake()->numberBetween(0, 1000),
+            'observacion' => fake()->optional()->sentence(),
+            'estado' => '1'
         ];
     }
 }

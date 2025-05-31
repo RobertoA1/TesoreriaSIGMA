@@ -17,7 +17,10 @@ class CursoGradoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'id_curso' => Curso::factory(),
+            'id_grado' => Grado::factory(),
+            'año_escolar' => fake()->randomElement(['2024', '2025', '2026', '2027', '2028']),
+            'estado' => '1'
         ];
     }
 }

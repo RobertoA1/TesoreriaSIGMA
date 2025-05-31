@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Seccion;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Catedra>
@@ -17,7 +18,11 @@ class CatedraFactory extends Factory
     public function definition(): array
     {
         return [
-            
+            'id_personal' => Personal::factory(),
+            'id_curso' => Curso::factory(),
+            'año_escolar' => fake()->randomElement(['2024', '2025', '2026', '2027', '2028']),
+            'id_grado' => $seccion?->id_grado,
+            'secciones_nombreSeccion' => $seccion?->nombreSeccion
         ];
     }
 }

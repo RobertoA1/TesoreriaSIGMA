@@ -17,7 +17,8 @@ class ComposicionFamiliarFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'id_alumno' => Alumno::factory(),      
+            'id_familiar' => Familiar::factory(),
         ];
     }
 }
