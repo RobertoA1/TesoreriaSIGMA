@@ -11,7 +11,7 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
     <link rel="stylesheet" href="{{ asset('css/style.css')}}"> -->
 
-    @vite(['resources/css/app.css', 'resources/js/index.js'])
+    @vite(['resources/css/style.css', 'resources/js/index.js'])
 
     <title>
       @yield('titulo', 'Página por defecto')
