@@ -8,9 +8,6 @@
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
-    <link rel="stylesheet" href="{{ asset('css/style.css')}}"> -->
-
     @vite(['resources/css/style.css', 'resources/js/index.js'])
 
     <title>
@@ -18,7 +15,7 @@
     </title>
   </head>
   <body
-    x-data="{ page: 'calendar', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
+    x-data="{ page: '', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
     x-init="
          darkMode = JSON.parse(localStorage.getItem('darkMode'));
          $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
@@ -32,7 +29,7 @@
     <!-- ===== Page Wrapper Start ===== -->
     <div class="flex h-screen overflow-hidden">
       <!-- ===== Sidebar Start ===== -->
-      @include('layout.sidebar')
+      @include('components.administrativo.sidebar')
       <!-- ===== Sidebar End ===== -->
 
       <!-- ===== Content Area Start ===== -->
@@ -58,3 +55,5 @@
     <!-- ===== Page Wrapper End ===== -->
   </body>
 </html>
+
+

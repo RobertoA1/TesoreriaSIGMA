@@ -63,6 +63,10 @@ input {
     font-size: 1rem;
 }
 
+.invalid-input {
+    border: 1px solid #c54c4c;
+}
+
 .forgot-password {
     text-align: left;
     margin-bottom: 1.5rem;

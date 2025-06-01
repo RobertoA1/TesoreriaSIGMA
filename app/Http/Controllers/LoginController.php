@@ -14,34 +14,34 @@ class LoginController extends Controller
 
     public function iniciarSesion(Request $request){
         $data = $request->validate([
-            'email'=>'required',
+            'username'=>'required',
             'password'=>'required'
         ],  [
-            'email.required'=>'Ingrese correo electrónico',
-            'password.required'=>'Ingrese contraseña',
+            'username.required'=>'Ingrese un nombre de usuario válido.',
+            'password.required'=>'Ingrese una contraseña válida.',
         ]);
 
         if (Auth::attempt($data)){
-            return redirect(route('home'));
+            return redirect(route('main-director'));
         }
 
-        $name = $request->get("email");
-        $query = User::where('email', '=', $name)->get();
+        $name = $request->get("username");
+        $query = User::where('username', '=', $name)->get();
 
         if ($query->count() == 0){
-            return back()->withErrors(['email' => "Correo electrónico no válido."])->withInput(request(['email']));
+            return back()->withErrors(['username' => "El nombre de usuario ingresado es inválido."])->withInput(request(['username']));
         }
 
         $hashp = $query[0]->password;
         $password = $request->get("password");
 
         if (!password_verify($password, $hashp)){
-            return back()->withErrors(['password' => "Contraseña no válida."])->withInput(request(['email']));
+            return back()->withErrors(['password' => "La contraseña ingresada es inválida."])->withInput(request(['username']));
         }
     }
 
     public function logout(Request $request){
         Auth::logout();
-        return redirect(route('inicio'));
+        return redirect(route('login'));
     }
 }

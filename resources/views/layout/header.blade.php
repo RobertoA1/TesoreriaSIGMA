@@ -728,7 +728,9 @@
               </a>
             </li>
           </ul>
-          <button
+
+          <form class="hidden" action="/logout" method="GET" id="logout"></form>
+          <button type="submit" form="logout"
             class="group text-theme-sm mt-3 flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
           >
             <svg
@@ -747,7 +749,7 @@
               />
             </svg>
 
-            Sign out
+            Cerrar Sesión
           </button>
         </div>
         <!-- Dropdown End -->

@@ -7,7 +7,7 @@
     :class="sidebarToggle ? 'justify-center' : 'justify-between'"
     class="flex items-center gap-2 pt-8 sidebar-header pb-7"
   >
-    <a href="index.html">
+    <a href="/">
       <span class="logo" :class="sidebarToggle ? 'hidden' : ''">
         <img class="dark:hidden" src="{{ asset('images/colegio_sigma_logo.svg')}}" alt="Logo" />
         <img
@@ -62,101 +62,7 @@
 
         <ul class="flex flex-col gap-4 mb-6">
 
-          @include(
-              'components.para-sidebar.dropdown-button',
-              [
-              'name' => 'Gestión Académica',
-              'items' => [
-                'Niveles Educativos',
-                'Grados',
-                'Cursos',
-                'Secciones',
-                'Cátedras',
-              ],
-              'links' => [
-                'Niveles Educativos' => 'pruebalinks.html'
-              ],
-              'icon' => 'birrete'
-              ]
-          )
-
-          @include(
-              'components.para-sidebar.dropdown-button',
-              [
-              'name' => 'Gestión de Alumnos',
-              'items' => [
-                'Alumnos',
-                'Matrículas',
-                'Familiares',
-              ],
-              'links' => [],
-              'icon' => 'persona'
-              ]
-          )
-
-          @include(
-              'components.para-sidebar.dropdown-button',
-              [
-              'name' => 'Gestión de Personal',
-              'items' => [
-                'Docentes',
-                'Departamentos Académicos',
-              ],
-              'links' => [
-                'a' => 'pruebalinks.html'
-              ],
-              'icon' => 'persona-corbata'
-              ]
-          )
-
-          @include(
-              'components.para-sidebar.dropdown-button',
-              [
-              'name' => 'Gestión Administrativa',
-              'items' => [
-                'Usuarios',
-                'Administrativos',
-                'Historial de Acciones',
-              ],
-              'links' => [
-                'a' => 'pruebalinks.html'
-              ],
-              'icon' => 'maletin'
-              ]
-          )
-
-          @include(
-              'components.para-sidebar.dropdown-button',
-              [
-              'name' => 'Gestión Financiera',
-              'items' => [
-                'Conceptos de pago',
-                'Pagos',
-                'Deudas'
-              ],
-              'links' => [
-                'a' => 'pruebalinks.html'
-              ],
-              'icon' => 'monedas'
-              ]
-          )
-
-          @include(
-              'components.para-sidebar.dropdown-button',
-              [
-              'name' => 'Reportes y Estadísticas',
-              'items' => [
-                'Reportes académicos',
-                'Reportes financieros',
-                'Estadísticas'
-              ],
-              'links' => [
-                'Reportes académicos' => 'pruebalinks.html'
-              ],
-              'icon' => 'reporte'
-              ]
-          )
-          <!-- Menu Item Authentication -->
+        @yield('opciones')
         </ul>
       </div>
     </nav>

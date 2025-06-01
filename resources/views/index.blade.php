@@ -1,4 +1,4 @@
-@extends('components.director.blank')
+@extends('base.administrativo.blank')
 
 @section('titulo')
   Página principal
