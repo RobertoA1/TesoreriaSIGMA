@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('departamentos_academicos', function (Blueprint $table) {
             $table->increments('id_departamento');
             $table->string('nombre',90);
-            $table->boolean('estado');
+            $table->boolean('estado')->default(true);
             $table->timestamps();
         });
     }

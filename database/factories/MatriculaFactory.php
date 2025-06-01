@@ -20,16 +20,15 @@ class MatriculaFactory extends Factory
      */
     public function definition(): array
     {
+        $seccion = Seccion::factory()->create();
         return [
-            'id_matricula'=> Matricula::factory(),
             'id_alumno' => Alumno::factory(),
             'año_escolar' => fake()->randomElement(['2024', '2025', '2026', '2027', '2028']),
             'fecha_matricula' => fake()->dateTimeBetween('-1 year', 'now'),
             'escala' => fake()->randomElement(['A', 'B', 'C', 'D', 'E']),
             'observaciones' => fake()->sentence(),
-            'id_grado' => Grado::factory(),
-            'nombreSeccion' => Seccion::factory(),
-            'estado'=>'1'
+            'id_grado' => $seccion->id_grado,
+            'nombreSeccion' => $seccion->nombreSeccion,
         ];
     }
 }

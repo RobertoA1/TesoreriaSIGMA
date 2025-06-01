@@ -20,7 +20,7 @@ return new class extends Migration
                   ->references('id_nivel')
                   ->on('niveles_educativos')
                   ->onDelete('cascade');
-
+            $table->boolean("estado")->default(true);
             $table->timestamps();
             });
             

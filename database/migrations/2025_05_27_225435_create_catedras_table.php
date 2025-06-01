@@ -34,6 +34,7 @@ return new class extends Migration
                   ->on('secciones')                            
                   ->onDelete('cascade'); 
 
+            $table->boolean("estado")->default(true);
             $table->timestamps();
         });
     }

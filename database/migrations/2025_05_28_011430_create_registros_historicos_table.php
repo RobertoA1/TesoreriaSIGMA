@@ -43,7 +43,7 @@ return new class extends Migration
 
             // Clave foránea para id_usuario_afectado (renombrado a id_uafectado en la migración por tu request)
             // Asume que la PK en 'users' se llama 'id_usuario'.
-            $table->foreignId('id_uafectado')
+            $table->foreignId('id_usuario_afectado')
                   ->constrained('users', 'id_usuario') // 'users' es el nombre de la tabla, 'id_usuario' es la PK.
                   ->onDelete('cascade');
 

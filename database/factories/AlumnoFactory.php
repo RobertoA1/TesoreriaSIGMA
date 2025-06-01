@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Matricula;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,10 +18,8 @@ class AlumnoFactory extends Factory
     public function definition(): array
     {
 
-        $firstName = fake()->firstName();
         $fatherLastName = fake()->lastName();
         $apellidoMaterno = fake()->lastName();
-        $customUsername = $firstName . "." . $fatherLastName;
 
         return [
             'codigo_educando' => fake()->numberBetween(100000, 999999),
@@ -33,7 +32,7 @@ class AlumnoFactory extends Factory
             'otros_nombres' => fake()->name(),
             'sexo' => fake()->randomElement(['M', 'F']),
             'fecha_nacimiento' => fake()->date(),
-            'pais' => fake()->country(),
+            'pais' => 'Peru',
             'departamento' => fake()->randomElement(['LIMA', 'LA LIBERTAD', 'CAJAMARCA', 'PIURA']),
             'provincia' => fake()->city(),
             'distrito' => fake()->city(),
@@ -56,8 +55,6 @@ class AlumnoFactory extends Factory
             'num_habitantes' => fake()->optional()->numberBetween(1, 10),
             'situacion_vivienda' => fake()->randomElement(['PROPIA', 'ALQUILADA','CEDIDA','PROMOVIDO', 'OTRO']),
             'escala' => fake()->optional()->randomElement(['A', 'B', 'C', 'D']),
-            'estado' => '1'  
-
         ];
     }
 }
