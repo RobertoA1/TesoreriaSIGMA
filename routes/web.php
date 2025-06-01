@@ -7,8 +7,6 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/', function(){
         return view('index');
     })->name('principal');
-
-
 });
 
 Route::get('/login', [LoginController::class, 'index'])->name('login');

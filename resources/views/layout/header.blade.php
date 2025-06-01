@@ -612,11 +612,23 @@
           href="#"
           @click.prevent="dropdownOpen = ! dropdownOpen"
         >
+        <!--
           <span class="mr-3 h-11 w-11 overflow-hidden rounded-full">
             <img src="./images/user/owner.jpg" alt="User" />
           </span>
+        -->
+          @php
+            use App\Models\Administrativo;
+            $id_usuario = Auth::user()->id_usuario;
 
-          <span class="text-theme-sm mr-1 block font-medium"> Musharof </span>
+            $query = Administrativo::where('id_usuario', '=', $id_usuario)->get();
+
+            $name = $query[0]->primer_nombre;
+            $cargo = $query[0]->cargo;
+
+          @endphp
+
+          <span class="text-theme-sm mr-1 block font-medium"> {{ $name }}</span>
 
           <svg
             :class="dropdownOpen && 'rotate-180'"
@@ -646,12 +658,12 @@
             <span
               class="text-theme-sm block font-medium text-gray-700 dark:text-gray-400"
             >
-              Musharof Chowdhury
+              {{ $name }}
             </span>
             <span
               class="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400"
             >
-              randomuser@pimjo.com
+              {{ $cargo }}
             </span>
           </div>
 
@@ -678,7 +690,7 @@
                     fill=""
                   />
                 </svg>
-                Edit profile
+                Editar perfil
               </a>
             </li>
             <li>
@@ -701,7 +713,7 @@
                     fill=""
                   />
                 </svg>
-                Account settings
+                Configuración
               </a>
             </li>
             <li>
@@ -724,7 +736,7 @@
                     fill=""
                   />
                 </svg>
-                Support
+                Soporte
               </a>
             </li>
           </ul>

@@ -22,7 +22,7 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($data)){
-            return redirect(route('main-director'));
+            return redirect(route('principal'));
         }
 
         $name = $request->get("username");
