@@ -25,6 +25,7 @@ return new class extends Migration
                 ->on('familiares')
                 ->onDelete('cascade');
 
+            $table->boolean("estado")->default(true);
             $table->timestamps();
         });
     }

@@ -18,9 +18,9 @@ return new class extends Migration
                   ->onDelete('cascade');
             $table->string('codigo_personal', 10)->nullable();
             $table->string('apellido_paterno', 50);
-            $table->string('apellido_materno', 50);
+            $table->string('apellido_materno', 50)->nullable();
             $table->string('primer_nombre', 50);
-            $table->string('otros_nombres', 50)->nullable();
+            $table->text('otros_nombres')->nullable();
             $table->string('dni', 20)->unique();
             $table->string('direccion', 255)->nullable();
             $table->char('estado_civil', 1)->nullable();

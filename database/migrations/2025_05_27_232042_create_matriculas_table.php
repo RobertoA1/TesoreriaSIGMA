@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text('observaciones')->nullable();
             $table->unsignedInteger('id_grado');
             $table->char('nombreSeccion', 2);
-            $table->boolean('estado')->default(true);
             $table->foreign('id_alumno')
                   ->references('id_alumno')
                   ->on('alumnos')
@@ -29,6 +28,7 @@ return new class extends Migration
                   ->references(['id_grado', 'nombreSeccion']) 
                   ->on('secciones')                          
                   ->onDelete('cascade');
+            $table->boolean("estado")->default(true);
             $table->timestamps();
         });
     }

@@ -26,7 +26,7 @@ class DeudaFactory extends Factory
             'periodo' => fake()->randomElement(['2024', '2025', '2026', '2027', '2028']),
             'monto_a_cuenta' => fake()->numberBetween(0, 1000),
             'monto_adelantado' => fake()->numberBetween(0, 1000),
-            'descripcion' => fake()->optional()->sentence(),
+            'observacion' => fake()->optional(0.2)->sentence(20),
             'estado' => '1'
         ];
     }

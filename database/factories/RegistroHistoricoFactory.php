@@ -19,7 +19,7 @@ class RegistroHistoricoFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_autor' => User::factory(['tipo' => 'Autor']),
+            'id_autor' => User::factory(),
             'id_concepto_accion' => ConceptoAccion::factory(),
             'id_usuario_afectado' => User::factory(),
             'fecha_accion' => fake()->dateTimeBetween('-1 year', 'now'),

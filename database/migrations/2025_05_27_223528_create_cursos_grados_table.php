@@ -24,6 +24,7 @@ return new class extends Migration
                   ->references('id_grado')
                   ->on('grados')
                   ->onDelete('cascade');
+            $table->boolean("estado")->default(true);
             $table->timestamps();
         });
     }

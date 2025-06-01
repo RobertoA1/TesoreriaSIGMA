@@ -23,9 +23,8 @@ return new class extends Migration
             $table->dateTime('fecha_pago');
 
             $table->string('monto', 45);
-            $table->string('observacion', 45)->nullable();
+            $table->text('observacion')->nullable();
 
-            $table->boolean('estado')->default(true); 
             $table->foreign('id_pago')
                   ->references('id_pago')
                   ->on('pagos')
@@ -41,6 +40,7 @@ return new class extends Migration
                   ->on('conceptos_pago')
                   ->onDelete('cascade');
 
+            $table->boolean("estado")->default(true);
             $table->timestamps();
         });
     }

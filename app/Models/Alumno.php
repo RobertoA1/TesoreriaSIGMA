@@ -17,7 +17,6 @@ class Alumno extends Model
 
     protected $fillable = [
         'codigo_educando',
-        'nro_matricula',
         'codigo_modular',
         'año_ingreso',
         'dni',
@@ -50,7 +49,6 @@ class Alumno extends Model
         'num_habitantes',
         'situacion_vivienda',
         'escala',
-        'estado',
     ];
 
     protected function casts(): array{
@@ -60,7 +58,6 @@ class Alumno extends Model
             'año_ingreso' => 'integer', 
             'num_habitaciones' => 'integer', 
             'num_habitantes' => 'integer',
-            'estado' => 'boolean', 
         ];
     }
 

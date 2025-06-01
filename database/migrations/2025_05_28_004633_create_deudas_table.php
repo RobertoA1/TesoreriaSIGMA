@@ -29,8 +29,6 @@ return new class extends Migration
             $table->integer('monto_adelantado')->default(0); 
 
             $table->text('observacion')->nullable();
-   
-            $table->boolean('estado')->default(true); 
 
             $table->foreign('id_alumno')
                   ->references('id_alumno')
@@ -42,6 +40,7 @@ return new class extends Migration
                   ->on('conceptos_pago')
                   ->onDelete('cascade');
 
+            $table->boolean("estado")->default(true);
             $table->timestamps();
         });
     }

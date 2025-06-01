@@ -16,20 +16,19 @@ return new class extends Migration
         Schema::create('alumnos', function (Blueprint $table) {
             $table->increments('id_alumno');
             $table->string('codigo_educando',20)->nullable();
-            $table->string('nro_matricula', 20)->unique()->nullable();
             $table->string('codigo_modular', 20)->nullable();
             $table->smallInteger('año_ingreso')->nullable();
             $table->string('dni', 8)->unique();
             $table->string('apellido_paterno', 50);
-            $table->string('apellido_materno', 50);
+            $table->string('apellido_materno', 50)->nullable();
             $table->string('primer_nombre', 50);
-            $table->string('otros_nombres', 50)->nullable();
+            $table->text('otros_nombres')->nullable();
             $table->char('sexo', 1); 
             $table->date('fecha_nacimiento');
             $table->string('pais', 20)->nullable();
-            $table->string('departamento', 20)->nullable();
-            $table->string('provincia', 20)->nullable();
-            $table->string('distrito', 20)->nullable();
+            $table->string('departamento', 40)->nullable();
+            $table->string('provincia', 40)->nullable();
+            $table->string('distrito', 40)->nullable();
             $table->string('lengua_materna', 50)->nullable();
             $table->char('estado_civil', 1)->nullable();
             $table->string('religion', 50)->nullable();

@@ -16,9 +16,9 @@ return new class extends Migration
             $table->id("id_administrativo");
             $table->foreignIdFor(User::class, "id_usuario")->constrained()->cascadeOnDelete();
             $table->string('apellido_paterno', 50);
-            $table->string('apellido_materno', 50);
+            $table->string('apellido_materno', 50)->nullable();
             $table->string('primer_nombre', 50);
-            $table->string('otros_nombres', 50);
+            $table->text('otros_nombres')->nullable();
             $table->string('dni', 8);
             $table->string('direccion', 80);
             $table->char('estado_civil', 1);
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->date('fecha_ingreso');
             $table->string('cargo');
             $table->integer('sueldo');
-            $table->boolean('estado');
+            $table->boolean('estado')->default(true);
             $table->timestamps();
         });
     }
