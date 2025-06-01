@@ -9,6 +9,12 @@ Route::middleware(['auth'])->group(function(){
     })->name('principal');
 });
 
+Route::group(['middleware' => ['auth', 'can:access-resource,"academica"']], function(){
+    Route::get('/niveles-academicos', function(){
+        return view('gestiones.nivel_educativo.index');
+    })->name('nivel_educativo_view');
+});
+
 Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'iniciarSesion']);
 

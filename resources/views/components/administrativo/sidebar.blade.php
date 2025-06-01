@@ -14,7 +14,7 @@
                 'Cátedras',
             ],
             'links' => [
-                'Niveles Educativos' => 'pruebalinks.html'
+                'Niveles Educativos' => 'nivel_educativo_view',
             ],
             'icon' => 'birrete'
         ])
@@ -42,9 +42,7 @@
                 'Docentes',
                 'Departamentos Académicos',
             ],
-            'links' => [
-                'a' => 'pruebalinks.html'
-            ],
+            'links' => [],
             'icon' => 'persona-corbata'
         ])
     @endcan
@@ -58,9 +56,7 @@
                 'Administrativos',
                 'Historial de Acciones',
             ],
-            'links' => [
-                'a' => 'pruebalinks.html'
-            ],
+            'links' => [],
             'icon' => 'maletin'
         ])
     @endcan
@@ -74,9 +70,7 @@
                 'Pagos',
                 'Deudas'
             ],
-            'links' => [
-                'a' => 'pruebalinks.html'
-            ],
+            'links' => [],
             'icon' => 'monedas'
         ])
     @endcan
@@ -90,9 +84,7 @@
                 'Reportes financieros',
                 'Estadísticas'
             ],
-            'links' => [
-                'Reportes académicos' => 'pruebalinks.html'
-            ],
+            'links' => [],
             'icon' => 'reporte'
         ])
     @endcan
