@@ -624,6 +624,7 @@
             $query = Administrativo::where('id_usuario', '=', $id_usuario)->get();
 
             $name = $query[0]->primer_nombre;
+            $apellido = $query[0]->apellido_paterno;
             $cargo = $query[0]->cargo;
 
           @endphp
@@ -658,7 +659,7 @@
             <span
               class="text-theme-sm block font-medium text-gray-700 dark:text-gray-400"
             >
-              {{ $name }}
+              {{ $name }} {{ $apellido }}
             </span>
             <span
               class="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400"
