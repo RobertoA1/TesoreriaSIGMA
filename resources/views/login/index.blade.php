@@ -13,7 +13,7 @@
         <div class="login-container">
             <div class="brand flex align-center">
                 <img style="height: 2rem; display:inline" src="{{ asset('images/sigma_logo.png') }}" alt="Sigma LOGO">
-                <h1 style="inline">SIGMA</h1>
+                <h1 style="display:inline">SIGMA</h1>
             </div>
             <div class="welcome-text">
                 <h2>Bienvenido,</h2>

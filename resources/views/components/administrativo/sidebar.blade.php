@@ -29,7 +29,10 @@
                 'Matrículas',
                 'Familiares',
             ],
-            'links' => [],
+            'links' => [
+                'Familiares' => 'familiar_view',    
+                
+            ],
             'icon' => 'persona'
         ])
     @endcan
@@ -54,9 +57,12 @@
             'items' => [
                 'Usuarios',
                 'Administrativos',
+                'Conceptos de Acción',
                 'Historial de Acciones',
             ],
-            'links' => [],
+            'links' => [
+                'Conceptos de Acción' => 'concepto_accion_view',
+            ],
             'icon' => 'maletin'
         ])
     @endcan
@@ -70,7 +76,10 @@
                 'Pagos',
                 'Deudas'
             ],
-            'links' => [],
+            'links' => [
+                'Conceptos de pago' => 'concepto_pago_view',
+                'Pagos' => 'pago_view',
+            ],
             'icon' => 'monedas'
         ])
     @endcan

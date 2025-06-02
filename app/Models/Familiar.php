@@ -33,4 +33,11 @@ class Familiar extends Model
         return $this->belongsTo(User::class, 'id_usuario', 'id_usuario');
     }
 
+    public function alumnos()
+    {
+        return $this->belongsToMany(Alumno::class, 'composiciones_familiares', 'id_familiar', 'id_alumno')
+        ->withPivot('parentesco')
+        ->withTimestamps();
+    }
+
 }

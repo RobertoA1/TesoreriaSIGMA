@@ -61,4 +61,11 @@ class Alumno extends Model
         ];
     }
 
+    public function familiares()
+    {
+        return $this->belongsToMany(Familiar::class, 'composiciones_familiares', 'id_alumno', 'id_familiar')
+                    ->withPivot('parentesco')
+                    ->withTimestamps();
+    }
+
 }

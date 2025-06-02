@@ -14,5 +14,6 @@ class ComposicionFamiliar extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'parentesco',
     ];
 }
