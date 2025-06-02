@@ -5,7 +5,7 @@
 @endsection
 
 @section('contenido')
-  @include('layout.tables.table-01', $data)
+  <p>hola</p>
 @endsection
 
 @section('custom-js')

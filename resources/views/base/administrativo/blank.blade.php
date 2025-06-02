@@ -45,7 +45,7 @@
         <!-- ===== Header End ===== -->
 
         <!-- ===== Main Content Start ===== -->
-        <main>
+        <main class="p-4">
             @yield('contenido', 'Página en blanco')
         </main>
         <!-- ===== Main Content End ===== -->
@@ -54,6 +54,8 @@
     </div>
     <!-- ===== Page Wrapper End ===== -->
   </body>
+
+  @yield('custom-js')
 </html>
 
 
