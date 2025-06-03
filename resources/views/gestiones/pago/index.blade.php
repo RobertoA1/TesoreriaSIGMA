@@ -32,7 +32,9 @@ $data = [
     'Monto',
     'Observaciones'
   ],
-  'filas' => $filas
+  'filas' => $filas,
+  'resource' => 'financiera',
+  
 ]
 
 @endphp
