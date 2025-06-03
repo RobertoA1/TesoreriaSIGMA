@@ -15,6 +15,7 @@
             ],
             'links' => [
                 'Niveles Educativos' => 'nivel_educativo_view',
+                'Cursos' => 'curso_view',
             ],
             'icon' => 'birrete'
         ])
@@ -30,7 +31,7 @@
                 'Familiares',
             ],
             'links' => [
-                'Familiares' => 'familiar_view',    
+                'Familiares' => 'principal',    
                 
             ],
             'icon' => 'persona'
@@ -61,7 +62,7 @@
                 'Historial de Acciones',
             ],
             'links' => [
-                'Conceptos de Acción' => 'concepto_accion_view',
+                'Conceptos de Acción' => 'principal',
             ],
             'icon' => 'maletin'
         ])
@@ -77,8 +78,8 @@
                 'Deudas'
             ],
             'links' => [
-                'Conceptos de pago' => 'concepto_pago_view',
-                'Pagos' => 'pago_view',
+                'Conceptos de pago' => 'principal',
+                'Pagos' => 'principal',
             ],
             'icon' => 'monedas'
         ])

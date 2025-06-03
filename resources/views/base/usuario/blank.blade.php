@@ -22,8 +22,6 @@
     :class="{'dark bg-gray-900': darkMode === true}"
   >
 
-  @yield('just-after-html')
-
     <!-- ===== Preloader Start ===== -->
     @include('layout.preloader')
     <!-- ===== Preloader End ===== -->
@@ -31,7 +29,7 @@
     <!-- ===== Page Wrapper Start ===== -->
     <div class="flex h-screen overflow-hidden">
       <!-- ===== Sidebar Start ===== -->
-      @include('components.administrativo.sidebar')
+      @include('layout.sidebar')
       <!-- ===== Sidebar End ===== -->
 
       <!-- ===== Content Area Start ===== -->
@@ -43,7 +41,7 @@
         <!-- Small Device Overlay End -->
 
         <!-- ===== Header Start ===== -->
-        @include('components.administrativo.header')
+        @include('layout.header')
         <!-- ===== Header End ===== -->
 
         <!-- ===== Main Content Start ===== -->

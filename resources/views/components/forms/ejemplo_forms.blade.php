@@ -8,7 +8,7 @@
   <form class="flex flex-col gap-4" action="">
 
   @include('components.forms.string', ['label' => 'Nivel'])
-  @include('components.forms.string-placeholder', ['label' => 'Nivel con Placeholder',
+  @include('components.forms.string', ['label' => 'Nivel con Placeholder',
     'placeholder' => 'placeholder1'
   ])
 
@@ -21,7 +21,7 @@
   
   @include('components.forms.text-area', ['label' => 'textarea'])
 
-  @include('components.forms.text-area-placeholder', ['label' => 'Textarea con Placeholder',
+  @include('components.forms.text-area', ['label' => 'Textarea con Placeholder',
     'placeholder' => 'placeholder1'
   ])
 

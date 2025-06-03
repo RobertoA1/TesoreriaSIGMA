@@ -1,13 +1,13 @@
 @extends('base.administrativo.blank')
 
 @section('titulo')
-  Niveles Educativos | Edición
+  Crear un Curso
 @endsection
 
 @section('contenido')
-  <div class="p-8 m-4 bg-gray-100 dark:bg-white/[0.03] rounded-2xl">
+  <div class="p-8 m-4 dark:bg-white/[0.03] rounded-2xl">
     <div class="flex pb-4 justify-between items-center">
-      <h2 class="text-lg dark:text-gray-200 text-gray-800">Estás editando el Nivel Educativo con ID {{ $data['id'] }}</h2>
+      <h2 class="text-lg dark:text-gray-200 text-gray-800">Estás editando el Curso con ID {{$data['id']}}</h2>
 
       <div class="flex gap-4">
         <input form="form" target="" type="submit" form=""
@@ -28,21 +28,31 @@
       @method('PATCH')
       @csrf
 
-      @include('components.forms.string', [
-        'label' => 'Nombre',
-        'error' => $errors->first(Str::snake('Nombre')) ?? false,
-        'value' => old(Str::snake('Nombre')) ?? $data['default']['nombre']
+      @include('components.forms.select', [
+        'label' => 'Nivel educativo',
+        'error' => $errors->first(Str::snake('Nivel educativo')) ?? false,
+        'option_values' => $data['valores'],
+        'options' => $data['niveles'],
+        'value' => old(Str::snake('Nivel educativo')) ?? $data['default'][Str::snake('Nivel educativo')],
       ])
 
-      @include('components.forms.text-area',[
-        'label' => 'Descripción',
-        'error' => $errors->first(Str::snake('Descripción')) ?? false,
-        'value' => old(Str::snake('Descripción')) ?? $data['default']['descripción']
+      @include('components.forms.string', [
+        'label' => 'Código del Curso',
+        'error' => $errors->first(Str::snake('Código del Curso')) ?? false,
+        'value' => old(Str::snake('Código del Curso')) ?? $data['default'][Str::snake('Código del Curso')],
+      ])
+
+      @include('components.forms.string', [
+        'label' => 'Nombre del Curso',
+        'error' => $errors->first(Str::snake('Nombre del Curso')) ?? false,
+        'value' => old(Str::snake('Nombre del Curso')) ?? $data['default'][Str::snake('Nombre del Curso')]
       ])
 
     </form>
+  </div>
 @endsection
 
 @section('custom-js')
-  <script src="{{ asset('js/tables.js') }}"></script>
+    
 @endsection
+

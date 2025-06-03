@@ -5,5 +5,5 @@
 @endsection
 
 @section('contenido')
-  <p>Prueba de página principal</p>
+  <p>Prueba de página principal de administrador</p>
 @endsection

@@ -60,7 +60,7 @@
       </button>
 
     @can('manage-resource', [$resource, 'create'])
-        <a href="{{ $create }}"
+        <a href="{{ route($create) }}"
           class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-200 px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-300 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
         >
           Crear un nuevo registro
@@ -143,7 +143,7 @@
           @for($i = 0; $i < count($columnas); $i++)
           <td class="py-3">
             <div class="flex items-center">
-              <p class="text-gray-600 text-theme-sm dark:text-gray-400">
+              <p data-order="{{ $i }}" class="row{{ $fila[0] }} text-gray-600 text-theme-sm dark:text-gray-400">
                 {{ $fila[$i] }}
               </p>
             </div>
@@ -155,15 +155,17 @@
           <td class="py-3">
             <div class="flex gap-4 items-center">
               @can('manage-resource', [$resource, 'edit'])
-              <a href="{{ $edit }}" class="text-gray-600 text-theme-sm dark:text-gray-400">
+              <a href="{{ route($edit, [$fila[0]]) }}" class="edit-button text-gray-600 text-theme-sm dark:text-gray-400">
                 Editar
               </a>
               @endcan
 
               @can('manage-resource', [$resource, 'delete'])
-              <a href="{{ $delete }}" class="text-gray-600 text-theme-sm dark:text-gray-400">
-                Eliminar
-              </a>
+                  <button
+                    data-id="{{$fila[0]}}"
+                    class="delete-button text-gray-600 text-theme-sm dark:text-gray-400">
+                    Eliminar
+                  </button>
               @endcan
             </div>
           </td>
