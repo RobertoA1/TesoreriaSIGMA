@@ -3,6 +3,8 @@
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\FamiliarController;
+use App\Http\Controllers\NivelEducativoController;
+use App\Http\Controllers\DepartamentoAcademicoController;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +29,7 @@ Route::group(['middleware' => ['auth', 'can:access-resource,"academica"']], func
 
     Route::delete('/niveles-academicos/', [NivelEducativoController::class, 'delete']);
 
+
     Route::get('/cursos', [CursoController::class, 'index'])->name('curso_view');
 
     Route::get('/cursos/crear', [CursoController::class, 'create'])->name('curso_create');
@@ -36,6 +39,17 @@ Route::group(['middleware' => ['auth', 'can:access-resource,"academica"']], func
     Route::patch('/cursos/{id}/editar', [CursoController::class, 'editEntry']);
 
     Route::delete('/cursos', [CursoController::class, 'delete']);
+    
+
+    Route::get('/departamentos-academicos', [DepartamentoAcademicoController::class, 'index'])->name('departamento_academico_view');
+
+    Route::get('/departamentos-academicos/crear', [DepartamentoAcademicoController::class, 'create'])->name('departamento_academico_create');
+    Route::put('/departamentos-academicos/crear', [DepartamentoAcademicoController::class, 'createNewEntry'])->name('departamento_academico');
+
+    Route::get('/departamentos-academicos/{id}/editar', [DepartamentoAcademicoController::class, 'edit'])->name('departamento_academico_edit');
+    Route::patch('/departamentos-academicos/{id}/editar', [DepartamentoAcademicoController::class, 'editEntry']);
+
+    Route::delete('/departamentos-academicos', [DepartamentoAcademicoController::class, 'delete']);
 
 });
 
