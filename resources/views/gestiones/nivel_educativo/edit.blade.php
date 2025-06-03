@@ -30,14 +30,14 @@
 
       @include('components.forms.string', [
         'label' => 'Nombre',
-        'error' => $errors->first('Nombre') ?? false,
-        'value' => old('Nombre') ?? $data['default']['Nombre']
+        'error' => $errors->first(Str::snake('Nombre')) ?? false,
+        'value' => old(Str::snake('Nombre')) ?? $data['default']['nombre']
       ])
 
       @include('components.forms.text-area',[
         'label' => 'Descripción',
-        'error' => $errors->first('Descripción') ?? false,
-        'value' => old('Descripción') ?? $data['default']['Descripción']
+        'error' => $errors->first(Str::snake('Descripción')) ?? false,
+        'value' => old(Str::snake('Descripción')) ?? $data['default']['descripción']
       ])
 
     </form>

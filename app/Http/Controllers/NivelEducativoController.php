@@ -92,17 +92,17 @@ class NivelEducativoController extends Controller
 
     public function createNewEntry(Request $request){
         $request->validate([
-            'Nombre' => 'required|max:50',
-            'Descripción' => 'required|max:255'
+            'nombre' => 'required|max:50',
+            'descripción' => 'required|max:255'
         ],[
-            'Nombre.required' => 'Ingrese un nombre válido.',
-            'Descripción.required' => 'Ingrese una descripción válida.',
-            'Nombre.max' => 'El nombre no puede superar los 50 caracteres.',
-            'Descripción.max' => 'La descripción no puede superar los 255 caracteres.'
+            'nombre.required' => 'Ingrese un nombre válido.',
+            'descripción.required' => 'Ingrese una descripción válida.',
+            'nombre.max' => 'El nombre no puede superar los 50 caracteres.',
+            'descripción.max' => 'La descripción no puede superar los 255 caracteres.'
         ]);
 
-        $nombre = $request->input('Nombre');
-        $descripcion = $request->input('Descripción');
+        $nombre = $request->input('nombre');
+        $descripcion = $request->input('descripción');
 
         NivelEducativo::create([
             'nombre_nivel' => $nombre,
@@ -123,8 +123,8 @@ class NivelEducativoController extends Controller
             'return' => route('nivel_educativo_view', ['abort' => true]),
             'id' => $id,
             'default' => [
-                'Nombre' => $requested->nombre_nivel,
-                'Descripción' => $requested->descripcion,
+                'nombre' => $requested->nombre_nivel,
+                'descripción' => $requested->descripcion,
             ]
         ];
         return view('gestiones.nivel_educativo.edit', compact('data'));
@@ -138,8 +138,8 @@ class NivelEducativoController extends Controller
         $requested = NivelEducativo::where('id_nivel', '=', $id);
 
         if (isset($requested)){
-            $newNombre = $request->input('Nombre');
-            $newDescripcion = $request->input('Descripción');
+            $newNombre = $request->input('nombre');
+            $newDescripcion = $request->input('descripción');
 
             $requested->update(['nombre_nivel' => $newNombre, 'descripcion' => $newDescripcion]);
         }
