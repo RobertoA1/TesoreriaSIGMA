@@ -15,6 +15,7 @@
             ],
             'links' => [
                 'Niveles Educativos' => 'nivel_educativo_view',
+                'Cursos' => 'curso_view',
             ],
             'icon' => 'birrete'
         ])

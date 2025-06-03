@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CursoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NivelEducativoController;
 use App\Http\Controllers\FamiliarController;
@@ -26,6 +27,17 @@ Route::group(['middleware' => ['auth', 'can:access-resource,"academica"']], func
     Route::patch('/niveles-academicos/{id}/editar', [NivelEducativoController::class, 'editEntry']);
 
     Route::delete('/niveles-academicos/', [NivelEducativoController::class, 'delete']);
+
+    Route::get('/cursos', [CursoController::class, 'index'])->name('curso_view');
+
+    Route::get('/cursos/crear', [CursoController::class, 'create'])->name('curso_create');
+    Route::put('/cursos/crear', [CursoController::class, 'createNewEntry'])->name('curso');
+
+    Route::get('/cursos/{id}/editar', [CursoController::class, 'edit'])->name('curso_edit');
+    Route::patch('/cursos/{id}/editar', [CursoController::class, 'editEntry']);
+
+    Route::delete('/cursos', [CursoController::class, 'delete']);
+
 });
 
 Route::get('/login', [LoginController::class, 'index'])->name('login');
