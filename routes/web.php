@@ -3,6 +3,7 @@
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\FamiliarController;
+use App\Http\Controllers\NivelEducativoController;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
