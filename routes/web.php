@@ -3,11 +3,16 @@
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NivelEducativoController;
 use App\Http\Controllers\FamiliarController;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function(){
     Route::get('/', function(){
-        return view('index');
+        if (Gate::allows('is-admin')){
+            return view('administrativo-index');
+        }
+
+        return view('usuario-index');
     })->name('principal');
 });
 
@@ -15,10 +20,12 @@ Route::group(['middleware' => ['auth', 'can:access-resource,"academica"']], func
     Route::get('/niveles-academicos', [NivelEducativoController::class, 'index'])->name('nivel_educativo_view');
 
     Route::get('/niveles-academicos/crear', [NivelEducativoController::class, 'create'])->name('nivel_educativo_create');
+    Route::put('/niveles-academicos/crear', [NivelEducativoController::class, 'createNewEntry'])->name('nivel_educativo');
 
-    Route::get('/niveles-academicos/editar', [NivelEducativoController::class, 'create'])->name('nivel_educativo_edit');
+    Route::get('/niveles-academicos/{id}/editar', [NivelEducativoController::class, 'edit'])->name('nivel_educativo_edit');
+    Route::patch('/niveles-academicos/{id}/editar', [NivelEducativoController::class, 'editEntry']);
 
-    Route::get('/niveles-academicos/eliminar', [NivelEducativoController::class, 'create'])->name('nivel_educativo_delete');
+    Route::delete('/niveles-academicos/', [NivelEducativoController::class, 'delete']);
 });
 
 Route::get('/login', [LoginController::class, 'index'])->name('login');

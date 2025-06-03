@@ -71,7 +71,7 @@
         <img class="dark:hidden" src="{{ asset('images/colegio_sigma_logo.svg')}}" alt="Logo" />
         <img
           class="hidden dark:block"
-          src="{{ asset('images/colegio_sigma_logo.svg')}}"
+          src="{{ asset('images/colegio_sigma_logo_dark_mode.svg') }}"
           alt="Logo"
         />
       </a>
@@ -618,9 +618,15 @@
           </span>
         -->
           @php
-            $user = Auth::user();
-            $name = $user->username;
-            $cargo = 'Usuario'
+            use App\Models\Administrativo;
+            $id_usuario = Auth::user()->id_usuario;
+
+            $query = Administrativo::where('id_usuario', '=', $id_usuario)->get();
+
+            $name = $query[0]->primer_nombre;
+            $apellido = $query[0]->apellido_paterno;
+            $cargo = $query[0]->cargo;
+
           @endphp
 
           <span class="text-theme-sm mr-1 block font-medium"> {{ $name }}</span>

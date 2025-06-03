@@ -27,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
 
         $this->defineResourcePermissions();
 
+        Gate::define('is-admin', function (User $user){
+            $admin = Administrativo::where('id_usuario', '=', $user->id_usuario)->get();
+            return count($admin) == 1;
+        });
+
         Gate::define('access-resource', function (User $user, $resource){
             return $this->hasResourcePermissions($user, $resource);
         });
