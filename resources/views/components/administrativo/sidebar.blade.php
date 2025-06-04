@@ -66,6 +66,7 @@
             ],
             'links' => [
                 'Conceptos de Acción' => 'principal',
+                'Administrativos' => 'administrativo_view',
             ],
             'icon' => 'maletin'
         ])
