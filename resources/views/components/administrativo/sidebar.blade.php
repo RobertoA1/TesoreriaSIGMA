@@ -46,7 +46,9 @@
                 'Docentes',
                 'Departamentos Académicos',
             ],
-            'links' => [],
+            'links' => [
+                'Departamentos Académicos' => 'departamento_academico_view'
+            ],
             'icon' => 'persona-corbata'
         ])
     @endcan

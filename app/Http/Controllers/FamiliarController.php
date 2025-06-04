@@ -7,6 +7,7 @@ use App\Models\Familiar;
 class FamiliarController extends Controller
 
 {
+    
 
 }
 
