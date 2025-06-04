@@ -92,7 +92,7 @@ class AlumnoController extends Controller
         return view('gestiones.alumno.index', compact('data'));
     }
 
-    public function create(Resquest $request) {
+    public function create(Request $request) {
         $data = [
             'return' => route('alumno_view', ['abort' => true]),
         ];
@@ -104,8 +104,8 @@ class AlumnoController extends Controller
         $request -> validate([
             'codigo_modular' => 'required|string|max:20',
             'codigo_educando' => 'required|string|max:20',
-            'año_ingreso' => 'required|integer|min:1900|max:'.date('Y'),
-            'dni' => 'required|string|max:8',
+            'año_de_ingreso' => 'required|integer|min:1900|max:'.date('Y'),
+            'd_n_i' => 'required|string|max:8',
             'apellido_paterno' => 'required|string|max:50',
             'apellido_materno' => 'required|string|max:50',
             'primer_nombre' => 'required|string|max:50',
@@ -120,26 +120,26 @@ class AlumnoController extends Controller
             'estado_civil' => 'required|in:S,C,V,D',
             'religion' => 'nullable|string|max:50',
             'fecha_bautizo' => 'nullable|date',
-            'parroquia_bautizo' => 'nullable|string|max:100',
-            'colegio_procedencia' => 'nullable|string|max:100',
+            'parroquia_de_bautizo' => 'nullable|string|max:100',
+            'colegio_de_procedencia' => 'nullable|string|max:100',
             'direccion' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:20',
-            'medio_transporte' => 'required|string|max:50',
-            'tiempo_demora' => 'required|string|max:20',
+            'medio_de_transporte' => 'required|string|max:50',
+            'tiempo_de_demora' => 'required|string|max:20',
             'material_vivienda' => 'required|string|max:100',
             'energia_electrica' => 'required|string|max:100',
             'agua_potable' => 'nullable|string|max:100',
             'desague' => 'nullable|string|max:100',
-            'ss_hh' => 'nullable|string|max:100',
-            'num_habitaciones' => 'nullable|integer|min:1|max:11',
-            'num_habitantes' => 'nullable|integer|min:1|max:11',
-            'situacion_vivienda' => 'required|string|max:100',
+            's_s__h_h' => 'nullable|string|max:100',
+            'numero_de_habitaciones' => 'nullable|integer|min:1|max:11',
+            'numero_de_habitantes' => 'nullable|integer|min:1|max:11',
+            'situacion_de_vivienda' => 'required|string|max:100',
             'escala' => 'nullable|in:A,B,C,D',
         ], [
             'codigo_modular.required' => 'Ingrese un codigo valido.',
             'codigo_educando.required' => 'Ingrese un codigo valido.',
-            'año_ingreso.required' => 'El año de ingreso es obligatorio.',
-            'dni.required' => 'Ingrese un DNI válido.',
+            'año_de_ingreso.required' => 'El año de ingreso es obligatorio.',
+            'd_n_i.required' => 'Ingrese un DNI válido.',
             'apellido_paterno.required' => 'Ingrese un apellido paterno válido.',
             'apellido_materno.required' => 'Ingrese un apellido materno válido.',
             'primer_nombre.required' => 'Ingrese un primer nombre válido.',
@@ -153,21 +153,22 @@ class AlumnoController extends Controller
             'estado_civil.required' => 'El estado civil es obligatorio.',
             'religion.max' => 'La religión no puede superar los 50 caracteres.',
             'fecha_bautizo.date' => 'Ingrese una fecha de bautizo válida.',
-            'parroquia_bautizo.max' => 'La parroquia de bautizo no puede superar los 100 caracteres.',
-            'colegio_procedencia.max' => 'El colegio de procedencia no puede superar los 100 caracteres.',
+            'parroquia_de_bautizo.max' => 'La parroquia de bautizo no puede superar los 100 caracteres.',
+            'colegio_de_procedencia.max' => 'El colegio de procedencia no puede superar los 100 caracteres.',
             'direccion.required' => 'Ingrese una dirección válida.',
             'telefono.max' => 'El teléfono no puede superar los 20 caracteres.',
-            'medio_transporte.required' => 'Ingrese un medio de transporte válido.',
-            'tiempo_demora.required' => 'Ingrese un tiempo de demora válido.',
+            'medio_de_transporte.required' => 'Ingrese un medio de transporte válido.',
+            'tiempo_de_demora.required' => 'Ingrese un tiempo de demora válido.',
             'material_vivienda.required' => 'Ingrese un material de vivienda válido.',
             'energia_electrica.required' => 'Ingrese una fuente de energía eléctrica válida.',
+            'situacion_de_vivienda.required' => 'Ingrese una situación de vivienda válida.',
             'escala.in' => 'La escala debe ser A, B, C o D.',
         ]);
 
         $codigoModular = $request->input('codigo_modular');
         $codigoEducando = $request->input('codigo_educando');
         $añoIngreso = $request->input('año_ingreso');
-        $dni = $request->input('dni');
+        $dni = $request->input('d_n_i');
         $apellidoPaterno = $request->input('apellido_paterno');
         $apellidoMaterno = $request->input('apellido_materno');
         $primerNombre = $request->input('primer_nombre');
@@ -183,20 +184,20 @@ class AlumnoController extends Controller
         $religion = $request->input('religion', '');
         $fechaBautizo = $request->input('fecha_bautizo', null);
         $parroquiaBautizo = $request->input('parroquia_bautizo', '');
-        $colegioProcedencia = $request->input('colegio_procedencia', '');
+        $colegioProcedencia = $request->input('colegio_de_procedencia', '');
         $direccion = $request->input('direccion');
         $telefono = $request->input('telefono', '');
         $medioTransporte = $request
-            ->input('medio_transporte');
-        $tiempoDemora = $request->input('tiempo_demora', '');
-        $materialVivienda = $request->input('material_vivienda');
+            ->input('medio_de_transporte');
+        $tiempoDemora = $request->input('tiempo_de_demora', '');
+        $materialVivienda = $request->input('material_de_vivienda');
         $energiaElectrica = $request->input('energia_electrica');
         $aguaPotable = $request->input('agua_potable', '');
         $desague = $request->input('desague', '');
-        $ss_hh = $request->input('ss_hh', '');
+        $ss_hh = $request->input('s_s__h_h', '');
         $numHabitaciones = $request->input('num_habitaciones', null);
         $numHabitantes = $request->input('num_habitantes', null);
-        $situacionVivienda = $request->input('situacion_vivienda');
+        $situacionVivienda = $request->input('situacion_de_vivienda');
         $escala = $request->input('escala', null);
 
 
@@ -250,10 +251,10 @@ class AlumnoController extends Controller
             'return' => route('alumno_view', ['abort' => true]),
             'id' => $id,
             'default' => [
-                'codigo_modular' => $requested->codigo_modular,
                 'codigo_educando' => $requested->codigo_educando,
+                'codigo_modular' => $requested->codigo_modular,
                 'año_ingreso' => $requested->año_ingreso,
-                'dni' => $requested->dni,
+                'd_n_i' => $requested->dni,
                 'apellido_paterno' => $requested->apellido_paterno,
                 'apellido_materno' => $requested->apellido_materno,
                 'primer_nombre' => $requested->primer_nombre,
@@ -268,20 +269,20 @@ class AlumnoController extends Controller
                 'estado_civil' => $requested->estado_civil,
                 'religion' => $requested->religion,
                 'fecha_bautizo' => $requested->fecha_bautizo,
-                'parroquia_bautizo' => $requested->parroquia_bautizo,
-                'colegio_procedencia' => $requested->colegio_procedencia,
+                'parroquia_de_bautizo' => $requested->parroquia_bautizo,
+                'colegio_de_procedencia' => $requested->colegio_procedencia,
                 'direccion' => $requested->direccion,
                 'telefono' => $requested->telefono,
-                'medio_transporte' => $requested->medio_transporte,
-                'tiempo_demora' => $requested->tiempo_demora,
+                'medio_de_transporte' => $requested->medio_transporte,
+                'tiempo_de_demora' => $requested->tiempo_demora,
                 'material_vivienda' => $requested->material_vivienda,
                 'energia_electrica' => $requested->energia_electrica,
                 'agua_potable' => $requested->agua_potable,
                 'desague' => $requested->desague,
-                'ss_hh' => $requested->ss_hh,
+                's_s__h_h' => $requested->ss_hh,
                 'num_habitaciones' => $requested->num_habitaciones,
                 'num_habitantes' => $requested->num_habitantes,
-                'situacion_vivienda' => $requested->situacion_vivienda,
+                'situacion_de_vivienda' => $requested->situacion_vivienda,
                 'escala' => $requested->escala,
             ]
         ];
@@ -296,10 +297,10 @@ class AlumnoController extends Controller
         $requested = Alumno::where('id_alumno', '=', $id);
 
         if (isset($requested)) {
-            $newCodigoModular = $request->input('codigo_modular');
             $newCodigoEducando = $request->input('codigo_educando');
+            $newCodigoModular = $request->input('codigo_modular');
             $newAñoIngreso = $request->input('año_ingreso');
-            $newDni = $request->input('dni');
+            $newDni = $request->input('d_n_i');
             $newApellidoPaterno = $request->input('apellido_paterno');
             $newApellidoMaterno = $request->input('apellido_materno');
             $newPrimerNombre = $request->input('primer_nombre');
@@ -315,19 +316,19 @@ class AlumnoController extends Controller
             $newReligion = $request->input('religion', '');
             $newFechaBautizo = $request->input('fecha_bautizo', null);
             $newParroquiaBautizo = $request->input('parroquia_bautizo', '');
-            $newColegioProcedencia = $request->input('colegio_procedencia', '');
+            $newColegioProcedencia = $request->input('colegio_de_procedencia', '');
             $newDireccion = $request->input('direccion');
             $newTelefono = $request->input('telefono', '');
-            $newMedioTransporte = 	$request->input('medio_transporte');
-            $newTiempoDemora = 	$request->input('tiempo_demora', '');
+            $newMedioTransporte = 	$request->input('medio_de_transporte');
+            $newTiempoDemora = 	$request->input('tiempo_de_demora', '');
             $newMaterialVivienda = 	$request->input('material_vivienda');
             $newEnergiaElectrica = 	$request->input('energia_electrica');
             $newAguaPotable = 	$request->input('agua_potable', '');
             $newDesague = $request->input('desague', '');
-            $newSs_hh = $request->input('ss_hh', '');
+            $newSs_hh = $request->input('s_s__h_h', '');
             $newNumHabitaciones = $request->input('num_habitaciones', null);
             $newNumHabitantes = $request->input('num_habitantes', null);
-            $newSituacionVivienda = $request->input('situacion_vivienda');
+            $newSituacionVivienda = $request->input('situacion_de_vivienda');
             $newEscala = $request->input('escala', null);
 
             $requested -> update(['codigo_modular' => $newCodigoModular,
@@ -378,6 +379,5 @@ class AlumnoController extends Controller
 
         return redirect(route('alumno_view', ['deleted' => true]));
     }
-
 
 }

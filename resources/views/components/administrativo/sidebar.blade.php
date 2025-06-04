@@ -30,6 +30,7 @@
                 'Familiares',
             ],
             'links' => [
+                'Alumnos' => 'alumno_view',
                 'Familiares' => 'principal',    
                 
             ],

@@ -29,18 +29,6 @@ Route::group(['middleware' => ['auth', 'can:access-resource,"academica"']], func
     Route::delete('/niveles-academicos/', [NivelEducativoController::class, 'delete']);
 });
 
-Route::group(['middleware' => ['auth', 'can:access-resource,"alumnos"']], function(){
-    Route::get('/alumnos', [AlumnoController::class, 'index'])->name('alumno_view');
-
-    Route::get('/alumnos/crear', [AlumnoController::class, 'create'])->name('alumno_create');
-    Route::put('/alumnos/crear', [AlumnoController::class, 'createNewEntry'])->name('alumno');
-
-    Route::get('/alumnos/{id}/editar', [AlumnoController::class, 'edit'])->name('alumno_edit');
-    Route::patch('/alumnos/{id}/editar', [AlumnoController::class, 'editEntry']);
-
-    Route::delete('/alumnos/', [AlumnoController::class, 'delete']);
-});
-
 Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'iniciarSesion']);
 
