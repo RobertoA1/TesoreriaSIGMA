@@ -4,6 +4,7 @@ use App\Http\Controllers\CursoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\FamiliarController;
 use App\Http\Controllers\NivelEducativoController;
+use App\Http\Controllers\PagoController;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,12 @@ Route::group(['middleware' => ['auth', 'can:access-resource,"academica"']], func
 
     Route::delete('/cursos', [CursoController::class, 'delete']);
 
+});
+
+Route::group(['middleware' => ['auth', 'can:access-resource,"financiera"']], function(){
+    Route::get('/pagos', [PagoController::class, 'index'])->name('pago_view');
+    Route::get('/pagos/crear', [PagoController::class, 'create'])->name('pago_create');
+    Route::get('/pagos/{id}/editar', [PagoController::class, 'edit'])->name('pago_edit');
 });
 
 

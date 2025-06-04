@@ -79,7 +79,7 @@
             ],
             'links' => [
                 'Conceptos de pago' => 'principal',
-                'Pagos' => 'principal',
+                'Pagos' => 'pago_view',
             ],
             'icon' => 'monedas'
         ])
