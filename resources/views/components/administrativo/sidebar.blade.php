@@ -15,6 +15,7 @@
             ],
             'links' => [
                 'Niveles Educativos' => 'nivel_educativo_view',
+                'Cursos' => 'curso_view',
             ],
             'icon' => 'birrete'
         ])
@@ -46,7 +47,9 @@
                 'Docentes',
                 'Departamentos Académicos',
             ],
-            'links' => [],
+            'links' => [
+                'Departamentos Académicos' => 'departamento_academico_view'
+            ],
             'icon' => 'persona-corbata'
         ])
     @endcan
@@ -79,7 +82,7 @@
             ],
             'links' => [
                 'Conceptos de pago' => 'principal',
-                'Pagos' => 'principal',
+                'Pagos' => 'pago_view',
             ],
             'icon' => 'monedas'
         ])

@@ -17,6 +17,7 @@ class Pago extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
+        'id_deuda',
         'nro_recibo',
         'fecha_pago',
         'monto',

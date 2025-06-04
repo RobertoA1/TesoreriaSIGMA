@@ -2,8 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\ConceptoPago;
-use App\Models\Deuda;
 use App\Models\Pago;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,8 +19,6 @@ class DetallePagoFactory extends Factory
     {
         return [
             'id_pago'=> Pago::factory(),
-            'id_deuda' => Deuda::factory(),
-            'id_concepto' => ConceptoPago::factory(),
             'fecha_pago' => fake()->dateTimeBetween('-1 year', 'now'),
             'monto' => fake()->numberBetween(0, 1000),
             'observacion' => fake()->optional()->sentence(),

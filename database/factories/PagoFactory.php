@@ -1,7 +1,7 @@
 <?php
 
 namespace Database\Factories;
-
+use App\Models\Deuda;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,6 +17,7 @@ class PagoFactory extends Factory
     public function definition(): array
     {
         return [
+            'id_deuda' => Deuda::factory(),
             'nro_recibo' => fake()->unique()->numerify('REC-#####'),
             'fecha_pago' => fake()->dateTimeThisYear(),
             'monto' => fake()->randomFloat(2, 10, 1000),

@@ -1,42 +1,70 @@
 @extends('base.administrativo.blank')
 
 @section('titulo')
-    Pagos
+  {{ $data['titulo'] }}
+@endsection
+
+
+@section('just-after-html')
+  <div class="delete-modal hidden">
+    @include('layout.modals.modal-01', [
+      'caution_message' => '¿Estás seguro?',
+      'action' => 'Estás eliminando el Pago',
+      'columns' => [
+        'Número de Recibo',
+        'Fecha de Pago',
+        'Monto',
+        'Observaciones'
+      ],
+      'rows' => [
+        'numero-recibo',
+        'fecha-pago',
+        'monto',
+        'observaciones'
+      ],
+      'last_warning_message' => 'Borrar esto afectará a todo lo que esté vinculado a este Pago',
+      'confirm_button' => 'Sí, bórralo',
+      'cancel_button' => 'Cancelar',
+      'is_form' => true,
+      'data_input_name' => 'id'
+    ])
+  </div>
 @endsection
 
 @section('contenido')
+      @if(isset($data['created']))
+        @include('layout.alerts.animated.timed-alert',[
+          'message' => 'El pago ha sido registrado exitosamente.',
+          'route' => 'layout.alerts.success' 
+        ])
+      @endif
 
-@php
+      @if(isset($data['edited']))
+        @include('layout.alerts.animated.timed-alert',[
+          'message' => 'El pago ha sido editado exitosamente.',
+          'route' => 'layout.alerts.orange-success' 
+        ])
+      @endif
 
-use App\Models\Pago;
-$filas = [];
+      @if(isset($data['abort']))
+        @include('layout.alerts.animated.timed-alert',[
+          'message' => 'La acción sobre el pago ha sido cancelada.',
+          'route' => 'layout.alerts.info' 
+        ])
+      @endif
 
-$query = Pago::where('estado', '=', '1')->paginate(10);
+      @if(isset($data['deleted']))
+        @include('layout.alerts.animated.timed-alert',[
+          'message' => 'El pago ha sido eliminado exitosamente.',
+          'route' => 'layout.alerts.red-success' 
+        ])
+      @endif
 
-foreach ($query as $pago) {
-    array_push($filas, [
-        $pago->id_pago,
-        $pago->nro_recibo,
-        $pago->fecha_pago,
-        $pago->monto,
-        $pago->observaciones
-    ]);
-}
+      @include('layout.tables.table-01', $data)    
+@endsection
 
-$data = [
-  'titulo' => 'Pagos',
-  'columnas' => [
-    'ID',
-    'Número de Recibo',
-    'Fecha de Pago',
-    'Monto',
-    'Observaciones'
-  ],
-  'filas' => $filas
-]
 
-@endphp
-
-@include('layout.tables.table-01', $data)
-
+@section('custom-js')
+  <script src="{{ asset('js/tables.js') }}"></script>
+  <script src="{{ asset('js/delete-button-modal.js') }}"></script>
 @endsection
