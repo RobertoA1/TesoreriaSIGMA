@@ -10,6 +10,7 @@ class Administrativo extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id_usuario',
         'apellido_paterno',
         'apellido_materno',
         'primer_nombre',

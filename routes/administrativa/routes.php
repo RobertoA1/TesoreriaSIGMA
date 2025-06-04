@@ -2,7 +2,7 @@
 
 Route::group([
     'prefix' => 'administrativos',
-    'as' => 'administrativos_',
+    'as' => 'administrativo_',
     'middleware' => ['can:access-resource,"administrativa"'],
 ], function(){
     require __DIR__ . '/administrativos.php';
