@@ -80,8 +80,9 @@
                 'Deudas'
             ],
             'links' => [
-                'Conceptos de pago' => 'principal',
+                'Conceptos de pago' => 'concepto_de_pago_view',
                 'Pagos' => 'pago_view',
+                'Deudas' => 'deuda_view'
             ],
             'icon' => 'monedas'
         ])

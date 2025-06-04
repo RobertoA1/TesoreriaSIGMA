@@ -8,18 +8,22 @@
   <div class="delete-modal hidden">
     @include('layout.modals.modal-01', [
       'caution_message' => '¿Estás seguro?',
-      'action' => 'Estás eliminando el Concepto de Pago',
+      'action' => 'Estás eliminando la deuda',
       'columns' => [
-        'Descripción',
-        'Escala',
-        'Monto'
+        'ID de deuda',
+        'Alumno',
+        'Concepto',
+        'Monto Total',
+        'Periodo',
       ],
       'rows' => [
-        'descripcion',
-        'escala',
-        'monto'
+        'id_deuda',
+        'id_alumno',
+        'id_concepto',
+        'monto_total',
+        'periodo'
       ],
-      'last_warning_message' => 'Borrar esto afectará a todo lo que esté vinculado a este concepto de pago',
+      'last_warning_message' => 'Borrar esta deuda afectará los registros vinculados a esta.',
       'confirm_button' => 'Sí, bórralo',
       'cancel_button' => 'Cancelar',
       'is_form' => true,
@@ -31,33 +35,33 @@
 @section('contenido')
   @if(isset($data['created']))
     @include('layout.alerts.animated.timed-alert',[
-      'message' => 'El concepto de pago ha sido registrado exitosamente.',
+      'message' => 'La deuda ha sido registrada exitosamente.',
       'route' => 'layout.alerts.success' 
     ])
   @endif
 
   @if(isset($data['edited']))
     @include('layout.alerts.animated.timed-alert',[
-      'message' => 'El concepto de pago ha sido editado exitosamente.',
+      'message' => 'La deuda ha sido editada exitosamente.',
       'route' => 'layout.alerts.orange-success' 
     ])
   @endif
 
   @if(isset($data['abort']))
     @include('layout.alerts.animated.timed-alert',[
-      'message' => 'La acción sobre el concepto de pago ha sido cancelada.',
+      'message' => 'La acción sobre la deuda ha sido cancelada.',
       'route' => 'layout.alerts.info' 
     ])
   @endif
 
   @if(isset($data['deleted']))
     @include('layout.alerts.animated.timed-alert',[
-      'message' => 'El concepto de pago ha sido eliminado exitosamente.',
+      'message' => 'La deuda ha sido eliminada exitosamente.',
       'route' => 'layout.alerts.red-success' 
     ])
   @endif
 
-  @include('layout.tables.table-01', $data)    
+  @include('layout.tables.table-01', $data)
 @endsection
 
 @section('custom-js')
