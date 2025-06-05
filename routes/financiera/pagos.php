@@ -25,3 +25,8 @@ Route::group(['middleware' => ['can:manage-resource,"financiera","delete"']], fu
     Route::delete('/', [PagoController::class, 'delete'])
         ->name('delete');
 });
+
+Route::group(['middleware' => ['can:manage-resource,"financiera","view_details"']], function(){
+    Route::get('/{id}/detalles', [PagoController::class, 'viewDetalles'])
+        ->name('detalles');
+});

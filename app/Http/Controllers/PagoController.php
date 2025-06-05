@@ -225,4 +225,16 @@ class PagoController extends Controller
         return redirect(route('pago_view', ['deleted' => true]));
     }
 
+    public function viewDetalles($id)
+    {
+        if (!isset($id)){
+            return redirect(route('pago_view'));
+        }
+
+        $pago = Pago::findOrFail($id);
+        $detalles = \App\Models\DetallePago::where('id_pago', $id)->get();
+
+        return view('gestiones.pago.detalles', compact('pago', 'detalles'));
+    }
+
 }

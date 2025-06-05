@@ -15,14 +15,16 @@
         'Nombre del Estudiante',
         'Fecha de Pago',
         'Monto',
-        'Observaciones'
+        'Observaciones',
+        '',
       ],
       'rows' => [
         'concepto-pago',
         'nombre-estudiante',
         'fecha-pago',
         'monto',
-        'observaciones'
+        'observaciones',
+        'btn'
       ],
       'last_warning_message' => 'Borrar esto afectará a todo lo que esté vinculado a este Pago',
       'confirm_button' => 'Sí, bórralo',
@@ -62,7 +64,7 @@
         ])
       @endif
 
-      @include('layout.tables.table-01', $data)    
+      @include('layout.tables.table-pagos', $data)    
 @endsection
 
 

@@ -54,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
                 'create' => ['Director', 'Secretaria'],
                 'edit' => ['Director', 'Secretaria'],
                 'delete' => ['Director', 'Secretaria'],
+                'view_details' => ['Director', 'Secretaria'],
             ],
             'personal' => [
                 'view' => ['Director', 'Secretaria'],
@@ -72,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
                 'create' => ['Director', 'Secretaria'],
                 'edit' => ['Director'],
                 'delete' => ['Director'],
+                'view_details' => ['Director', 'Secretaria'],
             ],
             'reportes' => [
                 'view' => ['Director'],

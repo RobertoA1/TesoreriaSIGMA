@@ -201,7 +201,7 @@ class AlumnoController extends Controller
         $escala = $request->input('escala', null);
 
 
-        Alumno::create([
+        $alumno  = Alumno::create([
             'codigo_modular' => $codigoModular,
             'codigo_educando' => $codigoEducando,
             'año_ingreso' => $añoIngreso,
@@ -236,6 +236,26 @@ class AlumnoController extends Controller
             'situacion_vivienda' => $situacionVivienda,
             'escala' => $escala
         ]);
+
+        if ($request->has('agregar_familiares') && $request->has('familiares_dni')) {
+            $familiaresCount = count($request->familiares_dni);
+            for ($i = 0; $i < $familiaresCount; $i++) {
+                $familiar = \App\Models\Familiar::create([
+                    'dni' => $request->familiares_dni[$i],
+                    'apellido_paterno' => $request->familiares_apellido_paterno[$i] ?? null,
+                    'apellido_materno' => $request->familiares_apellido_materno[$i] ?? null,
+                    'primer_nombre' => $request->familiares_primer_nombre[$i] ?? null,
+                    'otros_nombres' => $request->familiares_otros_nombres[$i] ?? null,
+                    'numero_contacto' => $request->familiares_telefono[$i] ?? null,
+                    'correo_electronico' => $request->familiares_correo[$i] ?? null,
+                    // Puedes agregar más campos si tu modelo los tiene
+                ]);
+                // Relaciona en la tabla pivote con parentesco
+                $alumno->familiares()->attach($familiar->idFamiliar, [
+                    'parentesco' => $request->familiares_parentesco[$i]
+                ]);
+            }
+        }
 
         return redirect(route('alumno_view', ['created'=>true]));
     }

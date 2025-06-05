@@ -25,8 +25,13 @@ class Familiar extends Model
         'otros_nombres',
         'numero_contacto',
         'correo_electronico',
+        'estado',
     ];
 
+
+    protected $casts = [
+        'estado' => 'boolean',
+    ];
 
     public function user()
     {

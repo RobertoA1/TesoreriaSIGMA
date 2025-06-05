@@ -32,8 +32,7 @@
             ],
             'links' => [
                 'Alumnos' => 'alumno_view',
-                'Familiares' => 'principal',    
-                
+                'Familiares' => 'familiar_view',    
             ],
             'icon' => 'persona'
         ])
