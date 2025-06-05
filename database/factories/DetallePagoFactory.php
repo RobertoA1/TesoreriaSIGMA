@@ -19,6 +19,7 @@ class DetallePagoFactory extends Factory
     {
         return [
             'id_pago'=> Pago::factory(),
+            'nro_recibo' => fake()->unique()->numerify('REC-#####'),
             'fecha_pago' => fake()->dateTimeBetween('-1 year', 'now'),
             'monto' => fake()->numberBetween(0, 1000),
             'observacion' => fake()->optional()->sentence(),

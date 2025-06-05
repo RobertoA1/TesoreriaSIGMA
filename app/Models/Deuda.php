@@ -32,11 +32,27 @@ class Deuda extends Model
     {
         return [
             'fecha_limite' => 'date', 
-            'monto_total' => 'integer', 
-            'monto_a_cuenta' => 'integer', 
-            'monto_adelantado' => 'integer', 
+            'monto_total' => 'decimal:2',
+            'monto_a_cuenta' => 'decimal:2',
+            'monto_adelantado' => 'decimal:2', 
             'estado' => 'boolean', 
         ];
     }
+
+    public function alumno()
+    {
+        return $this->belongsTo(Alumno::class, 'id_alumno');
+    }
+
+    public function concepto()
+    {
+        return $this->belongsTo(ConceptoPago::class, 'id_concepto');
+    }
+
+    public function conceptoPago()
+    {
+        return $this->belongsTo(\App\Models\ConceptoPago::class, 'id_concepto', 'id_concepto');
+    }
+
 
 }

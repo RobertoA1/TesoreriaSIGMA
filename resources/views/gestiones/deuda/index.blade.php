@@ -10,18 +10,19 @@
       'caution_message' => '¿Estás seguro?',
       'action' => 'Estás eliminando la deuda',
       'columns' => [
-        'ID de deuda',
+        'Periodo',
         'Alumno',
         'Concepto',
         'Monto Total',
-        'Periodo',
+        'Observaciones',
       ],
       'rows' => [
         'id_deuda',
+        'periodo',
         'id_alumno',
         'id_concepto',
         'monto_total',
-        'periodo'
+        'observaciones'
       ],
       'last_warning_message' => 'Borrar esta deuda afectará los registros vinculados a esta.',
       'confirm_button' => 'Sí, bórralo',

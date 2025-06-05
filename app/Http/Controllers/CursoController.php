@@ -127,7 +127,8 @@ class CursoController extends Controller
             'nombre_del_curso.max' => 'El nombre del curso no puede superar los 100 caracteres.'
         ]);
 
-        Curso::create([
+        Curso::create(
+            [
             'id_nivel' => $nivel,
             'codigo_curso' => $codigoCurso,
             'nombre_curso' => $nombreCurso

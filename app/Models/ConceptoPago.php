@@ -32,4 +32,6 @@ class ConceptoPago extends Model
         ];
     }
 
+    
+
 }

@@ -12,7 +12,7 @@
       <div class="flex gap-4">
         <input form="form" type="submit"
           class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-200 px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-300 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          value="Crear"
+          value="crear"
         >
 
         <a
@@ -29,9 +29,9 @@
       @csrf
 
       @include('components.forms.string', [
-        'label' => 'Descripción',
-        'error' => $errors->first(Str::snake('Descripción')) ?? false,
-        'value' => old(Str::snake('Descripción'))
+        'label' => 'Descripcion',
+        'error' => $errors->first(Str::snake('Descripcion')) ?? false,
+        'value' => old(Str::snake('Descripcion'))
       ])
 
       @include('components.forms.string', [

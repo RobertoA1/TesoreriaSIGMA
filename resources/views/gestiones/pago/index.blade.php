@@ -11,13 +11,15 @@
       'caution_message' => '¿Estás seguro?',
       'action' => 'Estás eliminando el Pago',
       'columns' => [
-        'Número de Recibo',
+        'Concepto de Pago',
+        'Nombre del Estudiante',
         'Fecha de Pago',
         'Monto',
         'Observaciones'
       ],
       'rows' => [
-        'numero-recibo',
+        'concepto-pago',
+        'nombre-estudiante',
         'fecha-pago',
         'monto',
         'observaciones'

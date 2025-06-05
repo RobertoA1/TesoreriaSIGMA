@@ -4,17 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Deuda;
 use Illuminate\Http\Request;
+use App\Models\ConceptoPago;
 
 class DeudaController extends Controller
 {
     private static function doSearch($sqlColumns, $search, $maxEntriesShow)
     {
         if (!isset($search)) {
-            $query = Deuda::where('estado', '=', '1')->paginate($maxEntriesShow);
+            $query = Deuda::where('estado', '=', '1')->orderBy('periodo', 'desc')->paginate($maxEntriesShow);
         } else {
             $query = Deuda::where('estado', '=', '1')
                 ->whereAny($sqlColumns, 'LIKE', "%{$search}%")
+                ->orderBy('periodo', 'desc')
                 ->paginate($maxEntriesShow);
+                
         }
 
         return $query;
@@ -42,7 +45,7 @@ class DeudaController extends Controller
 
         $data = [
             'titulo' => 'Deudas',
-            'columnas' => ['ID', 'Alumno', 'Concepto', 'Periodo', 'Monto Total (S/)'],
+            'columnas' => ['ID','Periodo', 'Alumno', 'Concepto',  'Monto Total (S/)','Observaciones'],
             'filas' => [],
             'showing' => $maxEntriesShow,
             'paginaActual' => $paginaActual,
@@ -63,9 +66,10 @@ class DeudaController extends Controller
         foreach ($query as $deuda) {
             array_push($data['filas'], [
                 $deuda->id_deuda,
-                $deuda->id_alumno,
-                $deuda->id_concepto,
                 $deuda->periodo,
+                $deuda->alumno ? $deuda->alumno->primer_nombre . ' ' . $deuda->alumno->apellido_paterno : 'Sin nombre', 
+                $deuda->concepto ? $deuda->concepto->descripcion : 'Sin concepto',
+                $deuda->monto_total,
                 $deuda->observacion,
                 number_format($deuda->monto_total, 2)
             ]);
@@ -76,8 +80,28 @@ class DeudaController extends Controller
 
     public function create()
     {
+        $conceptos = ConceptoPago::where('estado', 1)->get();
+
+        $escalasPorConcepto = [];
+        foreach ($conceptos as $concepto) {
+            // Si ya existe el concepto, agrega la escala, si no, crea el array
+            if (!isset($escalasPorConcepto[$concepto->id_concepto])) {
+                $escalasPorConcepto[$concepto->id_concepto] = [];
+            }
+            // Evita duplicados
+            if (!in_array($concepto->escala, $escalasPorConcepto[$concepto->id_concepto])) {
+                $escalasPorConcepto[$concepto->id_concepto][] = $concepto->escala;
+            }
+            $montosPorConceptoEscala[$concepto->id_concepto][$concepto->escala] = $concepto->monto;
+        }
+
+
+
         $data = [
             'return' => route('deuda_view', ['abort' => true]),
+            'conceptos' => $conceptos,
+            'escalasPorConcepto' => $escalasPorConcepto,
+            'montosPorConceptoEscala' => $montosPorConceptoEscala,
         ];
 
         return view('gestiones.deuda.create', compact('data'));
@@ -86,33 +110,39 @@ class DeudaController extends Controller
     public function createNewEntry(Request $request)
     {
         $request->validate([
-            'id_alumno' => 'required|numeric',
+            'codigo_educando' => [
+                'required',
+                'numeric',
+                'exists:alumnos,codigo_educando'
+            ],
             'id_concepto' => 'required|numeric',
             'fecha_limite' => 'required|date',
             'monto_total' => 'required|numeric|min:0',
-            'periodo' => 'required|max:50',
-            'monto_a_cuenta' => 'nullable|numeric|min:0',
-            'monto_adelantado' => 'nullable|numeric|min:0',
             'observacion' => 'nullable|max:255',
         ], [
-            'id_alumno.required' => 'Seleccione un alumno válido.',
-            'id_concepto.required' => 'Seleccione un concepto válido.',
+            'codigo_educando.required' => 'Ingrese un código de educando.',
+            'codigo_educando.numeric' => 'El código de educando debe ser numérico.',
+            'codigo_educando.exists' => 'El alumno no existe.',
+            'id_concepto.required' => 'Seleccione un concepto de pago.',
+            'id_concepto.numeric' => 'El concepto de pago debe ser numérico.',
             'fecha_limite.required' => 'Ingrese una fecha límite válida.',
+            'fecha_limite.date' => 'La fecha límite debe tener un formato de fecha válido.',
             'monto_total.required' => 'Ingrese un monto total válido.',
-            'periodo.required' => 'Ingrese un periodo válido.',
-            'monto_a_cuenta.numeric' => 'El monto a cuenta debe ser un número válido.',
-            'monto_adelantado.numeric' => 'El monto adelantado debe ser un número válido.',
+            'monto_total.numeric' => 'El monto total debe ser un número.',
+            'monto_total.min' => 'El monto total no puede ser negativo.',
             'observacion.max' => 'La observación no puede superar los 255 caracteres.',
         ]);
 
+        $alumno = \App\Models\Alumno::where('codigo_educando', $request->input('codigo_educando'))->first();
+        
         Deuda::create([
-            'id_alumno' => $request->input('id_alumno'),
+            'id_alumno' => $alumno->id_alumno,
             'id_concepto' => $request->input('id_concepto'),
             'fecha_limite' => $request->input('fecha_limite'),
             'monto_total' => $request->input('monto_total'),
             'periodo' => $request->input('periodo'),
-            'monto_a_cuenta' => $request->input('monto_a_cuenta'),
-            'monto_adelantado' => $request->input('monto_adelantado'),
+            'monto_a_cuenta' => 0,
+            'monto_adelantado' => 0,
             'observacion' => $request->input('observacion'),
             'estado' => 1
         ]);
@@ -152,30 +182,28 @@ class DeudaController extends Controller
             return redirect(route('deuda_view'));
         }
 
-        $request->validate([
-            'id_alumno' => 'required|numeric',
-            'id_concepto' => 'required|numeric',
+        $validated = $request->validate([
             'fecha_limite' => 'required|date',
             'monto_total' => 'required|numeric|min:0',
-            'periodo' => 'required|max:50',
-            'monto_a_cuenta' => 'nullable|numeric|min:0',
-            'monto_adelantado' => 'nullable|numeric|min:0',
             'observacion' => 'nullable|max:255',
         ]);
 
-        $deuda = Deuda::findOrFail($id);
+        // Buscar deuda específica
+        $deuda = Deuda::where('id_deuda', $id)->first();
+
+        if (!$deuda) {
+            return redirect()->route('deuda_view')->with('error', 'Deuda no encontrada.');
+        }
+
+        // Actualizar campos necesarios
         $deuda->update([
-            'id_alumno' => $request->input('id_alumno'),
-            'id_concepto' => $request->input('id_concepto'),
+            
             'fecha_limite' => $request->input('fecha_limite'),
             'monto_total' => $request->input('monto_total'),
-            'periodo' => $request->input('periodo'),
-            'monto_a_cuenta' => $request->input('monto_a_cuenta'),
-            'monto_adelantado' => $request->input('monto_adelantado'),
-            'observacion' => $request->input('observacion')
+            'observacion' => $request->input('observacion'),
         ]);
 
-        return redirect(route('deuda_view', ['edited' => true]));
+        return redirect()->route('deuda_view', ['edited' => true]);
     }
 
     public function delete(Request $request)

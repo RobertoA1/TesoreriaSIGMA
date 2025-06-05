@@ -28,19 +28,13 @@
       @method('PATCH')
       @csrf
 
-      @include('components.forms.string', [
-        'label' => 'Número de Recibo',
-        'error' => $errors->first(Str::snake('Número de Recibo')) ?? false,
-        'value' => old(Str::snake('Número de Recibo')) ?? $data['default']['nro_recibo']
+      @include('components.forms.datetime-picker',[
+        'label' => 'Fecha pago',
+        'error' => $errors->first(Str::snake('Fecha pago')) ?? false,
+        'value' => old(Str::snake('Fecha pago')) ?? $data['default']['fecha_pago']
       ])
 
-      @include('components.forms.text-area',[
-        'label' => 'Fecha de Pago',
-        'error' => $errors->first(Str::snake('Fecha de Pago')) ?? false,
-        'value' => old(Str::snake('Fecha de Pago')) ?? $data['default']['fecha_pago']
-      ])
-
-      @include('components.forms.text-area',[
+      @include('components.forms.string',[
         'label' => 'Monto',
         'error' => $errors->first(Str::snake('Monto')) ?? false,
         'value' => old(Str::snake('Monto')) ?? $data['default']['monto']

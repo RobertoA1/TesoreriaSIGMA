@@ -16,6 +16,8 @@ return new class extends Migration
             $table->increments('id_detalle');
 
             $table->unsignedInteger('id_pago');
+            
+            $table->string('nro_recibo', 20)->nullable();
 
             $table->primary(['id_detalle', 'id_pago']);
 

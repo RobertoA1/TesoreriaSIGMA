@@ -41,23 +41,12 @@
         'value' => old(Str::snake('Monto Total')) ?? $data['default'][Str::snake('Monto Total')],
       ])
 
-      @include('components.forms.string', [
+      @include('components.forms.string-ineditable', [
         'label' => 'Periodo',
         'error' => $errors->first(Str::snake('Periodo')) ?? false,
         'value' => old(Str::snake('Periodo')) ?? $data['default'][Str::snake('Periodo')],
-      ])
-
-      @include('components.forms.string', [
-        'label' => 'Monto a cuenta',
-        'error' => $errors->first(Str::snake('Monto a cuenta')) ?? false,
-        'value' => old(Str::snake('monto_a_cuenta')) ?? $data['default'][Str::snake('monto_a_cuenta')],
-      ])
-
-      @include('components.forms.string', [
-        'label' => 'Monto adelantado',
-        'error' => $errors->first(Str::snake('Monto adelantado')) ?? false,
-        'value' => old(Str::snake('monto_adelantado')) ?? $data['default'][Str::snake('monto_adelantado')],
-      ])
+        'readonly' => true
+        ])
 
       @include('components.forms.text-area', [
         'label' => 'Observacion',

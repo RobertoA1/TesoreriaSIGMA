@@ -18,7 +18,6 @@ class PagoFactory extends Factory
     {
         return [
             'id_deuda' => Deuda::factory(),
-            'nro_recibo' => fake()->unique()->numerify('REC-#####'),
             'fecha_pago' => fake()->dateTimeThisYear(),
             'monto' => fake()->randomFloat(2, 10, 1000),
             'observaciones' => fake()->optional()->sentence(),

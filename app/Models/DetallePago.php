@@ -19,6 +19,7 @@ class DetallePago extends Model
     protected $fillable = [
         'id_detalle',
         'id_pago',
+        'nro_recibo',
         'fecha_pago',
         'monto',
         'observacion',

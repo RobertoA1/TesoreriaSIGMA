@@ -22,7 +22,7 @@ class ConceptoPagoController extends Controller
 
     public function index(Request $request)
     {
-        $sqlColumns = ['id_concepto', 'descripcion', 'escala'];
+        $sqlColumns = ['id_concepto', 'descripcion', 'escala','monto'];
         $resource = 'financiera';
 
         $maxEntriesShow = $request->input('showing', 10);
@@ -74,10 +74,8 @@ class ConceptoPagoController extends Controller
 
     public function create()
     {
-        $escalas = ['A', 'B', 'C', 'D', 'E'];
 
         $data = [
-            'escalas' => $escalas,
             'return' => route('concepto_de_pago_view', ['abort' => true]),
         ];
 
@@ -86,26 +84,35 @@ class ConceptoPagoController extends Controller
 
     public function createNewEntry(Request $request)
     {
+
+        $descripcion = $request->input('descripcion');
+        $escala = $request->input('escala');
+        $monto = $request->input('monto');
+
         $request->validate([
             'descripcion' => 'required|max:100',
-            'escala' => 'required|max:1',
+            'escala' => 'required|in:A,B,C,D',
             'monto' => 'required|numeric|min:0'
         ], [
             'descripcion.required' => 'Ingrese una descripción válida.',
             'escala.required' => 'Seleccione una escala válida.',
             'monto.required' => 'Ingrese un monto válido.',
             'descripcion.max' => 'La descripción no puede superar los 100 caracteres.',
-            'escala.max' => 'La escala debe tener un solo carácter.',
             'monto.numeric' => 'El monto debe ser un número válido.',
-            'monto.min' => 'El monto no puede ser negativo.'
+            'monto.min' => 'El monto no puede ser negativo.',
+            'escala.in' => 'La escala debe ser A, B, C o D.',
         ]);
 
+        
+
         ConceptoPago::create([
-            'descripcion' => $request->input('descripcion'),
-            'escala' => $request->input('escala'),
-            'monto' => $request->input('monto'),
-            'estado' => '1'
+            'descripcion' => $descripcion,
+            'escala' => $escala,
+            'monto' => $monto,
+            'estado' => 1
+
         ]);
+        
 
         return redirect(route('concepto_de_pago_view', ['created' => true]));
     }
@@ -139,23 +146,15 @@ class ConceptoPagoController extends Controller
         }
 
         $request->validate([
-            'descripcion' => 'required|max:100',
-            'escala' => 'required|max:1',
             'monto' => 'required|numeric|min:0'
         ], [
-            'descripcion.required' => 'Ingrese una descripción válida.',
-            'escala.required' => 'Seleccione una escala válida.',
             'monto.required' => 'Ingrese un monto válido.',
-            'descripcion.max' => 'La descripción no puede superar los 100 caracteres.',
-            'escala.max' => 'La escala debe tener un solo carácter.',
             'monto.numeric' => 'El monto debe ser un número válido.',
             'monto.min' => 'El monto no puede ser negativo.'
         ]);
 
         $concepto = ConceptoPago::findOrFail($id);
         $concepto->update([
-            'descripcion' => $request->input('descripcion'),
-            'escala' => $request->input('escala'),
             'monto' => $request->input('monto')
         ]);
 

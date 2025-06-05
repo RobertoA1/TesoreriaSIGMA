@@ -28,16 +28,18 @@
       @method('PATCH')
       @csrf
 
-      @include('components.forms.string', [
+      @include('components.forms.string-ineditable', [
         'label' => 'Descripción',
         'error' => $errors->first(Str::snake('Descripción')) ?? false,
-        'value' => old(Str::snake('Descripción')) ?? $data['default']['descripcion']
+        'value' => old(Str::snake('Descripción')) ?? $data['default']['descripcion'],
+        'readonly' => true
       ])
 
-      @include('components.forms.string', [
+      @include('components.forms.string-ineditable', [
         'label' => 'Escala',
         'error' => $errors->first(Str::snake('Escala')) ?? false,
-        'value' => old(Str::snake('Escala')) ?? $data['default']['escala']
+        'value' => old(Str::snake('Escala')) ?? $data['default']['escala'],
+        'readonly' => true
       ])
 
       @include('components.forms.string', [

@@ -7,5 +7,5 @@
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
       d="M3 18v-6a3 3 0 013-3h2V7a3 3 0 116 0v2h2a3 3 0 013 3v6m-6 0V9m0 9v3m-6-3v3" />
   </svg>
-  Generar
+  Generar Deudas
 </button>

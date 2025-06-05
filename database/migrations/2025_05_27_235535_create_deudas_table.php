@@ -20,13 +20,12 @@ return new class extends Migration
 
             $table->date('fecha_limite')->nullable(); 
 
-            $table->integer('monto_total');
+            $table->decimal('monto_total', 10, 2)->default(0);
 
             $table->string('periodo', 25)->nullable();
 
-            $table->integer('monto_a_cuenta')->default(0); 
-
-            $table->integer('monto_adelantado')->default(0); 
+            $table->decimal('monto_a_cuenta', 10, 2)->default(0);
+            $table->decimal('monto_adelantado', 10, 2)->default(0);
 
             $table->text('observacion')->nullable();
 

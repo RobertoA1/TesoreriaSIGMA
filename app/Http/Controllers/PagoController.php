@@ -21,7 +21,7 @@ class PagoController extends Controller
     }
 
     public function index(Request $request){
-        $sqlColumns = ['id_pago', 'nro_recibo', 'fecha_pago', 'monto', 'observaciones'];
+        $sqlColumns = ['id_pago','id_concepto','id_alumno','fecha_pago', 'monto', 'observaciones'];
         $resource = 'financiera';
 
         $maxEntriesShow = $request->input('showing', 10);
@@ -43,7 +43,8 @@ class PagoController extends Controller
             'titulo' => 'Pagos',
             'columnas' => [
                 'ID',
-                'Número de Recibo',
+                'Concepto de Pago',
+                'Nombre del Alumno',
                 'Fecha de Pago',
                 'Monto',
                 'Observaciones'
@@ -78,14 +79,19 @@ class PagoController extends Controller
         foreach ($query as $pago){
             $pago = Pago::findOrFail($pago->id_pago);
 
+            
+            $concepto = $pago->conceptoPago->descripcion ?? ''; 
+            $alumno = $pago->alumno->primer_nombre ?? '';     
+
             array_push($data['filas'],
             [
-                $pago->id_pago,
-                $pago->nro_recibo,
-                $pago->fecha_pago,
-                $pago->monto,
-                $pago->observaciones,
-            ]); 
+                $pago->id_pago,  
+                $concepto,              
+                $alumno,                
+                $pago->fecha_pago,      
+                $pago->monto,           
+                $pago->observaciones,   
+            ]);
         }
 
         return view('gestiones.pago.index', compact('data'));
@@ -95,40 +101,87 @@ class PagoController extends Controller
 
 
     public function create(Request $request){
+        $alumnos = \App\Models\Alumno::all(['id_alumno', 'codigo_educando']);
+        $deudas = \App\Models\Deuda::all(['id_deuda', 'id_alumno', 'id_concepto', 'periodo', 'monto_total']);
+        $conceptos = \App\Models\ConceptoPago::all(['id_concepto', 'descripcion']);
+
         $data = [
             'return' => route('pago_view', ['abort' => true]),
+            'alumnos' => $alumnos,
+            'deudas' => $deudas,
+            'conceptos' => $conceptos,
         ];
-
         return view('gestiones.pago.create', compact('data'));
     }
 
     public function createNewEntry(Request $request){
         $request->validate([
-            'nro_recibo' => 'required|max:20',
-            'fecha_pago' => 'required',
-            'monto' => 'required',
-            'observaciones' => 'required'
+            'id_deuda' => 'required|exists:deudas,id_deuda',
+            'detalle_fecha' => 'required|array',
+            'detalle_monto' => 'required|array',
+            'detalle_recibo' => 'required|array',
+            'detalle_observaciones' => 'required|array',
         ],[
-            'nro_recibo.required' => 'Ingrese un número de recibo válido.',
-            'fecha_pago.required' => 'Ingrese una fecha válida.',
-            'nro_recibo.max' => 'El nro de recibo no puede superar los 20 caracteres.',
-            'monto.required' => 'Ingrese un monto válido.',
-            'observaciones.required' => 'Ingrese observaciones válidas.'
+            'id_deuda.required' => 'Seleccione una deuda.',
+            'detalle_fecha.required' => 'Agregue al menos un detalle de pago.',
         ]);
 
-        $nro_recibo = $request->input('nro_recibo');
-        $fecha_pago = $request->input('fecha_pago');
-        $monto = $request->input('monto');
-        $observaciones = $request->input('observaciones');
+        $idDeuda = $request->input('id_deuda');
+        $fechas = $request->input('detalle_fecha');
+        $montos = $request->input('detalle_monto');
+        $recibos = $request->input('detalle_recibo');
+        $observaciones = $request->input('detalle_observaciones');
 
-        Pago::create([
-            'nro_recibo' => $nro_recibo,
-            'fecha_pago' => $fecha_pago,
-            'monto' => $monto,
-            'observaciones'=> $observaciones
+        // 1. Sumar todos los montos
+        $montoTotalPago = collect($montos)->map(function($m){ return floatval($m); })->sum();
+
+        // 2. Crear el pago principal
+        $pago = Pago::create([
+            'id_deuda' => $idDeuda,
+            'fecha_pago' => end($fechas), // última fecha como fecha del pago principal
+            'monto' => $montoTotalPago,
+            'observaciones' => $request->input('observaciones'),
+            // agrega otros campos si es necesario
         ]);
+
+        // 3. Crear los detalles de pago
+        foreach ($fechas as $i => $fecha) {
+            \App\Models\DetallePago::create([
+                'id_pago' => $pago->id_pago,
+                'fecha_pago' => $fecha,
+                'monto' => floatval($montos[$i]),
+                'nro_recibo' => $recibos[$i],
+                'observacion' => $observaciones[$i],
+            ]);
+        }
+
+        // 4. Actualizar la deuda
+        $deuda = \App\Models\Deuda::find($idDeuda);
+        $deuda->monto_adelantado = floatval($deuda->monto_adelantado) + $montoTotalPago;
+        $deuda->monto_a_cuenta = floatval($deuda->monto_total) - floatval($deuda->monto_adelantado);
+        $deuda->save();
 
         return redirect(route('pago_view', ['created' => true]));
+    }
+
+    public function edit(Request $request, $id)
+    {
+        if (!isset($id)) {
+            return redirect(route('pago_view'));
+        }
+
+        $pago = Pago::findOrFail($id);
+
+        $data = [
+            'return' => route('pago_view', ['abort' => true]),
+            'id' => $id,
+            'default' => [
+                'fecha_pago' => $pago->fecha_pago instanceof \Carbon\Carbon ? $pago->fecha_pago->format('Y-m-d\TH:i') : \Carbon\Carbon::parse($pago->fecha_pago)->format('Y-m-d\TH:i'),                'monto' => $pago->monto,
+                'observaciones' => $pago->observaciones,
+            ]
+        ];
+
+        return view('gestiones.pago.edit', compact('data'));
     }
 
     public function editEntry(Request $request, $id){
@@ -138,14 +191,27 @@ class PagoController extends Controller
 
         $requested = Pago::where('id_pago', '=', $id);
 
-        if (isset($requested)){
-            $newNumeroRecibo = $request->input('nro_recibo');
-            $newFechaPago = $request->input('fecha_pago');
-            $newMonto = $request->input('monto');
-            $newObservaciones = $request->input('observaciones');
-
-            $requested->update(['nro_recibo' => $newNumeroRecibo, 'fecha_pago' => $newFechaPago, 'monto'=> $newMonto, 'observaciones'=> $newObservaciones]);
+        if (!$requested) {
+            return redirect()->route('pago_view')->with('error', 'Deuda no encontrada.');
         }
+
+        $request->validate([
+            'fecha_pago' => 'required|date',
+            'monto' => 'required|numeric',
+            'observaciones' => 'nullable|max:255',
+        ], [
+            'fecha_pago.required' => 'Ingrese una fecha válida.',
+            'fecha_pago.date' => 'La fecha debe tener un formato válido.',
+            'monto.required' => 'Ingrese un monto válido.',
+            'monto.numeric' => 'El monto debe ser numérico.',
+            'observaciones.max' => 'Las observaciones no pueden superar los 255 caracteres.',
+        ]);
+
+        $requested->update([
+            'fecha_pago' => $request->input('fecha_pago'),
+            'monto' => $request->input('monto'),
+            'observaciones' => $request->input('observaciones'),
+        ]);
 
         return redirect(route('pago_view', ['edited' => true]));
     }

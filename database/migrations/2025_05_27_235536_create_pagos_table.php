@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('pagos', function (Blueprint $table) {
             $table->increments('id_pago');
             $table->unsignedInteger('id_deuda');
-            $table->string('nro_recibo', 20)->nullable();
             $table->dateTime('fecha_pago');
             $table->decimal('monto', 10, 2);
             $table->text('observaciones')->nullable();
