@@ -20,7 +20,6 @@ use App\Models\Matricula;
 use App\Models\NivelEducativo;
 use App\Models\Pago;
 use App\Models\Personal;
-use App\Models\RegistroHistorico;
 use App\Models\Seccion;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -41,11 +40,6 @@ class DatabaseSeeder extends Seeder
             [
                 'accion' => 'VER',
             ]);
-
-        ConceptoAccion::create(
-            [
-                'accion' => 'CREAR',
-            ]);
         
         ConceptoAccion::create(
             [
@@ -61,6 +55,37 @@ class DatabaseSeeder extends Seeder
             [
                 'accion' => 'RESTAURAR',
             ]);
+
+        ConceptoAccion::create(
+            [
+                'accion' => 'CREAR',
+            ]);
+
+        $meses = [
+                'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+                'JULIO', 'AGOSTO', 'SETIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+                ];
+        $anios = [2025, 2026];
+        $escalas = [
+            'A' => 500.00,
+            'B' => 400.00,
+            'C' => 300.00,
+            'D' => 200.00,
+            'E' => 100.00,
+        ];
+
+        foreach ($anios as $anio) {
+            foreach ($meses as $mes) {
+                foreach ($escalas as $escala => $monto) {
+                    ConceptoPago::create([
+                        'descripcion' => "$mes $anio",
+                        'escala' => $escala,
+                        'monto' => $monto,
+                        'estado' => 1,
+                    ]);
+                }
+            }
+        }
 
         ConceptoPago::factory(5)->create();
         Curso_Grado::factory(5)->create();
