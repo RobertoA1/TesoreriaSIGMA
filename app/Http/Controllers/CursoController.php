@@ -185,7 +185,7 @@ class CursoController extends Controller
             'nombre_del_curso.max' => 'El nombre del curso no puede superar los 100 caracteres.'
         ]);
 
-        $requested = Curso::where('id_curso', '=', $id);
+        $requested = Curso::find($id);
 
         if (isset($requested)){
             $newNivelEducativo = $request->input('nivel_educativo');
@@ -201,8 +201,8 @@ class CursoController extends Controller
     public function delete(Request $request){
         $id = $request->input('id');
 
-        $requested = Curso::where('id_curso', '=', $id);
-        $requested->delete();
+        $requested = Curso::find($id);
+        $requested->update(['estado' => '0']);
 
         return redirect(route('curso_view', ['deleted' => true]));
     }

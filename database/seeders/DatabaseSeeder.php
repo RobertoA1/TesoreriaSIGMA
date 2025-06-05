@@ -36,7 +36,32 @@ class DatabaseSeeder extends Seeder
         Administrativo::factory(5)->create();
         Alumno::factory(5)->create();
         ComposicionFamiliar::factory(5)->create();
-        ConceptoAccion::factory(5)->create();
+
+        ConceptoAccion::create(
+            [
+                'accion' => 'VER',
+            ]);
+
+        ConceptoAccion::create(
+            [
+                'accion' => 'CREAR',
+            ]);
+        
+        ConceptoAccion::create(
+            [
+                'accion' => 'EDITAR',
+            ]);
+
+        ConceptoAccion::create(
+            [
+                'accion' => 'ELIMINAR',
+            ]);
+
+        ConceptoAccion::create(
+            [
+                'accion' => 'RESTAURAR',
+            ]);
+
         ConceptoPago::factory(5)->create();
         Curso_Grado::factory(5)->create();
         Curso::factory(5)->create();
@@ -49,7 +74,6 @@ class DatabaseSeeder extends Seeder
         NivelEducativo::factory(3)->create();
         Pago::factory(5)->create();
         Personal::factory(5)->create();
-        RegistroHistorico::factory(5)->create();
         Seccion::factory(5)->create();
         Catedra::factory(5)->create();
     }

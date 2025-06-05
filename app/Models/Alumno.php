@@ -49,6 +49,7 @@ class Alumno extends Model
         'num_habitantes',
         'situacion_vivienda',
         'escala',
+        'estado',
     ];
 
     protected function casts(): array{

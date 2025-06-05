@@ -19,6 +19,7 @@ class Catedra extends Model
         'año_escolar',
         'id_grado',
         'secciones_nombreSeccion',
+        'estado',
     ];
     public function cursoGrado()
     {

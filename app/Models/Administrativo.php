@@ -22,7 +22,8 @@ class Administrativo extends Model
         'seguro_social',
         'fecha_ingreso',
         'cargo',
-        'sueldo'
+        'sueldo',
+        'estado',
     ];
 
     protected $primaryKey = 'id_administrativo';

@@ -189,7 +189,7 @@ class PagoController extends Controller
             return redirect(route('pago_view'));
         }
 
-        $requested = Pago::where('id_pago', '=', $id);
+        $requested = Pago::find($id);
 
         if (!$requested) {
             return redirect()->route('pago_view')->with('error', 'Deuda no encontrada.');
@@ -219,8 +219,8 @@ class PagoController extends Controller
     public function delete(Request $request){
         $id = $request->input('id');
 
-        $requested = Pago::where('id_pago', '=', $id);
-        $requested->delete();
+        $requested = Pago::find($id);
+        $requested->update(['estado' => '0']);
 
         return redirect(route('pago_view', ['deleted' => true]));
     }

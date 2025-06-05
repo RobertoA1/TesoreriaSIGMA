@@ -189,7 +189,7 @@ class DeudaController extends Controller
         ]);
 
         // Buscar deuda específica
-        $deuda = Deuda::where('id_deuda', $id)->first();
+        $deuda = Deuda::find($id);
 
         if (!$deuda) {
             return redirect()->route('deuda_view')->with('error', 'Deuda no encontrada.');
@@ -197,7 +197,6 @@ class DeudaController extends Controller
 
         // Actualizar campos necesarios
         $deuda->update([
-            
             'fecha_limite' => $request->input('fecha_limite'),
             'monto_total' => $request->input('monto_total'),
             'observacion' => $request->input('observacion'),
@@ -209,8 +208,8 @@ class DeudaController extends Controller
     public function delete(Request $request)
     {
         $id = $request->input('id');
-        $deuda = Deuda::where('id_deuda', $id)->firstOrFail();
-        $deuda->delete();
+        $deuda = Deuda::find($id);
+        $deuda->update(['estado' => '0']);
 
         return redirect(route('deuda_view', ['deleted' => true]));
     }

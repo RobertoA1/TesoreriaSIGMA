@@ -153,7 +153,7 @@ class ConceptoPagoController extends Controller
             'monto.min' => 'El monto no puede ser negativo.'
         ]);
 
-        $concepto = ConceptoPago::findOrFail($id);
+        $concepto = ConceptoPago::find($id);
         $concepto->update([
             'monto' => $request->input('monto')
         ]);
@@ -164,8 +164,8 @@ class ConceptoPagoController extends Controller
     public function delete(Request $request)
     {
         $id = $request->input('id');
-        $concepto = ConceptoPago::where('id_concepto', $id)->firstOrFail();
-        $concepto->delete();
+        $concepto = ConceptoPago::find($id);
+        $concepto->update(['estado' => '0']);
 
         return redirect(route('concepto_de_pago_view', ['deleted' => true]));
     }

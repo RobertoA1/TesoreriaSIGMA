@@ -21,6 +21,7 @@ class User extends Authenticatable
         'username',
         'tipo',
         'password',
+        'estado',
     ];
 
     protected $primaryKey = 'id_usuario';

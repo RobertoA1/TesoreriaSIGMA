@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('concepto_accion', function (Blueprint $table) {
             $table->increments('id_concepto_accion');
 
-            $table->string('descripcion', 45);
+            $table->string('accion', 50);
 
             $table->boolean('estado')->default(true);
 
