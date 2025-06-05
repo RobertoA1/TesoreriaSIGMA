@@ -117,7 +117,7 @@ class NivelEducativoController extends Controller
             return redirect(route('nivel_educativo_view'));
         }
 
-        $requested = NivelEducativo::findOrFail($id);
+        $requested = NivelEducativo::find($id);
 
         $data = [
             'return' => route('nivel_educativo_view', ['abort' => true]),
@@ -135,7 +135,7 @@ class NivelEducativoController extends Controller
             return redirect(route('nivel_educativo_view'));
         }
 
-        $requested = NivelEducativo::where('id_nivel', '=', $id);
+        $requested = NivelEducativo::find($id);
 
         if (isset($requested)){
             $newNombre = $request->input('nombre');
@@ -150,7 +150,7 @@ class NivelEducativoController extends Controller
     public function delete(Request $request){
         $id = $request->input('id');
 
-        $requested = NivelEducativo::where('id_nivel', '=', $id);
+        $requested = NivelEducativo::find($id);
         $requested->delete();
 
         return redirect(route('nivel_educativo_view', ['deleted' => true]));

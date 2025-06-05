@@ -9,27 +9,40 @@ class RegistroHistorico extends Model
 {
     use HasFactory;
 
-    protected $table = 'registros_historicos'; 
-
+    protected $table = 'registro_historico'; 
     protected $primaryKey = 'id_registro_historico'; 
-    public $incrementing = true; 
-    protected $keyType = 'int'; 
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
-        'id_autor',
         'id_concepto_accion',
-        'id_afectado',
+        'id_autor',
+        'id_entidad_afectada',
+        'tipo_entidad_afectada',
         'fecha_accion',
         'observacion',
         'estado',
     ];
 
-    protected function casts(): array
+    public $timestamps = false;
+
+    protected $casts = [
+        'fecha_accion' => 'datetime',
+        'estado' => 'boolean'
+    ];
+
+    public function conceptoAccion()
     {
-        return [
-            'fecha_accion' => 'datetime', 
-            'estado' => 'boolean', 
-        ];
+        return $this->belongsTo(ConceptoAccion::class, 'id_concepto_accion', 'id_concepto_accion');
+    }
+
+    public function autor()
+    {
+        return $this->belongsTo(User::class, 'id_autor', 'id_usuario');
+    }
+    public function entidadAfectada()
+    {
+        return $this->morphTo('entidad_afectada', 'tipo_entidad_afectada', 'id_entidad_afectada');
     }
 
 

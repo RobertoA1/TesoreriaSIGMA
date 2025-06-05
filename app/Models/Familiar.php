@@ -25,6 +25,7 @@ class Familiar extends Model
         'otros_nombres',
         'numero_contacto',
         'correo_electronico',
+        'estado',
     ];
 
 

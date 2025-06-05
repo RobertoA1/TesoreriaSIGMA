@@ -15,7 +15,8 @@ class Grado extends Model
     protected $keyType = 'int';
     protected $fillable = [
         'id_nivel',
-        'nombre_grado'
+        'nombre_grado',
+        'estado',
     ];
 
     public function cursos()

@@ -222,12 +222,36 @@ class AdministrativoController extends Controller
             return redirect(route('administrativo_view'));
         }
 
-        $requested = Administrativo::where('id_departamento', '=', $id);
+        $requested = Administrativo::find($id);
 
         if (isset($requested)){
-            $newNombre = $request->input('nombre');
+            $apellidoPaterno = $request->input('apellido_paterno');
+            $apellidoMaterno = $request->input('apellido_materno');
+            $primerNombre = $request->input('primer_nombre');
+            $otrosNombres = $request->input('otros_nombres');
+            $dni = $request->input('d_n_i');
+            $direccion = $request->input('dirección');
+            $estadoCivil = $request->input('estado_civil');
+            $telefono = $request->input('teléfono');
+            $seguroSocial = $request->input('seguro_social');
+            $fechaIngreso = $request->input('fecha_de_ingreso');
+            $cargo = $request->input('cargo');
+            $sueldo = $request->input('sueldo');
 
-            $requested->update(['nombre' => $newNombre]);
+            $requested->update([
+                'apellido_paterno' => $apellidoPaterno,
+                'apellido_materno' => $apellidoMaterno,
+                'primer_nombre' => $primerNombre,
+                'otros_nombres' => $otrosNombres,
+                'dni' => $dni,
+                'direccion' => $direccion,
+                'estado_civil' => $estadoCivil,
+                'telefono' => $telefono,
+                'seguro_social' => $seguroSocial,
+                'fecha_ingreso' => $fechaIngreso,
+                'cargo' => $cargo,
+                'sueldo' => $sueldo,
+            ]);
         }
 
         return redirect(route('administrativo_view', ['edited' => true]));
@@ -236,7 +260,8 @@ class AdministrativoController extends Controller
     public function delete(Request $request){
         $id = $request->input('id');
 
-        $requested = Administrativo::where('id_administrativo', '=', $id);
+        $requested = Administrativo::find($id);
+
         $requested->update(['estado' => '0']);
 
         return redirect(route('administrativo_view', ['deleted' => true]));

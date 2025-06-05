@@ -104,7 +104,7 @@ class AlumnoController extends Controller
         $request -> validate([
             'codigo_modular' => 'required|string|max:20',
             'codigo_educando' => 'required|string|max:20',
-            'año_de_ingreso' => 'required|integer|min:1900|max:'.date('Y'),
+            'año_de_ingreso' => 'required|integer|min:1900|max:',
             'd_n_i' => 'required|string|max:8',
             'apellido_paterno' => 'required|string|max:50',
             'apellido_materno' => 'required|string|max:50',
@@ -294,7 +294,7 @@ class AlumnoController extends Controller
             return redirect(route('alumno_view'));
         }
 
-        $requested = Alumno::where('id_alumno', '=', $id);
+        $requested = Alumno::find($id);
 
         if (isset($requested)) {
             $newCodigoEducando = $request->input('codigo_educando');
@@ -374,8 +374,8 @@ class AlumnoController extends Controller
     public function delete(Request $request) {
         $id = $request->input('id');
 
-        $requested = Alumno::where('id_alumno', '=', $id);
-        $requested->delete();
+        $requested = Alumno::find($id);
+        $requested->update(['estado' => '0']);
 
         return redirect(route('alumno_view', ['deleted' => true]));
     }

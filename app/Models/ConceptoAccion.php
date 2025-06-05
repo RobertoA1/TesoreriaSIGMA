@@ -16,10 +16,9 @@ class ConceptoAccion extends Model
     protected $keyType = 'int'; 
 
     protected $fillable = [
-        'descripcion',
+        'accion',
         'estado',
     ];
-
  
     protected function casts(): array
     {

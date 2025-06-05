@@ -127,7 +127,7 @@ class DepartamentoAcademicoController extends Controller
             return redirect(route('departamento_academico_view'));
         }
 
-        $requested = DepartamentoAcademico::where('id_departamento', '=', $id);
+        $requested = DepartamentoAcademico::find($id);
 
         if (isset($requested)){
             $newNombre = $request->input('nombre');
@@ -141,8 +141,8 @@ class DepartamentoAcademicoController extends Controller
     public function delete(Request $request){
         $id = $request->input('id');
 
-        $requested = DepartamentoAcademico::where('id_departamento', '=', $id);
-        $requested->delete();
+        $requested = DepartamentoAcademico::find($id);
+        $requested->update(['estado' => '0']);
 
         return redirect(route('departamento_academico_view', ['deleted' => true]));
     }

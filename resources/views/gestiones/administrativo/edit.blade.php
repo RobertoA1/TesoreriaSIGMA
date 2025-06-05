@@ -25,7 +25,7 @@
     </div>
 
     <form method="POST" id="form" class="flex flex-col gap-4" action="">
-      @method('PUT')
+      @method('PATCH')
       @csrf
 
       <div class="grid grid-cols-5 grid-rows-3 gap-4">

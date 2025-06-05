@@ -15,5 +15,6 @@ class ComposicionFamiliar extends Model
 
     protected $fillable = [
         'parentesco',
+        'estado',
     ];
 }

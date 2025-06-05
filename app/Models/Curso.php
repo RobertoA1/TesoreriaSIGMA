@@ -18,7 +18,8 @@ class Curso extends Model
     protected $fillable = [
         'codigo_curso',
         'nombre_curso',
-        'id_nivel'
+        'id_nivel',
+        'estado',
     ];
 
     public function grados()
