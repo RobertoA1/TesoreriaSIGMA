@@ -22,6 +22,7 @@ use App\Models\Pago;
 use App\Models\Personal;
 use App\Models\Seccion;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Observers\Traits\LogsActions;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -31,6 +32,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Deshabilitamos temporalmente el registro de acciones, ya que estamos ejecutando un seeder.
+        LogsActions::disable();
+
         User::factory(5)->create();
         Administrativo::factory(5)->create();
         Alumno::factory(5)->create();
@@ -101,5 +105,8 @@ class DatabaseSeeder extends Seeder
         Personal::factory(5)->create();
         Seccion::factory(5)->create();
         Catedra::factory(5)->create();
+
+        // Restablecemos el registro de acciones.
+        LogsActions::enable();
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Administrativo;
 use App\Models\ComposicionFamiliar;
 use App\Models\Familiar;
 use App\Models\User;
+use App\Observers\Traits\LogsActions;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,6 +17,9 @@ class TestUsersSeeder extends Seeder
      */
     public function run(): void
     {
+        // Deshabilitamos temporalmente el registro de acciones, ya que estamos ejecutando un seeder.
+        LogsActions::disable();
+
         Administrativo::create([
             'id_usuario' => User::factory([
                 'username' => 'director',
@@ -70,6 +74,7 @@ class TestUsersSeeder extends Seeder
             ])->create()->id_familiar
         ]);
 
-
+        // Restablecemos el registro de acciones.
+        LogsActions::enable();
     }
 }
