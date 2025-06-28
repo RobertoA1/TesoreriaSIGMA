@@ -104,7 +104,7 @@ class AlumnoController extends Controller
         $request -> validate([
             'codigo_modular' => 'required|string|max:20',
             'codigo_educando' => 'required|string|max:20',
-            'año_de_ingreso' => 'required|integer|min:1900|max:',
+            'año_de_ingreso' => 'required|integer|min:1900|max:2100',
             'd_n_i' => 'required|string|max:8',
             'apellido_paterno' => 'required|string|max:50',
             'apellido_materno' => 'required|string|max:50',
@@ -237,26 +237,6 @@ class AlumnoController extends Controller
             'escala' => $escala
         ]);
 
-        if ($request->has('agregar_familiares') && $request->has('familiares_dni')) {
-            $familiaresCount = count($request->familiares_dni);
-            for ($i = 0; $i < $familiaresCount; $i++) {
-                $familiar = \App\Models\Familiar::create([
-                    'dni' => $request->familiares_dni[$i],
-                    'apellido_paterno' => $request->familiares_apellido_paterno[$i] ?? null,
-                    'apellido_materno' => $request->familiares_apellido_materno[$i] ?? null,
-                    'primer_nombre' => $request->familiares_primer_nombre[$i] ?? null,
-                    'otros_nombres' => $request->familiares_otros_nombres[$i] ?? null,
-                    'numero_contacto' => $request->familiares_telefono[$i] ?? null,
-                    'correo_electronico' => $request->familiares_correo[$i] ?? null,
-                    // Puedes agregar más campos si tu modelo los tiene
-                ]);
-                // Relaciona en la tabla pivote con parentesco
-                $alumno->familiares()->attach($familiar->idFamiliar, [
-                    'parentesco' => $request->familiares_parentesco[$i]
-                ]);
-            }
-        }
-
         return redirect(route('alumno_view', ['created'=>true]));
     }
 
@@ -384,7 +364,6 @@ class AlumnoController extends Controller
                 'num_habitantes' => $newNumHabitantes,
                 'situacion_vivienda' => $newSituacionVivienda,
                 'escala' => $newEscala]);
-
         }
 
         return redirect(route('alumno_view', ['edited' => true]));

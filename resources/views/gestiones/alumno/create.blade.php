@@ -288,110 +288,12 @@
           ])
         </div> 
       </div>
-
-      
-  
-    <div class="flex items-center gap-2 mt-4">
-        <input type="checkbox" id="agregar_familiares" name="agregar_familiares" value="1">
-        <label for="agregar_familiares" class="text-sm text-gray-700 dark:text-gray-200">¿Desea agregar familiares?</label>
-    </div>
-
-    <div id="familiares-container" class="hidden flex flex-col gap-4 mt-4">
-        <h3 class="text-base font-semibold mb-2 text-gray-700 dark:text-gray-200">Familiares</h3>
-        <div class="familiar-form grid grid-cols-4 gap-4 items-end border rounded-lg p-4 mb-4 bg-gray-50 dark:bg-gray-800/40">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">DNI</label>
-            <input type="text" name="familiares_dni[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="DNI">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Apellido paterno</label>
-            <input type="text" name="familiares_apellido_paterno[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Apellido paterno">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Apellido materno</label>
-            <input type="text" name="familiares_apellido_materno[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Apellido materno">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Primer nombre</label>
-            <input type="text" name="familiares_primer_nombre[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Primer nombre">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Otros nombres</label>
-            <input type="text" name="familiares_otros_nombres[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Otros nombres">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Parentesco</label>
-            <input type="text" name="familiares_parentesco[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Parentesco">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Teléfono</label>
-            <input type="text" name="familiares_telefono[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Teléfono">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Correo electrónico</label>
-            <input type="email" name="familiares_correo[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Correo electrónico">
-        </div>
-    </div>
-        <button type="button" id="agregar-familiar" class="mt-2 px-4 py-2 bg-amber-200 rounded-lg font-semibold text-sm text-gray-800 hover:bg-amber-300">
-            + Agregar otro familiar
-        </button>
-    </div>
     </form>
     
   </div>
 @endsection
 
 @section('custom-js')
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkbox = document.getElementById('agregar_familiares');
-    const familiaresContainer = document.getElementById('familiares-container');
-    const btnAgregarFamiliar = document.getElementById('agregar-familiar');
 
-    checkbox.addEventListener('change', function() {
-        familiaresContainer.classList.toggle('hidden', !checkbox.checked);
-    });
-
-    btnAgregarFamiliar.addEventListener('click', function() {
-        const newFamiliar = document.createElement('div');
-        newFamiliar.className = 'familiar-form grid grid-cols-4 gap-4 items-end border rounded-lg p-4 mb-4 bg-gray-50 dark:bg-gray-800/40';
-        newFamiliar.innerHTML = `
-            <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">DNI</label>
-            <input type="text" name="familiares_dni[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="DNI">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Apellido paterno</label>
-            <input type="text" name="familiares_apellido_paterno[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Apellido paterno">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Apellido materno</label>
-            <input type="text" name="familiares_apellido_materno[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Apellido materno">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Primer nombre</label>
-            <input type="text" name="familiares_primer_nombre[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Primer nombre">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Otros nombres</label>
-            <input type="text" name="familiares_otros_nombres[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Otros nombres">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Parentesco</label>
-            <input type="text" name="familiares_parentesco[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Parentesco">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Teléfono</label>
-            <input type="text" name="familiares_telefono[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Teléfono">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Correo electrónico</label>
-            <input type="email" name="familiares_correo[]" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm" placeholder="Correo electrónico">
-        </div>
-        `;
-        familiaresContainer.insertBefore(newFamiliar, btnAgregarFamiliar);
-    });
-});
-</script>
 @endsection
 

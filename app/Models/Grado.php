@@ -25,4 +25,10 @@ class Grado extends Model
                     ->withPivot('id_curso_grado', 'año_escolar');
     }
 
+    public function nivelEducativo()
+    {
+        return $this->belongsTo(NivelEducativo::class, 'id_nivel');
+    }
+
+
 }

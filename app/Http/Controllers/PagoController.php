@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumno;
+use App\Models\Deuda;
 use App\Models\Pago;
 use Illuminate\Http\Request;
 
@@ -236,5 +238,42 @@ class PagoController extends Controller
 
         return view('gestiones.pago.detalles', compact('pago', 'detalles'));
     }
+
+
+
+    public function buscarAlumno($codigo)
+    {
+        $alumno = Alumno::where('codigo_educando', $codigo)->first();
+
+        if (!$alumno) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró el alumno con ese código.'
+            ], 404);
+        }
+
+        $deudas = Deuda::where('id_alumno', $alumno->id_alumno)->get();
+
+        // Obtener deudas con contenido específico
+        $deudasFormateadas = $deudas->map(function ($deuda) {
+            return [
+                'id_deuda' => $deuda->id_deuda,
+                'periodo' => $deuda->periodo,
+                'monto_total' => $deuda->monto_total,
+                'concepto' => $deuda->conceptoPago ? $deuda->conceptoPago->descripcion : 'Sin concepto'
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'alumno' => [
+                'id_alumno' => $alumno->id_alumno,
+                'codigo_educando' => $alumno->codigo_educando,
+                'nombre_completo' => $alumno->apellido_paterno . ' ' . $alumno->apellido_materno . ' ' . $alumno->primer_nombre
+            ],
+            'deudas' => $deudasFormateadas
+        ]);
+    }
+
 
 }

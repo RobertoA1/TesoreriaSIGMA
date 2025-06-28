@@ -11,6 +11,8 @@ Route::group(['middleware' => ['can:manage-resource,"financiera","create"']], fu
 
     Route::put('/crear', [PagoController::class, 'createNewEntry'])
         ->name('createNewEntry');
+
+    Route::get('/buscarAlumno/{codigo}', [PagoController::class,'buscarAlumno'])->name('buscarAlumno');
 });
 
 Route::group(['middleware' => ['can:manage-resource,"financiera","edit"']], function(){

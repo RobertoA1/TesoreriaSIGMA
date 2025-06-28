@@ -214,9 +214,10 @@ class FamiliarController extends Controller
     public function delete(Request $request)
     {
         $id = $request->input('id');
-        $familiar = Familiar::where('idFamiliar', $id)->firstOrFail();
-        $familiar->alumnos()->detach();
-        $familiar->delete();
+        
+        $requested = Familiar::find($id);
+
+        $requested->update(['estado' => '0']);
 
         return redirect(route('familiar_view', ['deleted' => true]));
     }
