@@ -25,3 +25,8 @@ Route::group(['middleware' => ['can:manage-resource,"academica","delete"']], fun
     Route::delete('/', [NivelEducativoController::class, 'delete'])
         ->name('delete');
 });
+
+Route::group(['middleware' => ['can:manage-resource,"academica","download"']], function(){
+    Route::get('/export', [NivelEducativoController::class, 'export'])
+        ->name('export');
+});

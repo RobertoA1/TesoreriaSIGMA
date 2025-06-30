@@ -56,10 +56,11 @@
     ])
   @endif
 
-  @include('layout.tables.table-01', $data)
+  @include('layout.tables.table-01-2', $data)
 @endsection
 
 @section('custom-js')
   <script src="{{ asset('js/tables.js') }}"></script>
   <script src="{{ asset('js/delete-button-modal.js') }}"></script>
+  <script src="{{ asset('js/download-button.js') }}"></script>
 @endsection

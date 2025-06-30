@@ -100,6 +100,7 @@ class AppServiceProvider extends ServiceProvider
                 'create' => ['Director'],
                 'edit' => ['Director'],
                 'delete' => ['Director'],
+                'download' => ['Director'],
             ],
             'alumnos' => [
                 'view' => ['Director', 'Secretaria'],
@@ -107,18 +108,21 @@ class AppServiceProvider extends ServiceProvider
                 'edit' => ['Director', 'Secretaria'],
                 'delete' => ['Director', 'Secretaria'],
                 'view_details' => ['Director', 'Secretaria'],
+                'download' => ['Director', 'Secretaria'],
             ],
             'personal' => [
                 'view' => ['Director', 'Secretaria'],
                 'create' => ['Director'],
                 'edit' => ['Director'],
                 'delete' => ['Director'],
+                'download' => ['Director', 'Secretaria'],
             ],
             'administrativa' => [
                 'view' => ['Director'],
                 'create' => ['Director'],
                 'edit' => ['Director'],
                 'delete' => ['Director'],
+                'download' => ['Director'],
             ],
             'financiera' => [
                 'view' => ['Director', 'Secretaria'],
@@ -126,12 +130,14 @@ class AppServiceProvider extends ServiceProvider
                 'edit' => ['Director'],
                 'delete' => ['Director'],
                 'view_details' => ['Director', 'Secretaria'],
+                'download' => ['Director', 'Secretaria'],
             ],
             'reportes' => [
                 'view' => ['Director'],
                 'create' => ['Director'],
                 'edit' => ['Director'],
                 'delete' => ['Director'],
+                'download' => ['Director'],
             ]
         ]]);
     }

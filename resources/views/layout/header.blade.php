@@ -620,6 +620,7 @@
           @php
             $user = Auth::user();
             $name = $user->username;
+            $apellido = "";
             $cargo = 'Usuario'
           @endphp
 
@@ -653,7 +654,7 @@
             <span
               class="text-theme-sm block font-medium text-gray-700 dark:text-gray-400"
             >
-              {{ $name }} {{ $apellido }}
+              {{ $name }}
             </span>
             <span
               class="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400"
