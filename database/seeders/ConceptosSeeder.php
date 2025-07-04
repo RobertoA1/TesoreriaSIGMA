@@ -167,30 +167,37 @@ class ConceptosSeeder extends Seeder
             [
                 'nombre_curso' => 'MATEMÁTICA',
                 'codigo_curso'=> 'MA',
+                'nivel_inicial' => true,
             ],
             [
                 'nombre_curso' => 'CIENCIAS',
                 'codigo_curso'=> 'CI',
+                'nivel_inicial' => true,
             ],
             [
                 'nombre_curso' => 'LENGUAJE',
                 'codigo_curso'=> 'LE',
+                'nivel_inicial' => true,
             ],
             [
                 'nombre_curso' => 'HISTORIA',
                 'codigo_curso'=> 'HI',
+                'nivel_inicial' => false,
             ],
             [
                 'nombre_curso' => 'GEOGRAFÍA',
                 'codigo_curso'=> 'GE',
+                'nivel_inicial' => false,
             ],
             [
                 'nombre_curso' => 'INGLÉS',
                 'codigo_curso'=> 'IN',
+                'nivel_inicial' => false,
             ],
             [
                 'nombre_curso' => 'EDUCACIÓN FÍSICA',
                 'codigo_curso'=> 'EF',
+                'nivel_inicial' => true,
             ],
         ];
 
@@ -198,13 +205,28 @@ class ConceptosSeeder extends Seeder
         $datoscursos = [];
         foreach ($datosniveleseducativos as $nivel) {
             foreach ($cursos as $curso) {
-                $nuevocurso = Curso::create([
-                    'codigo_curso' => $curso['codigo_curso'],
-                    'nombre_curso' => $curso['nombre_curso'],
-                    'id_nivel' => $nivel['id_nivel']
-                ]);
-                $datoscursos[] = $nuevocurso;
+                if($nivel->nombre_nivel == "Inicial"){
+                    if(!$curso['nivel_inicial']){
+                    
+                    }else{
+                        $nuevocurso = Curso::create([
+                            'codigo_curso' => $curso['codigo_curso'],
+                            'nombre_curso' => $curso['nombre_curso'],
+                            'id_nivel' => $nivel['id_nivel'],
+                        ]);
+                        $datoscursos[] = $nuevocurso;
+                    }
+                }
+                else{
+                        $nuevocurso = Curso::create([
+                            'codigo_curso' => $curso['codigo_curso'],
+                            'nombre_curso' => $curso['nombre_curso'],
+                            'id_nivel' => $nivel['id_nivel']
+                        ]);
+                    $datoscursos[] = $nuevocurso;
+                }
             }
+            
         }
 
 
@@ -214,23 +236,23 @@ class ConceptosSeeder extends Seeder
 
         foreach ($datosgrados as $grado) {
         // Filtrar solo los cursos que pertenezcan al mismo nivel del grado
-        $cursosDelMismoNivel = collect($datoscursos)->where('id_nivel', $grado->id_nivel);
+            $cursosDelMismoNivel = collect($datoscursos)->where('id_nivel', $grado->id_nivel);
 
-        foreach ($cursosDelMismoNivel as $curso) {
-            foreach ($añosescolares as $año) {
-                Curso_Grado::create([
-                    'id_curso' => $curso->id_curso,
-                    'id_grado' => $grado->id_grado,
-                    'año_escolar' => $año
-                ]);
+            foreach ($cursosDelMismoNivel as $curso) {
+                foreach ($añosescolares as $año) {
+                    Curso_Grado::create([
+                        'id_curso' => $curso->id_curso,
+                        'id_grado' => $grado->id_grado,
+                        'año_escolar' => $año
+                    ]);
+                }
             }
         }
-    }
 
         $datossecciones = [];
 
         $secciones = [
-            'A','B','C','D','E','F'
+            'A','B','C'
         ];
 
         foreach($datosgrados as $grado){
