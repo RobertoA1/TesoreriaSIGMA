@@ -8,25 +8,22 @@
   <div class="delete-modal hidden">
     @include('layout.modals.modal-01', [
       'caution_message' => '¿Estás seguro?',
-      'action' => 'Estás eliminando el Alumno',
-
+      'action' => 'Estás eliminando la Catedra',
       'columns' => [
-        'Codigo Educando',
-        'DNI',
-        'Apellidos',
-        'Nombres',
-        'Sexo',
+        'Año Escolar',
+        'Docente',
+        'Curso',
+        'Grado',
+        'Seccion'
       ],
-
       'rows' => [
-        'codigo_educando',
-        'dni',
-        'apellidos',
-        'nombres',
-        'sexo',
+        'Año Escolar',
+        'Docente',
+        'Curso',
+        'Grado',
+        'Seccion'
       ],
-      
-      'last_warning_message' => 'Borrar esto afectará a todo lo que esté vinculado a este Alumno',
+      'last_warning_message' => 'Borrar esto afectará a todo lo que esté vinculado a esta Catedra',
       'confirm_button' => 'Sí, bórralo',
       'cancel_button' => 'Cancelar',
       'is_form' => true,
@@ -39,33 +36,33 @@
 @section('contenido')
   @if(isset($data['created']))
     @include('layout.alerts.animated.timed-alert',[
-      'message' => 'El Alumno ha sido registrado exitosamente.',
+      'message' => 'La catedra ha sido registrada exitosamente.',
       'route' => 'layout.alerts.success' 
     ])
   @endif
 
   @if(isset($data['edited']))
     @include('layout.alerts.animated.timed-alert',[
-      'message' => 'El Alumno ha sido editado exitosamente.',
+      'message' => 'La catedra ha sido editada exitosamente.',
       'route' => 'layout.alerts.orange-success' 
     ])
   @endif
 
   @if(isset($data['abort']))
     @include('layout.alerts.animated.timed-alert',[
-      'message' => 'La acción sobre el alumno ha sido cancelada.',
+      'message' => 'La acción sobre la catedra ha sido cancelada.',
       'route' => 'layout.alerts.info' 
     ])
   @endif
 
   @if(isset($data['deleted']))
     @include('layout.alerts.animated.timed-alert',[
-      'message' => 'El alumno ha sido eliminado exitosamente.',
+      'message' => 'La catedra ha sido eliminada exitosamente.',
       'route' => 'layout.alerts.red-success' 
     ])
   @endif
 
-  @include('layout.tables.table-01', $data)
+  @include('layout.tables.table-01-2', $data)
 @endsection
 
 @section('custom-js')

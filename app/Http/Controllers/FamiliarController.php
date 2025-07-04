@@ -99,8 +99,8 @@ class FamiliarController extends Controller
     }
 
     public function create(Request $request){
-        $usuarios = User::all();
-        $alumnos = Alumno::all();
+        $usuarios = User::where('estado', '=', '1');
+        $alumnos = Alumno::where('estado', '=', '1');
         $data = [
             'return' => route('familiar_view', ['abort' => true]),
             'usuarios' => $usuarios,

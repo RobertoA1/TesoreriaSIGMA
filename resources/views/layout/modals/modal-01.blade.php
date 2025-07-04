@@ -22,7 +22,6 @@
                 <form method="POST" class="data-form hidden">
                     @method('DELETE')
                     @csrf
-
                     <input name="{{ $data_input_name }}" type="text" class="data-input">
                 </form>
             @endif

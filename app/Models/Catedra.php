@@ -36,4 +36,14 @@ class Catedra extends Model
         return $this->belongsTo(Curso::class, 'id_curso', 'id_curso');
     } 
 
+    public function grado()
+    {
+        return $this->belongsTo(Grado::class, 'id_grado', 'id_grado');
+    }
+
+    public function seccion()
+    {
+        return $this->hasOne(Seccion::class, 'id_grado', 'id_grado')
+            ->where('nombreSeccion', $this->secciones_nombreSeccion);
+    }
 }

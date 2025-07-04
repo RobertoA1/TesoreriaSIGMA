@@ -23,9 +23,14 @@ buttons.forEach(button => {
         const affectedId = button.dataset.id;
         const row = document.querySelectorAll(".row" + affectedId);
 
+        console.log("Row length:", row.length);
+        console.log("Modal rows:");
+        for (let i = 0; i < row.length; i++) {
+            console.log(`row[${i}] = `, row[i]);
+        }
+
         for (var i = 1; i < row.length; i++){
             var modalDesc = document.querySelector('.modal-row' + (i-1));
-
             modalDesc.innerText = row[i].innerText;
         }
         

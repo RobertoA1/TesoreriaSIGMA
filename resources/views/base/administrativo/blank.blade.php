@@ -9,10 +9,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
     @vite(['resources/css/style.css', 'resources/js/index.js'])
-
+    
     <title>
       @yield('titulo', 'Página por defecto')
     </title>
+    @yield('extracss')
   </head>
   <body
     x-data="{ page: '', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"

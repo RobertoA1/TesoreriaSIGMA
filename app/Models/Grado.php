@@ -25,6 +25,11 @@ class Grado extends Model
                     ->withPivot('id_curso_grado', 'año_escolar');
     }
 
+    public function secciones()
+    {
+        return $this->hasMany(Seccion::class, 'id_grado', 'id_grado');
+    }
+
     public function nivelEducativo()
     {
         return $this->belongsTo(NivelEducativo::class, 'id_nivel');

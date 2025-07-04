@@ -13,7 +13,7 @@ class Seccion extends Model
 
     public $incrementing = false;
 
-    protected $primaryKey = ['id_grado', 'nombreSeccion'];
+
 
     protected $fillable = [
         'id_grado',
@@ -25,5 +25,14 @@ class Seccion extends Model
         return $this->belongsTo(Grado::class, 'id_grado', 'id_grado');
     }
 
+    public function matriculas()
+    {
+        return $this->hasMany(Matricula::class, ['id_grado','nombreSeccion'], ['id_grado','nombreSeccion']);
+    }
+
+    //public function alumnos()
+    //{
+     //   return $this->hasMany(Alumno::class)
+    //}
 
 }

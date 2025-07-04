@@ -16,6 +16,9 @@
             'links' => [
                 'Niveles Educativos' => 'nivel_educativo_view',
                 'Cursos' => 'curso_view',
+                'Grados' => 'grado_view',
+                'Secciones' => 'seccion_view',
+                'Cátedras' => 'catedra_view'
             ],
             'icon' => 'birrete'
         ])
@@ -47,7 +50,8 @@
                 'Departamentos Académicos',
             ],
             'links' => [
-                'Departamentos Académicos' => 'departamento_academico_view'
+                'Departamentos Académicos' => 'departamento_academico_view',
+                'Docentes' => 'docente_view'
             ],
             'icon' => 'persona-corbata'
         ])

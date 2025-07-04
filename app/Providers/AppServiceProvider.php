@@ -72,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-resource', function (User $user, $resource, $action = 'view'){
             return $this->hasResourcePermissions($user, $resource, $action);
         });
+
     }
 
     private function registerObservers(){
@@ -100,6 +101,7 @@ class AppServiceProvider extends ServiceProvider
                 'create' => ['Director'],
                 'edit' => ['Director'],
                 'delete' => ['Director'],
+                'view_details' => ['Director', 'Secretaria'],
                 'download' => ['Director'],
             ],
             'alumnos' => [
@@ -115,6 +117,7 @@ class AppServiceProvider extends ServiceProvider
                 'create' => ['Director'],
                 'edit' => ['Director'],
                 'delete' => ['Director'],
+                'view_details' => ['Director', 'Secretaria'],
                 'download' => ['Director', 'Secretaria'],
             ],
             'administrativa' => [
@@ -142,7 +145,7 @@ class AppServiceProvider extends ServiceProvider
         ]]);
     }
 
-    private function hasResourcePermissions(User $user, string $resource, string $action = 'view'){
+    private function hasResourcePermissions(User $user, string $resource, string $action = 'view' ){
         $permissions = config('permissions');
 
         if ($user->tipo !== 'Administrativo'){
@@ -155,6 +158,12 @@ class AppServiceProvider extends ServiceProvider
         
         $adminAccount = $query[0];
 
+
+        
+        
+
         return in_array($adminAccount->cargo, $permissions[$resource][$action]);
     }
+
+
 }

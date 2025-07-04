@@ -213,16 +213,19 @@ class ConceptosSeeder extends Seeder
         ];
 
         foreach ($datosgrados as $grado) {
-            foreach ($datoscursos as $curso) {
-                foreach ($añosescolares as $año) {
-                    Curso_Grado::create([
-                        'id_curso' => $curso->id_curso,
-                        'id_grado' => $grado->id_grado,
-                        'año_escolar' => $año
-                    ]);
-                }
+        // Filtrar solo los cursos que pertenezcan al mismo nivel del grado
+        $cursosDelMismoNivel = collect($datoscursos)->where('id_nivel', $grado->id_nivel);
+
+        foreach ($cursosDelMismoNivel as $curso) {
+            foreach ($añosescolares as $año) {
+                Curso_Grado::create([
+                    'id_curso' => $curso->id_curso,
+                    'id_grado' => $grado->id_grado,
+                    'año_escolar' => $año
+                ]);
             }
         }
+    }
 
         $datossecciones = [];
 
