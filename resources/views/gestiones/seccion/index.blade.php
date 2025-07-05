@@ -8,18 +8,20 @@
 
 @section('just-after-html') 
     <div class="delete-modal hidden">
-        @include('layout.modals.modal-01', [
+        @include('layout.modals.modal-01-2param', [
             'caution_message' => '¿Estás seguro?',
             'action' => 'Estás eliminando la Seccion:' ,
             
             'columns' => [
+                'Nivel Educativo',
                 'Seccion',
                 'Grado'
             ],
             
             'rows' => [
-                'a',
-                'a',
+                'null1',
+                'null2',
+                'null3'
             ],
             
             'last_warning_message' => 'Borrar esto afectará a todo lo que esté vinculado a esta Seccion',
@@ -68,5 +70,5 @@
 
 @section('custom-js')
   <script src="{{ asset('js/tables.js') }}"></script>
-  <script src="{{ asset('js/delete-button-modal.js') }}"></script>
+  <script src="{{ asset('js/delete-button-modal-2param.js') }}"></script>
 @endsection

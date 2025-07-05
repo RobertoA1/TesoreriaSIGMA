@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DepartamentoAcademico;
 use App\Models\Personal;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class DocenteController extends Controller
 {
@@ -320,7 +321,12 @@ class DocenteController extends Controller
         }
 
         $request->validate([
-            'dni' => 'required|string|max:8|unique:personal,dni', // Asegúrate que 'personal' es el nombre de tu tabla
+            'dni' => [
+                'required',
+                'string',
+                'max:8',
+                Rule::unique('personal', 'dni')->ignore($id, 'id_personal')
+            ], 
             'primer_nombre' => 'required|string|max:50',
             'otros_nombres' => 'nullable|string|max:50', // 'otros_nombres' puede ser nulo según tu tabla
             'apellido_paterno' => 'required|string|max:50', // Agregado, ya que es requerido en tu tabla (no 'NULL')

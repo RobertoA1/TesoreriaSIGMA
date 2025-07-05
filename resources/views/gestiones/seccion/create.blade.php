@@ -24,23 +24,45 @@
       </div>
     </div>
 
+    
+
     <form method="POST" id="form" class="flex flex-col gap-4" action="">
       @method('PUT')
       @csrf
 
-      @include('components.forms.string', [
-        'label' => 'Seccion',
-        'error' => $errors->first(Str::snake('Seccion')) ?? false,
-        'value' => old(Str::snake('Seccion'))
-      ])
+          @include('components.forms.combo_dependient', [
+              'label' => 'Nivel Educativo',
+              'name' => 'nivel_educativo',
+              'error' => $errors->first(Str::snake('Nivel Educativo')) ?? false,
+              'placeholder' => 'Seleccionar nivel educativo...',
+              'value' => old(Str::snake('Nivel Educativo')),
+              'value_field' => 'id_nivel',
+              'text_field' => 'nombre_nivel',
+              'options' => $data['niveles'],
+              'enabled' => true,
+          ])
 
-      @include('components.forms.combo', [
-        'label' => 'Grado',
-        'error' => $errors->first(Str::snake('Grado')) ?? false,
-        'value' => old(Str::snake('Grado')), 
-        'options' => $data['grados'],
-        'options_attributes' => ['id_grado', 'nombre_grado']
-    ])
+          @include('components.forms.combo_dependient', [
+              'label' => 'Grado',
+              'name' => 'grado',
+              'error' => $errors->first(Str::snake('Grado')) ?? false,
+              'placeholder' => 'Seleccionar grado...',
+              'depends_on' => 'nivel_educativo',
+              'parent_field' => 'id_nivel',
+              'value' => old(Str::snake('Grado')),
+              'value_field' => 'id_grado',
+              'text_field' => 'nombre_grado',
+              'options' => $data['grados'],
+              'enabled' => false,
+          ])
+
+          @include('components.forms.string', [
+            'label' => 'Seccion',
+            'error' => $errors->first(Str::snake('Seccion')) ?? false,
+            'value' => old(Str::snake('Seccion'))
+          ])
+
+      
     </form>
   </div>
 @endsection

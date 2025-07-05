@@ -25,9 +25,22 @@ class Seccion extends Model
         return $this->belongsTo(Grado::class, 'id_grado', 'id_grado');
     }
 
-    public function matriculas()
+public function matriculas()
     {
-        return $this->hasMany(Matricula::class, ['id_grado','nombreSeccion'], ['id_grado','nombreSeccion']);
+        return $this->hasMany(Matricula::class, 'id_grado', 'id_grado')
+                    ->where('nombreSeccion', $this->nombreSeccion);
+    }
+
+    public function catedras()
+    {
+        return $this->hasMany(Catedra::class, 'id_grado', 'id_grado')
+                    ->where('secciones_nombreSeccion', $this->nombreSeccion);
+    }
+    public static function findByCompositeKeyOrFail($idGrado, $nombreSeccion)
+    {
+        return self::where('id_grado', $idGrado)
+                  ->where('nombreSeccion', $nombreSeccion)
+                  ->firstOrFail();
     }
 
     //public function alumnos()

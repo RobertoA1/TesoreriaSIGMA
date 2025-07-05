@@ -173,6 +173,18 @@ class GradoController extends Controller
         $request->validate([
             'nombre_del_grado' => [
                 'required','string','max:50',
+                function($attribute, $value, $fail) use ($request, $id){
+                    $exists = Grado::where('id_nivel', $request->nivel_educativo)
+                    ->where('nombre_grado', $value)
+                    ->where(
+                        function($query) use ($id){
+                            $query->where('id_grado', '!=', $id);
+                        }
+                    )->exists();
+                    if ($exists) {
+                        $fail('Ya existe un grado con este nombre en el nivel seleccionado.');
+                    }
+                }
             ],
             'nivel_educativo' => 'required|integer|exists:niveles_educativos,id_nivel',
         ], [
@@ -203,40 +215,42 @@ class GradoController extends Controller
     }
 
     public function view_details(Request $request, $id)
-{
-    $anioActual = date('Y');
-    $anio = $request->query('anio', $anioActual);
+    {
+        $anioActual = date('Y');
+        $anio = $request->query('anio', $anioActual);
 
-    $cursoPagination = $request->query('curso_showing', 5);
-    $cursoPage = $request->query('curso_page', 1);
+        $cursoPagination = $request->query('curso_showing', 5);
+        $cursoPage = $request->query('curso_page', 1);
 
-    $seccionPagination = $request->query('seccion_showing', 5);
-    $seccionPage = $request->query('seccion_page', 1);
+        $seccionPagination = $request->query('seccion_showing', 5);
+        $seccionPage = $request->query('seccion_page', 1);
 
-    $grado = Grado::with('nivelEducativo')->findOrFail($id);
+        $grado = Grado::with('nivelEducativo')->findOrFail($id);
 
-    $cursosQuery = $grado->cursos()
-        ->wherePivot('año_escolar', $anio)
-        ->paginate($cursoPagination, ['*'], 'curso_page', $cursoPage);
+        $cursosQuery = $grado->cursos()
+            ->where('cursos.estado', 1) 
+            ->wherePivot('año_escolar', $anio)
+            ->paginate($cursoPagination, ['*'], 'curso_page', $cursoPage);
 
-    $seccionesQuery = $grado->secciones()
-        ->paginate($seccionPagination, ['*'], 'seccion_page', $seccionPage);
+        $seccionesQuery = $grado->secciones()
+            ->where('estado', 1)
+            ->paginate($seccionPagination, ['*'], 'seccion_page', $seccionPage);
 
-    $aniosDisponibles = DB::table('cursos_grados')
-        ->select('año_escolar')
-        ->distinct()
-        ->orderBy('año_escolar', 'desc')
-        ->pluck('año_escolar');
+        $aniosDisponibles = DB::table('cursos_grados')
+            ->select('año_escolar')
+            ->distinct()
+            ->orderBy('año_escolar', 'desc')
+            ->pluck('año_escolar');
 
-    return view('gestiones.grado.view_details', compact(
-        'grado',
-        'anio',
-        'aniosDisponibles',
-        'cursosQuery',
-        'seccionesQuery',
-        'cursoPagination',
-        'seccionPagination'
-    ));
-}
+        return view('gestiones.grado.view_details', compact(
+            'grado',
+            'anio',
+            'aniosDisponibles',
+            'cursosQuery',
+            'seccionesQuery',
+            'cursoPagination',
+            'seccionPagination'
+        ));
+    }
 
 }

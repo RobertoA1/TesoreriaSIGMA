@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Grado;
 use App\Models\Matricula;
+use App\Models\NivelEducativo;
 use App\Models\Seccion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class SeccionController extends Controller
 {
@@ -100,9 +102,11 @@ class SeccionController extends Controller
     public function create()
     {
         $grados = Grado::where('estado', '=', '1')->get();
+        $niveles = NivelEducativo::where("estado","=",1)->get();
         $data = [
             'return' => route('seccion_view', ['abort' => true]),
-            'grados' => $grados
+            'grados' => $grados,
+            'niveles' => $niveles
         ];
 
         return view('gestiones.seccion.create', compact('data'));
@@ -114,13 +118,18 @@ class SeccionController extends Controller
     public function createNewEntry(Request $request){
 
         $request->validate([
-            'grado'=>'required|integer',
-            'seccion'=> 'required|string|max:2',
+            'grado'=>'required',
+            'nivel_educativo' => 'required',
+            'seccion'=> ['required','string','max:2',
+            Rule::unique('secciones', 'nombreSeccion')
+                ->where('id_grado', $request->grado)
+            ],
         ],[
             'grado.required'=> 'El grado es requerido',
-            'grado.integer'=> 'El id del grado tiene que ser entero',
+            'nivel_educativo.required' => 'Nivel Educativo es requerido',
             'seccion.required'=> 'Es necesario ingresar un nombre para la seccion',
-            'seccion.max'=> 'El nombre de la seccion es muy largo, max = 2 caracteres'
+            'seccion.max'=> 'El nombre de la seccion es muy largo, max = 2 caracteres',
+            'seccion.unique' => 'Ya existe una sección con este nombre en el grado seleccionado.',
         ]);
 
         Seccion::create([
@@ -133,60 +142,101 @@ class SeccionController extends Controller
     }
 
 
-    public function edit(Request $request, $nombreGrado, $nombreSeccion)
+    public function edit(Request $request, $idGrado, $nombreSeccion)
     {
-        if (!isset($nombreGrado) || !isset($nombreSeccion)) {
+        if (!isset($idGrado) || !isset($nombreSeccion)) {
             return redirect(route('seccion_view'));
         }
 
-        $grado = Grado::where('nombre_grado', $nombreGrado)->firstOrFail();
 
-        $seccion = Seccion::where('id_grado', $grado->id_grado)
+        $seccion = Seccion::where('id_grado', $idGrado)
                         ->where('nombreSeccion', $nombreSeccion)
                         ->firstOrFail();
 
         $grados = Grado::where("estado", "=", "1")->get();
 
+        $niveles = NivelEducativo::where("estado","=",1)->get();
+
         $data = [
             'return' => route('seccion_view', ['abort' => true]),
-            'id' => ['nombreGrado' => $nombreGrado, 'nombreSeccion' => $nombreSeccion],
+            'id' => ['nombreGrado' => $seccion->grado->nombre_grado, 'nombreSeccion' => $nombreSeccion],
             'grados' => $grados,
+            'niveles' => $niveles,
             'default' => [
                 'grado' => $seccion->id_grado,
-                'seccion' => $seccion->nombreSeccion
+                'seccion' => $seccion->nombreSeccion,
+                'nivel_educativo' => $seccion->grado->id_nivel
             ]
         ];
 
         return view('gestiones.seccion.edit', compact('data'));
     }
 
-    public function editEntry(Request $request, $nombreGrado, $nombreSeccion)
+    public function editEntry(Request $request, $idGrado, $nombreSeccion)
     {
-        if (!isset($nombreGrado) || !isset($nombreSeccion)) {
-            return redirect(route('seccion_view'));
-        }
+        $seccion = Seccion::findByCompositeKeyOrFail($idGrado, $nombreSeccion);
 
         $request->validate([
-            'grado'   => 'required|integer',
-            'seccion' => 'required|string|max:2',
+            'grado' => 'required',
+            'seccion' => [
+                'required',
+                'string',
+                'max:2',
+                function ($attribute, $value, $fail) use ($request, $idGrado, $nombreSeccion) {
+                    $exists = Seccion::where('id_grado', $request->grado)
+                        ->where('nombreSeccion', $value)
+                        ->where(function ($query) use ($idGrado, $nombreSeccion) {
+                            $query->where('id_grado', '!=', $idGrado)
+                                  ->orWhere('nombreSeccion', '!=', $nombreSeccion);
+                        })
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('Ya existe una sección con este nombre en el grado seleccionado.');
+                    }
+                },
+            ],
         ], [
-            'grado.required'   => 'El grado es requerido',
-            'grado.integer'    => 'El id del grado tiene que ser entero',
-            'seccion.required' => 'Es necesario ingresar un nombre para la seccion',
-            'seccion.max'      => 'El nombre de la seccion es muy largo, max = 2 caracteres',
+            'grado.required' => 'El grado es requerido',
+            'seccion.required' => 'Es necesario ingresar un nombre para la sección',
+            'seccion.max' => 'El nombre de la sección es muy largo, máx = 2 caracteres',
         ]);
 
-        $grado = Grado::where('nombre_grado', $nombreGrado)->firstOrFail();
+        try {
+            // Verificar si hay cátedras asociadas
+            $tieneCatedras = $seccion->catedras()->exists();
 
-        $seccion = Seccion::where('id_grado', $grado->id_grado)
-                        ->where('nombreSeccion', $nombreSeccion)
-                        ->firstOrFail();
+            $tieneMatriculas = $seccion->matriculas()->exists();
+            
+            if ($tieneCatedras) {
+                return back()->withErrors([
+                    'error' => 'No se puede modificar esta sección porque tiene cátedras asignadas.'
+                ])->withInput();
+            }
 
-        $seccion->id_grado = $request->input('grado');
-        $seccion->nombreSeccion = $request->input('seccion');
-        $seccion->save();
+            if ($tieneMatriculas) {
+                return back()->withErrors([
+                    'error' => 'No se puede modificar esta sección porque tiene matriculas asignadas.'
+                ])->withInput();
+            }
+            // Eliminar usando método personalizado y crear nuevo registro
+            Seccion::where('id_grado', $idGrado)
+                   ->where('nombreSeccion', $nombreSeccion)
+                   ->delete();
+            
+            Seccion::create([
+                'id_grado' => $request->input('grado'),
+                'nombreSeccion' => $request->input('seccion'),
+                'estado' => 1
+            ]);
 
-        return redirect()->route('seccion_view', ['edited' => true]);
+            return redirect(route('seccion_view', ['edited' => true]));
+
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'error' => 'Error al actualizar la sección: ' . $e->getMessage()
+            ])->withInput();
+        }
     }
 
     public function view_details(Request $request, $id_grado, $nombreSeccion)
@@ -205,6 +255,10 @@ class SeccionController extends Controller
             ->where('id_grado', $id_grado)
             ->where('nombreSeccion', $nombreSeccion)
             ->where('año_escolar', $anioEscolar)
+            ->where('estado', 1) // Matrículas activas
+    ->whereHas('alumno', function($q){
+        $q->where('estado',1); // Alumnos activos
+    })
             ->orderBy('fecha_matricula', 'desc')
             ->paginate(10, ['*'], 'matricula_page');
 
@@ -223,7 +277,20 @@ class SeccionController extends Controller
         ));
     }
 
+    public function delete(Request $request)
+    {
+        
+        $id = $request->input('id');
+        $ids = explode(",",$id);
 
+
+        $seccion = Seccion::where('id_grado', $ids[0])
+                   ->where('nombreSeccion', $ids[1])
+                   ->update(['estado' => 0]);
+
+
+        return redirect(route('seccion_view', ['deleted' => true]));
+    }
 
 
 }

@@ -143,7 +143,7 @@
           @for($i = 0; $i < count($columnas); $i++)
           <td class="py-3">
             <div class="flex items-center">
-              <p data-order="{{ $i }}" class="row{{ $fila[0] }} text-gray-600 text-theme-sm dark:text-gray-400">
+              <p data-order="{{ $i }}" class="row{{ $fila[4] }}{{$fila[3]}} text-gray-600 text-theme-sm dark:text-gray-400">
                 {{ $fila[$i] }}
               </p>
             </div>

@@ -39,12 +39,6 @@
         'readonly' => true
     ])
 
-    @include('components.forms.string', [
-        'label' => 'Nombre del Grado',
-        'name' => 'Nombre del Grado',
-        'error' => $errors->first(Str::snake('Nombre del Grado')) ?? false,
-        'value' => old(Str::snake('Nombre del Grado')) ?? $data['default']['nombre_del_grado']
-    ])
 
     @include('components.forms.combo', [
         'label' => 'Nivel Educativo',
@@ -54,6 +48,12 @@
         'options_attributes' => ['id_nivel', 'descripcion']
     ])
 
+    @include('components.forms.string', [
+        'label' => 'Nombre del Grado',
+        'name' => 'Nombre del Grado',
+        'error' => $errors->first(Str::snake('Nombre del Grado')) ?? false,
+        'value' => old(Str::snake('Nombre del Grado')) ?? $data['default']['nombre_del_grado']
+    ])
     </form>
   </div>
 @endsection

@@ -28,26 +28,77 @@
       @method('PATCH')
       @csrf
 
-      @include('components.forms.select', [
-        'label' => 'Nivel educativo',
-        'error' => $errors->first(Str::snake('Nivel educativo')) ?? false,
-        'option_values' => $data['valores'],
-        'options' => $data['niveles'],
-        'value' => old(Str::snake('Nivel educativo')) ?? $data['default'][Str::snake('Nivel educativo')],
-      ])
+      <div class="grid grid-cols-5 grid-rows-5 gap-4">
+        <div class="col-span-8 grid grid-cols-4 gap-8">
+          @include('components.forms.combo', [
+                'label' => 'Docente',
+                'error' => $errors->first(Str::snake('Docente')) ?? false,
+                'value' => old(Str::snake('Docente')) ?? $data['default'][Str::snake('Docente')], 
+                'options' => $data['docentes'],
+                'options_attributes' => ['id', 'nombres']
+            ])
+        </div>
 
-      @include('components.forms.string', [
-        'label' => 'Código del Curso',
-        'error' => $errors->first(Str::snake('Código del Curso')) ?? false,
-        'value' => old(Str::snake('Código del Curso')) ?? $data['default'][Str::snake('Código del Curso')],
-      ])
+        <div class="col-span-8 grid grid-cols-4 gap-8">
+          @include('components.forms.combo', [
+                'label' => 'Curso',
+                'error' => $errors->first(Str::snake('Curso')) ?? false,
+                'value' => old(Str::snake('Curso')) ?? $data['default'][Str::snake(value: 'Curso')], // null o vacío
+                'options' => $data['cursos'],
+                'options_attributes' => ['id', 'nombres']
+            ])
+        </div>
 
-      @include('components.forms.string', [
-        'label' => 'Nombre del Curso',
-        'error' => $errors->first(Str::snake('Nombre del Curso')) ?? false,
-        'value' => old(Str::snake('Nombre del Curso')) ?? $data['default'][Str::snake('Nombre del Curso')]
-      ])
+        <div class="col-span-8 grid grid-cols-4 gap-8">
+           @include('components.forms.combo', [
+                'label' => 'Año Escolar',
+                'error' => $errors->first(Str::snake('Año Escolar')) ?? false,
+                'value' => old(Str::snake('Año Escolar') ) ?? $data['default'][Str::snake('Año Escolar')], // null o vacío
+                'options' => $data['añosEscolares'],
+                'options_attributes' => ['id', 'descripcion']
+            ])
+        </div>
+        
+          @include('components.forms.combo_dependient', [
+              'label' => 'Nivel Educativo',
+              'name' => 'nivel_educativo',
+              'error' => $errors->first(Str::snake('Nivel Educativo')) ?? false,
+              'placeholder' => 'Seleccionar nivel educativo...',
+              'value' => old(Str::snake('Nivel Educativo')) ?? $data['default'][Str::snake('Nivel Educativo')],
+              'value_field' => 'id_nivel',
+              'text_field' => 'nombre_nivel',
+              'options' => $data['niveles'],
+              'enabled' => true,
+          ])
 
+          @include('components.forms.combo_dependient', [
+              'label' => 'Grado',
+              'name' => 'grado',
+              'error' => $errors->first(Str::snake('Grado')) ?? false,
+              'placeholder' => 'Seleccionar grado...',
+              'depends_on' => 'nivel_educativo',
+              'parent_field' => 'id_nivel',
+              'value' => old(Str::snake('Grado')) ?? $data['default'][Str::snake('Grado')],
+              'value_field' => 'id_grado',
+              'text_field' => 'nombre_grado',
+              'options' => $data['grados'],
+              'enabled' => false,
+          ])
+
+          
+          @include('components.forms.combo_dependient', [
+              'label' => 'Sección',
+              'name' => 'seccion',
+              'error' => $errors->first(Str::snake('Seccion')) ?? false,
+              'value' => old(Str::snake('Seccion')) ?? $data['default'][Str::snake('Seccion')],
+              'placeholder' => 'Seleccionar sección...',
+              'depends_on' => 'grado',
+              'parent_field' => 'id_grado',
+              'value_field' => ['id_grado', 'nombreSeccion'],        // O la clave que uses
+              'text_field' => 'nombreSeccion',
+              'options' => $data['secciones'],
+              'enabled' => false,
+          ])
     </form>
   </div>
 @endsection
