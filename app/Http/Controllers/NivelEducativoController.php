@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use function PHPUnit\Framework\isNull;
 
 class NivelEducativoController extends Controller
 {
@@ -50,9 +51,11 @@ class NivelEducativoController extends Controller
             }
         }
 
+        if ($maxEntriesShow == null) return $query->get();
+
         return $query->paginate($maxEntriesShow);
     }
-    public function index(Request $request){
+    public function index(Request $request, $long = false){
         $sqlColumns = ['id_nivel', 'nombre_nivel', 'descripcion'];
         $resource = 'academica';
 
@@ -73,6 +76,8 @@ class NivelEducativoController extends Controller
             $request['page'] = $paginaActual;
             $query = NivelEducativoController::doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters);
         }
+
+        if ($long) $maxEntriesShow = 100;
 
         $nivelesExistentes = NivelEducativo::select("nombre_nivel")
             ->distinct()
@@ -98,7 +103,8 @@ class NivelEducativoController extends Controller
             'filters' => $data['columnas'] ?? [],
             'filterOptions' => [
                 'Nivel' => $nivelesExistentes,
-            ]
+            ],
+            'long' => $long,
         ];
 
         if ($request->input("created", false)){
@@ -126,6 +132,10 @@ class NivelEducativoController extends Controller
             ]); 
         }
         return view('gestiones.nivel_educativo.index', compact('data'));
+    }
+
+    public function viewAll(Request $request){
+        return static::index($request, true);
     }
 
     public function create(Request $request){

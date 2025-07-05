@@ -5,6 +5,9 @@ use App\Http\Controllers\NivelEducativoController;
 Route::get('/', [NivelEducativoController::class, 'index'])
     ->name('view');
 
+Route::get('/mas', [NivelEducativoController::class, 'viewAll'])
+    ->name('viewAll');
+
 Route::group(['middleware' => ['can:manage-resource,"academica","create"']], function(){
     Route::get('/crear', [NivelEducativoController::class, 'create'])
         ->name('create');
@@ -29,4 +32,6 @@ Route::group(['middleware' => ['can:manage-resource,"academica","delete"']], fun
 Route::group(['middleware' => ['can:manage-resource,"academica","download"']], function(){
     Route::get('/export', [NivelEducativoController::class, 'export'])
         ->name('export');
+
+    Route::redirect('/mas/export', '/niveles-educativos/export');
 });
