@@ -2,49 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Catedra;
-use App\Models\Curso;
+use App\Models\Alumno;
 use App\Models\Grado;
+use App\Models\Matricula;
 use App\Models\NivelEducativo;
-use App\Models\Personal;
 use App\Models\Seccion;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
-class CatedraController extends Controller
+class MatriculaController extends Controller
 {
     
     private static function doSearch($sqlColumns, $search, $pagination, $appliedFilters = []){
         
-        $query = Catedra::where('estado', '=', '1')
-        ->whereHas('personal', fn($q) => $q->where('estado', 1))
-        ->whereHas('curso', fn($q) => $q->where('estado', 1))
+        $query = Matricula::where('estado', '=', '1')
+        ->whereHas('alumno', fn($q) => $q->where('estado', 1))
         ->whereHas('grado', fn($q) => $q->where('estado', 1))
             ->whereExists(function($sub){
             $sub->select(\DB::raw(1))
                 ->from('secciones')
-                ->whereColumn('secciones.id_grado', 'catedras.id_grado')
-                ->whereColumn('secciones.nombreSeccion', 'catedras.secciones_nombreSeccion')
+                ->whereColumn('secciones.id_grado', 'matriculas.id_grado')
+                ->whereColumn('secciones.nombreSeccion', 'matriculas.nombreSeccion')
                 ->where('secciones.estado', 1);
         });
         
         if (isset($search)) {
             $query->where(function ($q) use ($search) {
                 // Buscar en columnas propias
-                $q->where('id_catedra', 'LIKE', "%{$search}%")
-                ->orWhere('año_escolar', 'LIKE', "%{$search}%");
+                $q->where('id_matricula', 'LIKE', "%{$search}%")
+                ->orWhere('año_escolar', 'LIKE', "%{$search}%")
+                ->orWhere('escala', 'LIKE', "%{$search}%")
+                ->orWhere('observaciones', 'LIKE', "%{$search}%");
 
-                // Buscar en la relación Personal
-                $q->orWhereHas('personal', function ($sub) use ($search) {
+                // Buscar en la relación Alumno
+                $q->orWhereHas('alumno', function ($sub) use ($search) {
                     $sub->where('apellido_paterno', 'LIKE', "%{$search}%")
                         ->orWhere('apellido_materno', 'LIKE', "%{$search}%")
                         ->orWhere('primer_nombre', 'LIKE', "%{$search}%")
                         ->orWhere('otros_nombres', 'LIKE', "%{$search}%");
-                });
-
-                // Buscar en la relación Curso
-                $q->orWhereHas('curso', function ($sub) use ($search) {
-                    $sub->where('nombre_curso', 'LIKE', "%{$search}%");
                 });
 
                 // Buscar en la relación Grado
@@ -59,25 +54,30 @@ class CatedraController extends Controller
             });
         }
 
+        
+
         foreach ($appliedFilters as $filter) {
             $columnName = $filter['key'];
             $value = $filter['value'];
 
             // Mapeo
             $columnMap = [
-                'ID' => 'id_catedra',
+                'ID' => 'id_matricula',
+                'Fecha de matricula' => 'fecha_matricula',
                 'Año Escolar' => 'año_escolar',
-                'Docente' => 'personal',
-                'Curso' => 'curso',
+                'Alumno' => 'alumno',
                 'Grado' => 'grado',
-                'Seccion' => 'secciones_nombreSeccion'
+                'Seccion' => 'nombreSeccion',
+                'Escala' => 'escala',
+                'Observaciones' => 'observaciones'
             ];
 
             $dbColumn = $columnMap[$columnName] ?? strtolower($columnName);
 
-            if ($columnName === 'Docente') {
+
+            if ($columnName === 'Alumno') {
                 // Filtro especial en relación personal
-                $query->whereHas('personal', function ($q) use ($value) {
+                $query->whereHas('alumno', function ($q) use ($value) {
                     $q->where(function ($q2) use ($value) {
                         $q2->where('apellido_paterno', 'LIKE', "%{$value}%")
                         ->orWhere('apellido_materno', 'LIKE', "%{$value}%")
@@ -85,20 +85,15 @@ class CatedraController extends Controller
                         ->orWhere('otros_nombres', 'LIKE', "%{$value}%");
                     });
                 });
-            } elseif ($dbColumn === 'curso') {
-                // Filtro en relación curso
-                $query->whereHas('curso', function ($q) use ($value) {
-                    $q->where('nombre_curso', 'LIKE', "%{$value}%");
-                });
-            } elseif ($dbColumn === 'grado') {
+            }  elseif ($dbColumn === 'grado') {
                 $query->whereHas('grado', function ($q) use ($value) {
                     $q->where('nombre_grado', 'LIKE', "%{$value}%");
                 });
             } elseif ($dbColumn === 'seccion') {
                 $query->whereHas('seccion', function ($q) use ($value) {
-                    $q->where('secciones_nombreSeccion', 'LIKE', "%{$value}%");
+                    $q->where('nombreSeccion', 'LIKE', "%{$value}%");
                 });
-            } elseif ($dbColumn === 'id_catedra') {
+            } elseif ($dbColumn === 'id_matricula') {
                 if (is_numeric($value)) {
                     $query->where($dbColumn, '=', $value);
                 } else {
@@ -112,10 +107,13 @@ class CatedraController extends Controller
         return $query->paginate($pagination);
     }
 
+
+   
     public function index(Request $request)
     {
-        $sqlColumns = ["id_catedra","año_escolar","id_personal","id_curso","id_grado","secciones_nombreSeccion"];
-        $tipoDeRecurso = "academica";
+        $sqlColumns = ["id_matricula","fecha_matricula","año_escolar","id_alumno","id_grado","nombreSeccion","escala","observaciones",];
+        $tipoDeRecurso = "alumnos";
+
 
         $pagination = $request->input('showing', 10);
         $paginaActual = $request->input('page', 1);
@@ -126,16 +124,15 @@ class CatedraController extends Controller
         if (!is_numeric($paginaActual) || $paginaActual <= 0) $paginaActual = 1;
         if (!is_numeric($pagination) || $pagination <= 0) $pagination = 10;
 
-        $query = CatedraController::doSearch($sqlColumns, $search, $pagination, $appliedFilters);
+        $query = MatriculaController::doSearch($sqlColumns, $search, $pagination, $appliedFilters);
 
         if ($paginaActual > $query->lastPage()){
             $paginaActual = 1;
             $request['page'] = $paginaActual;
-            $query = CatedraController::doSearch($sqlColumns, $search, $pagination, $appliedFilters);
+            $query = MatriculaController::doSearch($sqlColumns, $search, $pagination, $appliedFilters);
         }
 
-        $cursosExistentes = Curso::where("estado",1)
-        ->pluck("nombre_curso")->unique()->values();
+        //Para los selects
 
         $gradosExistentes = Grado::where("estado",1)
         ->pluck("nombre_grado")->unique()->values();
@@ -143,28 +140,29 @@ class CatedraController extends Controller
         $seccionesExistentes = Seccion::where("estado",1)
         ->pluck("nombreSeccion")->unique()->values();
 
-        $data = [
-            'titulo' => 'Catedras',
+         $data = [
+            'titulo' => 'Matriculas',
             'columnas' => [
                 'ID',
+                'Fecha Matricula',
                 'Año Escolar',
-                'Docente',
-                'Curso',
+                'Alumno',
                 'Grado',
-                'Seccion'
+                'Seccion',
+                'Escala',
+                'Observaciones'
             ],
             'filas' => [],
             'showing' => $pagination,
             'paginaActual' => $paginaActual,
             'totalPaginas' => $query->lastPage(),
             'resource' => $tipoDeRecurso,
-            'view' => 'catedra_view',
-            'create' => 'catedra_create',
-            'edit' => 'catedra_edit',
-            'delete' => 'catedra_delete',
+            'view' => 'matricula_view',
+            'create' => 'matricula_create',
+            'edit' => 'matricula_edit',
+            'delete' => 'matricula_delete',
             'filters' => $data['columnas'] ?? [],
             'filterOptions' => [
-                'Curso' => $cursosExistentes,
                 'Grado' => $gradosExistentes,
                 'Seccion' => $seccionesExistentes,
             ]
@@ -186,20 +184,22 @@ class CatedraController extends Controller
             $data['deleted'] = $request->input('deleted');
         }
 
-        foreach ($query as $itemcatedra){
+        foreach ($query as $itemmatricula){
             array_push($data['filas'],
             [
-                $itemcatedra->id_catedra,
-                $itemcatedra->año_escolar,
-                $itemcatedra->personal->apellido_paterno . ' ' . $itemcatedra->personal->apellido_materno . ' '. $itemcatedra->personal->primer_nombre . ' '. $itemcatedra->personal->otros_nombres ,
-                $itemcatedra->curso->nombre_curso,
-                $itemcatedra->grado->nombre_grado,
-                $itemcatedra->seccion->nombreSeccion
+                $itemmatricula->id_matricula,
+                $itemmatricula->fecha_matricula,
+                $itemmatricula->año_escolar,
+                $itemmatricula->alumno->apellido_paterno . ' ' . $itemmatricula->alumno->apellido_materno . ' '. $itemmatricula->alumno->primer_nombre . ' '. $itemmatricula->alumno->otros_nombres ,
+                $itemmatricula->grado->nombre_grado,
+                $itemmatricula->nombreSeccion,
+                $itemmatricula->escala,
+                $itemmatricula->observaciones
             ]); 
         }
 
 
-        return view('gestiones.catedra.index', compact('data'));
+        return view('gestiones.matricula.index', compact('data')); 
 
     }
 
@@ -208,27 +208,16 @@ class CatedraController extends Controller
      */
     public function create()
     {
-        $personales = Personal::where("estado", "=", "1")->get();
+        $alumnos = Alumno::where("estado", "=", "1")->get();
 
-        $resultado_personales = $personales->map(function($personal) {
+        $resultado_alumnos = $alumnos->map(function($alumno) {
             return [
-                'id' => $personal->id_personal, // o el campo de tu PK
+                'id' => $alumno->id_alumno, // o el campo de tu PK
                 'nombres' => trim(
-                    $personal->apellido_paterno . ' ' .
-                    $personal->apellido_materno . ' ' .
-                    $personal->primer_nombre . ' ' .
-                    $personal->otros_nombres
-                )
-            ];
-        })->values()->toArray();
-
-        $cursos = Curso::where("estado","=","1")->get();
-
-        $resultados_cursos = $cursos->map(function($curso){
-            return [
-                'id' => $curso->id_curso,
-                'nombres' => trim(
-                    $curso->nombre_curso . ' - ' . $curso->nivel->nombre_nivel
+                    $alumno->apellido_paterno . ' ' .
+                    $alumno->apellido_materno . ' ' .
+                    $alumno->primer_nombre . ' ' .
+                    $alumno->otros_nombres
                 )
             ];
         })->values()->toArray();
@@ -244,17 +233,26 @@ class CatedraController extends Controller
 
         $secciones = Seccion::where("estado","=","1")->get();
 
+        $escalas = [
+            ['id' => 'A', 'descripcion' => 'A'],
+            ['id' => 'B', 'descripcion' => 'B'],
+            ['id' => 'C', 'descripcion' => 'C'],
+            ['id' => 'D', 'descripcion' => 'D'],
+            ['id' => 'E', 'descripcion' => 'E']
+        ];
+
         $data = [
-            'return' => route('catedra_view', ['abort' => true]),
-            'docentes' => $resultado_personales,
-            'cursos' => $resultados_cursos,
+            'return' => route('matricula_view', ['abort' => true]),
+            'alumnos' => $resultado_alumnos,
             'añosEscolares' => $añosEscolares,
+            'escalas' => $escalas,
             'grados' => $grados,
             'secciones' => $secciones,
             "niveles" => $niveles
         ];
 
-        return view('gestiones.catedra.create', compact('data'));
+        return view('gestiones.matricula.create', compact('data'));
+
     }
 
     public function createNewEntry(Request $request){
@@ -262,29 +260,26 @@ class CatedraController extends Controller
         $seccionData = $this->parseSeccionValue($request->seccion);
 
         $request->validate([
-            'docente' => 'required',
-            'curso' => 'required',
+            'alumno' => 'required',
             'año_escolar' => 'required',
             'nivel_educativo' => 'required',
             'grado' => 'required',
             'seccion' => [
                 'required',
                 function ($attribute, $value, $fail) use ($request, $seccionData) {
-                    $exists = Catedra::where('id_personal', $request->docente)
-                        ->where('id_curso', $request->curso)
+                    $exists = Matricula::where('id_alumno', $request->alumno)
                         ->where('año_escolar', $request->año_escolar)
                         ->where('id_grado', $seccionData['id_grado'])
-                        ->where('secciones_nombreSeccion', $seccionData['nombreSeccion'])
+                        ->where('nombreSeccion', $seccionData['nombreSeccion'])
                         ->exists();
                     
                     if ($exists) {
-                        $fail('Esta combinación de docente, curso, año escolar y sección ya existe.');
+                        $fail('Esta combinación de alumno, año escolar y sección ya existe.');
                     }
                 },
             ],
         ], [
-            'docente.required' => 'El docente es obligatorio.',
-            'curso.required' => 'El curso es obligatorio.',
+            'alumno.required' => 'El alumno es obligatorio.',
             'año_escolar.required' => 'El año escolar es obligatorio.',
             'nivel_educativo.required' => 'El nivel educativo es obligatorio.',
             'grado.required' => 'El grado es obligatorio.',
@@ -292,16 +287,150 @@ class CatedraController extends Controller
             'seccion.unique' => 'Esta combinación de docente, curso, año escolar y sección ya existe.',
         ]);
 
-        Catedra::create([
-            'id_personal' => $request->docente,
-            'id_curso' => $request->curso,
+        $matricula = Matricula::create([
+            'id_alumno' => $request->alumno,
             'año_escolar' => $request->año_escolar,
+            'fecha_matricula' => Carbon::now(),
             'id_grado' => $seccionData['id_grado'],
-            'secciones_nombreSeccion' => $seccionData['nombreSeccion']
+            'nombreSeccion' => $seccionData['nombreSeccion'],
+            'escala' => $request->escala,
+            'observaciones' => $request->observaciones
         ]);
     
-        return redirect(route('catedra_view', ['created' => true]));
+        $matricula->generarDeudas();
 
+        return redirect(route('matricula_view', ['created' => true]));
+
+    }
+
+
+    public function edit(Request $request, $id)
+    {
+        if (!isset($id)) {
+            return redirect(route('matricula_view'));
+        }
+
+        $matricula = Matricula::findOrFail($id);
+        
+        $alumno = $matricula->alumno;
+        $año = $matricula->año_escolar;
+
+        $grado = $matricula->grado;
+        $id_grado = $matricula->seccion->id_grado;
+        $nombreSeccion = $matricula->seccion->nombreSeccion;
+        $seccion = $id_grado . '|' . $nombreSeccion;
+        $nivel_educativo = $grado->nivelEducativo;
+        $observaciones = $matricula->observaciones;
+        $fecha_matricula = $matricula->fecha_matricula;
+        $alumnos = Alumno::where("estado", "=", "1")->get();
+
+        $resultado_alumnos = $alumnos->map(function($alumno) {
+            return [
+                'id' => $alumno->id_alumno, // o el campo de tu PK
+                'nombres' => trim(
+                    $alumno->apellido_paterno . ' ' .
+                    $alumno->apellido_materno . ' ' .
+                    $alumno->primer_nombre . ' ' .
+                    $alumno->otros_nombres
+                )
+            ];
+        })->values()->toArray();
+
+        $añosEscolares = [
+            ['id' => '2025', 'descripcion' => '2025'],
+            ['id' => '2026', 'descripcion' => '2026']
+        ];
+
+        $niveles = NivelEducativo::where("estado","=","1")->get();
+
+        $grados = Grado::where("estado","=","1")->get();
+
+        $secciones = Seccion::where("estado","=","1")->get();
+        
+        
+
+        $data = [
+            'return' => route('grado_view', ['abort' => true]),
+            'id' => $id,
+            'alumnos' => $resultado_alumnos,
+            'añosEscolares' => $añosEscolares,
+            'grados' => $grados,
+            'secciones' => $secciones,
+            'niveles' => $niveles,
+            'default' => [
+                'alumno' => $alumno->id_alumno,
+                'año_escolar' => $año,
+                'nivel_educativo' => $nivel_educativo->id_nivel,
+                'grado' => $grado->id_grado,
+                'seccion' =>  $seccion,
+                'observaciones' => $observaciones,
+                'fecha_matricula' => $fecha_matricula
+            ]
+        ];
+        
+        return view('gestiones.matricula.edit', compact('data'));
+    }
+
+    public function editEntry(Request $request, $id)
+    {
+
+        if (!isset($id)) {
+            return redirect(route('matricula_view'));
+        }
+
+        $seccionData = $this->parseSeccionValue($request->seccion);
+
+        $request->validate([
+            'alumno' => 'required',
+            'año_escolar' => 'required',
+            'nivel_educativo' => 'required',
+            'grado' => 'required',
+            'seccion' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request, $seccionData) {
+                    $exists = Matricula::where('id_alumno', $request->alumno)
+                        ->where('año_escolar', $request->año_escolar)
+                        ->where('id_grado', $seccionData['id_grado'])
+                        ->where('nombreSeccion', $seccionData['nombreSeccion'])
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('Esta combinación de alumno, año escolar y sección ya existe.');
+                    }
+                },
+            ],
+        ], [
+            'alumno.required' => 'El alumno es obligatorio.',
+            'año_escolar.required' => 'El año escolar es obligatorio.',
+            'nivel_educativo.required' => 'El nivel educativo es obligatorio.',
+            'grado.required' => 'El grado es obligatorio.',
+            'seccion.required' => 'La sección es obligatoria.',
+            'seccion.unique' => 'Esta combinación de docente, curso, año escolar y sección ya existe.',
+        ]);
+
+        $matricula = Matricula::findOrFail($id);
+
+
+        $matricula->id_alumno = $request->input('alumno');
+        $matricula->año_escolar = $request->input('año_escolar');
+        $matricula->fecha_matricula = $request->input('fecha_matricula');
+        $matricula->escala = $request->input('escala');
+        $matricula->observaciones = $request->input('observaciones');
+        $matricula->id_grado = $seccionData['id_grado'];
+        $matricula->nombreSeccion = $seccionData['nombreSeccion'];
+        $matricula->save();
+
+
+        return redirect()->route('matricula_view', ['edited' => true]);
+    }
+
+    public function delete(Request $request)
+    {
+        $id = $request->input('id');
+        $matricula = Matricula::findOrFail($id);
+        $matricula->update(['estado' => '0']);
+
+        return redirect(route('matricula_view', ['deleted' => true]));
     }
 
     private function parseSeccionValue($seccionValue)
@@ -328,154 +457,38 @@ class CatedraController extends Controller
         ];
     }
 
-    public function edit(Request $request, $id)
+    public function getAlumnoInfo($id)
     {
-        if (!isset($id)) {
-            return redirect(route('catedra_view'));
-        }
+        $alumno = Alumno::findOrFail($id);
 
-        $catedra = Catedra::findOrFail($id);
-        
-        $personal = $catedra->personal;
+        // Supongamos que el alumno tiene un campo "escala"
+        $escala = $alumno->escala ?? 'E';
 
-        $curso = $catedra->curso;
-
-        $año = $catedra->año_escolar;
-
-        $grado = $catedra->grado;
-        
-        $id_grado = $catedra->seccion->id_grado;
-        $nombreSeccion = $catedra->seccion->nombreSeccion;
-
-        $seccion = $id_grado . '|' . $nombreSeccion;
-
-        $nivel_educativo = $grado->nivelEducativo;
-        
-        $personales = Personal::where("estado", "=", "1")->get();
-
-        $resultado_personales = $personales->map(function($personal) {
-            return [
-                'id' => $personal->id_personal, // o el campo de tu PK
-                'nombres' => trim(
-                    $personal->apellido_paterno . ' ' .
-                    $personal->apellido_materno . ' ' .
-                    $personal->primer_nombre . ' ' .
-                    $personal->otros_nombres
-                )
-            ];
-        })->values()->toArray();
-
-        $cursos = Curso::where("estado","=","1")->get();
-
-        $resultados_cursos = $cursos->map(function($curso){
-            return [
-                'id' => $curso->id_curso,
-                'nombres' => trim(
-                    $curso->nombre_curso . ' - ' . $curso->nivel->nombre_nivel
-                )
-            ];
-        })->values()->toArray();
-
-        $añosEscolares = [
-            ['id' => '2025', 'descripcion' => '2025'],
-            ['id' => '2026', 'descripcion' => '2026']
+        // Tabla de escalas
+        $escalas = [
+            'A' => 500.00,
+            'B' => 400.00,
+            'C' => 300.00,
+            'D' => 200.00,
+            'E' => 100.00,
         ];
 
-        $niveles = NivelEducativo::where("estado","=","1")->get();
+        // Monto mensual
+        $montoMensual = $escalas[$escala] ?? 0;
 
-        $grados = Grado::where("estado","=","1")->get();
+        // Calcular número de cuotas desde mes actual hasta diciembre
+        $mesActual = (int)date('n'); // 1-12
+        $cuotasPendientes = max(0, 12 - $mesActual + 1);
 
-        $secciones = Seccion::where("estado","=","1")->get();
-        
-        
+        // Total deuda
+        $totalDeuda = $montoMensual * $cuotasPendientes;
 
-        $data = [
-            'return' => route('grado_view', ['abort' => true]),
-            'id' => $id,
-            'docentes' => $resultado_personales,
-            'cursos' => $resultados_cursos,
-            'añosEscolares' => $añosEscolares,
-            'grados' => $grados,
-            'secciones' => $secciones,
-            'niveles' => $niveles,
-            'default' => [
-                'docente' => $personal->id_personal,
-                'curso' => $curso->id_curso,
-                'año_escolar' => $año,
-                'nivel_educativo' => $nivel_educativo->id_nivel,
-                'grado' => $grado->id_grado,
-                'seccion' =>  $seccion
-            ]
-        ];
-        
-        
-
-        return view('gestiones.catedra.edit', compact('data'));
-    }
-
-
-    public function editEntry(Request $request, $id)
-    {
-
-        if (!isset($id)) {
-            return redirect(route('catedra_view'));
-        }
-
-        $seccionData = $this->parseSeccionValue($request->seccion);
-
-        $request->validate([
-            'docente' => 'required',
-            'curso' => 'required',
-            'año_escolar' => 'required',
-            'nivel_educativo' => 'required',
-            'grado' => 'required',
-            'seccion' => [
-                'required',
-                function ($attribute, $value, $fail) use ($request, $seccionData) {
-                    $exists = Catedra::where('id_personal', $request->docente)
-                        ->where('id_curso', $request->curso)
-                        ->where('año_escolar', $request->año_escolar)
-                        ->where('id_grado', $seccionData['id_grado'])
-                        ->where('secciones_nombreSeccion', $seccionData['nombreSeccion'])
-                        ->exists();
-                    
-                    if ($exists) {
-                        $fail('Esta combinación de docente, curso, año escolar y sección ya existe.');
-                    }
-                },
-            ],
-        ], [
-            'docente.required' => 'El docente es obligatorio.',
-            'curso.required' => 'El curso es obligatorio.',
-            'año_escolar.required' => 'El año escolar es obligatorio.',
-            'nivel_educativo.required' => 'El nivel educativo es obligatorio.',
-            'grado.required' => 'El grado es obligatorio.',
-            'seccion.required' => 'La sección es obligatoria.',
-            'seccion.unique' => 'Esta combinación de docente, curso, año escolar y sección ya existe.',
+        return response()->json([
+            'escala' => $escala,
+            'deuda_mensual' => number_format($montoMensual, 2),
+            'cuotas_pendientes' => $cuotasPendientes,
+            'deuda_total' => number_format($totalDeuda, 2),
         ]);
-
-        $catedra = Catedra::findOrFail($id);
-
-
-        $catedra->id_personal = $request->input('docente');
-        $catedra->id_curso = $request->input('curso');
-        $catedra->año_escolar = $request->input('año_escolar');
-        $catedra->id_grado = $seccionData['id_grado'];
-        $catedra->secciones_nombreSeccion = $seccionData['nombreSeccion'];
-        $catedra->save();
-
-
-        return redirect()->route('catedra_view', ['edited' => true]);
-    }
-
-
-    public function delete(Request $request)
-    {
-        $id = $request->input('id');
-        $catedra = Catedra::findOrFail($id);
-        $catedra->update(['estado' => '0']);
-
-        return redirect(route('catedra_view', ['deleted' => true]));
     }
 
 

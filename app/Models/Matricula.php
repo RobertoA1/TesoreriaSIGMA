@@ -30,6 +30,12 @@ class Matricula extends Model
     {
         return $this->belongsTo(Alumno::class, 'id_alumno', 'id_alumno');
     }
+
+    public function grado()
+    {
+        return $this->belongsTo(Grado::class, 'id_grado', 'id_grado');
+    }
+
     public function seccion()
     {
         return $this->belongsTo(Seccion::class, 'nombreSeccion', 'nombreSeccion');

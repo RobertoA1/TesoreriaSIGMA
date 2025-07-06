@@ -1,7 +1,7 @@
 @extends('base.administrativo.blank')
 
 @section('titulo')
-  Registrar una Cátedra
+  Editar una Cátedra
 @endsection
 
 @section('contenido')

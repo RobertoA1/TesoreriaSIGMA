@@ -35,6 +35,7 @@
             ],
             'links' => [
                 'Alumnos' => 'alumno_view',
+                'Matrículas' => 'matricula_view',
                 'Familiares' => 'familiar_view',    
             ],
             'icon' => 'persona'
