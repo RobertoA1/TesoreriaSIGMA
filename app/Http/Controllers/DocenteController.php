@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\TableAction;
 use App\Models\DepartamentoAcademico;
 use App\Models\Personal;
 use Illuminate\Http\Request;
@@ -112,6 +113,10 @@ class DocenteController extends Controller
             'filters' => $data['columnas'] ?? [],
             'filterOptions' => [
                 'Departamento Académico' => $departamentosExistentes,
+            ],
+            'actions' => [
+                new TableAction("edit", "docente_edit", $tipoDeRecurso),
+                new TableAction("delete", '', $tipoDeRecurso),
             ]
         ];
 

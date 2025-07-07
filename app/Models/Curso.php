@@ -28,7 +28,15 @@ class Curso extends Model
                      ->withPivot('id_curso_grado', 'año_escolar'); 
     }
 
+    /**
+     * Es un alias de nivelEducativo.
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<NivelEducativo, Curso>
+     */
     public function nivel(){
+        return $this->hasOne(NivelEducativo::class, 'id_nivel', 'id_nivel');
+    }
+
+    public function nivelEducativo(){
         return $this->hasOne(NivelEducativo::class, 'id_nivel', 'id_nivel');
     }
 

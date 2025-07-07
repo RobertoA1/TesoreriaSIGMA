@@ -5,6 +5,9 @@ use App\Http\Controllers\CursoController;
 Route::get('/', [CursoController::class, 'index'])
     ->name('view'); 
 
+Route::get('/mas', [CursoController::class, 'viewAll'])
+    ->name('viewAll');
+
 Route::group(['middleware' => ['can:manage-resource,"academica","create"']], function(){
     Route::get('/crear', [CursoController::class, 'create'])
         ->name('create');
@@ -24,4 +27,11 @@ Route::group(['middleware' => ['can:manage-resource,"academica","edit"']], funct
 Route::group(['middleware' => ['can:manage-resource,"academica","delete"']], function(){
     Route::delete('/', [CursoController::class, 'delete'])
         ->name('delete');
+});
+
+Route::group(['middleware' => ['can:manage-resource,"academica","download"']], function(){
+    Route::get('/export', [CursoController::class, 'export'])
+        ->name('export');
+
+    Route::redirect('/mas/export', '/cursos/export');
 });

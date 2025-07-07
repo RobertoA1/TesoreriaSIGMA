@@ -13,8 +13,6 @@ class Seccion extends Model
 
     public $incrementing = false;
 
-
-
     protected $fillable = [
         'id_grado',
         'nombreSeccion'
@@ -25,7 +23,18 @@ class Seccion extends Model
         return $this->belongsTo(Grado::class, 'id_grado', 'id_grado');
     }
 
-public function matriculas()
+    public function niveleducativo(){
+        return $this->hasOneThrough(
+            NivelEducativo::class,
+            Grado::class,
+            'id_grado',
+            'id_nivel',
+            'id_grado',
+            'id_nivel'
+        );
+    }
+
+    public function matriculas()
     {
         return $this->hasMany(Matricula::class, 'id_grado', 'id_grado')
                     ->where('nombreSeccion', $this->nombreSeccion);

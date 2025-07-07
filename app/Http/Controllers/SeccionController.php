@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ArrayableTableAction;
+use App\Helpers\FilteredSearchQuery;
 use App\Models\Grado;
 use App\Models\Matricula;
 use App\Models\NivelEducativo;
@@ -10,10 +12,172 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+use App\Helpers\CRUDTablePage;
+use App\Helpers\ExcelExportHelper;
+use App\Helpers\PDFExportHelper;
+use App\Helpers\RequestHelper;
+use App\Helpers\TableAction;
+use App\Helpers\Tables\AdministrativoHeaderComponent;
+use App\Helpers\Tables\AdministrativoSidebarComponent;
+use App\Helpers\Tables\CautionModalComponent;
+use App\Helpers\Tables\CRUDTableComponent;
+use App\Helpers\Tables\FilterConfig;
+use App\Helpers\Tables\PaginatorRowsSelectorComponent;
+use App\Helpers\Tables\SearchBoxComponent;
+use App\Helpers\Tables\TableButtonComponent;
+use App\Helpers\Tables\TableComponent;
+use App\Helpers\Tables\TablePaginator;
+use App\Http\Controllers\Controller;
+
 class SeccionController extends Controller
 {
-    
-    private static function doSearch($sqlColumns, $search, $pagination){
+
+    private static function doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters = []){
+        $columnMap = [
+            'Nivel Educativo' => 'NivelEducativo.nombre_nivel',
+            'Grado' => 'Grado.nombre_grado',
+            'Seccion' => 'nombreSeccion',
+        ];
+
+        $query = Seccion::where('estado', '=', true);
+
+        FilteredSearchQuery::fromQuery($query, $sqlColumns, $search, $appliedFilters, $columnMap);
+
+        if ($maxEntriesShow == null) return $query->get();
+
+        return $query->paginate($maxEntriesShow);
+    }
+
+    public function index(Request $request, $long = false){
+        $sqlColumns = ["NivelEducativo.nombre_nivel", "Grado.nombre_grado", "nombreSeccion"];
+        $resource = 'academica';
+
+        $params = RequestHelper::extractSearchParams($request);
+        
+        $page = CRUDTablePage::new()
+            ->title("Secciones")
+            ->sidebar(new AdministrativoSidebarComponent())
+            ->header(new AdministrativoHeaderComponent());
+        
+        $content = CRUDTableComponent::new()
+            ->title("Secciones");
+
+        /* Definición de botones */
+        $filterButton = new TableButtonComponent("tablesv2.buttons.filtros");
+        $descargaButton = new TableButtonComponent("tablesv2.buttons.download");
+        $createNewEntryButton = new TableButtonComponent("tablesv2.buttons.createNewEntry", ["redirect" => "seccion_create"]);
+
+        if (!$long){
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermas", ["redirect" => "seccion_viewAll"]);
+        } else {
+            $params->showing = 100;
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermenos", ["redirect" => "seccion_view"]);
+        }
+
+        $content->addButton($filterButton);
+        $content->addButton($vermasButton);
+        $content->addButton($descargaButton);
+        $content->addButton($createNewEntryButton);
+
+        /* Paginador */
+        $paginatorRowsSelector = new PaginatorRowsSelectorComponent();
+        if ($long) $paginatorRowsSelector = new PaginatorRowsSelectorComponent([100]);
+        $paginatorRowsSelector->valueSelected = $params->showing;
+        $content->paginatorRowsSelector($paginatorRowsSelector);
+
+        /* Searchbox */
+        $searchBox = new SearchBoxComponent();
+        $searchBox->placeholder = "Buscar...";
+        $searchBox->value = $params->search;
+        $content->searchBox($searchBox);
+
+        /* Modals usados */
+        $cautionModal = CautionModalComponent::new()
+            ->cautionMessage('¿Estás seguro?')
+            ->action('Estás eliminando la Sección')
+            ->columns(["Nivel Educativo", "Grado", "Seccion"])
+            ->rows(['', '', ''])
+            ->lastWarningMessage('Borrar esto afectará a todo lo que esté vinculado a esta Sección')
+            ->confirmButton('Sí, bórralo')
+            ->cancelButton('Cancelar')
+            ->isForm(true)
+            ->dataInputName('id')
+            ->build();
+
+        $page->modals([$cautionModal]);
+
+        /* Lógica del controller */
+        
+        $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+
+        if ($params->page > $query->lastPage()){
+            $params->page = 1;
+            $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+        }
+
+        $nivelesExistentes = NivelEducativo::select("nombre_nivel")
+            ->distinct()
+            ->where("estado", "=", 1)
+            ->pluck("nombre_nivel");
+
+        $gradosExistentes = Grado::select("nombre_grado")
+            ->distinct()
+            ->where("estado", "=", 1)
+            ->pluck("nombre_grado");
+
+        $seccionesExistentes = Seccion::select("nombreSeccion")
+            ->distinct()
+            ->where("estado", "=", 1)
+            ->pluck("nombreSeccion");
+
+        $filterConfig = new FilterConfig();
+        $filterConfig->filters = [
+            "Nivel Educativo", "Grado", "Seccion"
+        ];
+        $filterConfig->filterOptions = [
+            "Nivel Educativo" => $nivelesExistentes,
+            "Grado" => $gradosExistentes,
+            "Seccion" => $seccionesExistentes
+        ];
+        $content->filterConfig = $filterConfig;
+        
+        $table = new TableComponent();
+        $table->columns = ["#", "Nivel Educativo", "Grado", "Seccion"];
+        $table->rows = [];
+
+        $num = $params->showing * ($params->page - 1);
+        foreach ($query as $seccion){
+            array_push($table->rows,
+            [
+                ++$num,
+                $seccion->grado->niveleducativo->nombre_nivel,
+                $seccion->grado->nombre_grado,
+                $seccion->nombreSeccion,
+                $seccion->id_grado, // Está oculto ya que no tiene una columna asignada.
+            ]); 
+        }
+
+        $table->actions = [
+            new TableAction('seccion_edit', 'seccion_edit', $resource),
+            new TableAction('delete', '', $resource),
+            new TableAction('seccion_view_details', 'seccion_view_details', $resource),
+        ];
+
+        $paginator = new TablePaginator($params->page, $query->lastPage(), []);
+        $table->paginator = $paginator;
+
+        $content->tableComponent($table);
+
+        $page->content($content->build());
+
+        return $page->render();
+    }
+
+    public function viewAll(Request $request){
+        return static::index($request, true);
+    }
+
+    private static function fallbackDoSearch($sqlColumns, $search, $pagination){
         if (!isset($search)){
             $secciones = Seccion::where('estado', '=', '1')->paginate($pagination);
         } else {
@@ -25,8 +189,7 @@ class SeccionController extends Controller
         return $secciones;
     }
 
-
-    public function index(Request $request)
+    public function fallback(Request $request)
     {
         $sqlColumns = ["id_grado","nombreSeccion"];
         $tipoDeRecurso = "academica";
@@ -38,12 +201,12 @@ class SeccionController extends Controller
         if (!is_numeric($paginaActual) || $paginaActual <= 0) $paginaActual = 1;
         if (!is_numeric($pagination) || $pagination <= 0) $pagination = 10;
 
-        $secciones = SeccionController::doSearch($sqlColumns, $search, $pagination);
+        $secciones = SeccionController::fallbackDoSearch($sqlColumns, $search, $pagination);
 
         if ($paginaActual > $secciones->lastPage()){
             $paginaActual = 1;
             $request['page'] = $paginaActual;
-            $secciones = SeccionController::doSearch($sqlColumns, $search, $pagination);
+            $secciones = SeccionController::fallbackDoSearch($sqlColumns, $search, $pagination);
         }
 
         $data = [

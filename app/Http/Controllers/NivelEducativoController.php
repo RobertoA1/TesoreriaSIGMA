@@ -2,136 +2,153 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Helpers\ArrayableTableAction;
+use App\Helpers\CRUDTablePage;
+use App\Helpers\ExcelExportHelper;
+use App\Helpers\FilteredSearchQuery;
+use App\Helpers\PDFExportHelper;
+use App\Helpers\RequestHelper;
+use App\Helpers\TableAction;
+use App\Helpers\Tables\AdministrativoHeaderComponent;
+use App\Helpers\Tables\AdministrativoSidebarComponent;
+use App\Helpers\Tables\CautionModalComponent;
+use App\Helpers\Tables\CRUDTableComponent;
+use App\Helpers\Tables\FilterConfig;
+use App\Helpers\Tables\PaginatorRowsSelectorComponent;
+use App\Helpers\Tables\SearchBoxComponent;
+use App\Helpers\Tables\TableButtonComponent;
+use App\Helpers\Tables\TableComponent;
+use App\Helpers\Tables\TablePaginator;
+use App\Http\Controllers\Controller;
 use App\Models\NivelEducativo;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Font;
-use Dompdf\Dompdf;
-use Dompdf\Options;
-use function PHPUnit\Framework\isNull;
+use \Illuminate\Http\Request;
+
 
 class NivelEducativoController extends Controller
 {
     private static function doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters = []){
-        $query = NivelEducativo::where('estado', '=', '1');
-        
-        // Aplicar búsqueda general si existe
-        if (isset($search)) {
-            $query->whereAny($sqlColumns, 'LIKE', "%{$search}%");
-        }
-        
-        // Aplicar filtros dinámicos
-        foreach ($appliedFilters as $filter) {
-            $columnName = $filter['key'];
-            $value = $filter['value'];
-            
-            // Mapear nombres de columnas de la vista a nombres de BD
-            $columnMap = [
-                'ID' => 'id_nivel',
-                'Nivel' => 'nombre_nivel',
-                'Descripción' => 'descripcion'
-            ];
-            
-            $dbColumn = $columnMap[$columnName] ?? strtolower($columnName);
-            
-            // Aplicar filtro según el tipo de columna
-            if ($dbColumn === 'id_nivel') {
-                // Para ID, usar búsqueda exacta si es numérico
-                if (is_numeric($value)) {
-                    $query->where($dbColumn, '=', $value);
-                } else {
-                    $query->where($dbColumn, 'LIKE', "%{$value}%");
-                }
-            } else {
-                // Para texto, usar LIKE
-                $query->where($dbColumn, 'LIKE', "%{$value}%");
-            }
-        }
+        $columnMap = [
+            'ID' => 'id_nivel',
+            'Nivel' => 'nombre_nivel',
+            'Descripción' => 'descripcion'
+        ];
+
+        $query = NivelEducativo::where('estado', '=', true);
+
+        FilteredSearchQuery::fromQuery($query, $sqlColumns, $search, $appliedFilters, $columnMap);
 
         if ($maxEntriesShow == null) return $query->get();
 
         return $query->paginate($maxEntriesShow);
     }
+    
     public function index(Request $request, $long = false){
         $sqlColumns = ['id_nivel', 'nombre_nivel', 'descripcion'];
         $resource = 'academica';
 
-        $maxEntriesShow = $request->input('showing', 10);
-        $paginaActual = $request->input('page', 1);
-        $search = $request->input('search');
+        $params = RequestHelper::extractSearchParams($request);
         
-        // Obtener filtros aplicados
-        $appliedFilters = json_decode($request->input('applied_filters', '[]'), true) ?? [];
-
-        if (!is_numeric($paginaActual) || $paginaActual <= 0) $paginaActual = 1;
-        if (!is_numeric($maxEntriesShow) || $maxEntriesShow <= 0) $maxEntriesShow = 10;
+        $page = CRUDTablePage::new()
+            ->title("Niveles Educativos")
+            ->sidebar(new AdministrativoSidebarComponent())
+            ->header(new AdministrativoHeaderComponent());
         
-        $query = NivelEducativoController::doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters);
+        $content = CRUDTableComponent::new()
+            ->title("Niveles Educativos");
 
-        if ($paginaActual > $query->lastPage()){
-            $paginaActual = 1;
-            $request['page'] = $paginaActual;
-            $query = NivelEducativoController::doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters);
+        $filterButton = new TableButtonComponent("tablesv2.buttons.filtros");
+        $content->addButton($filterButton);
+
+        /* Definición de botones */
+
+        $descargaButton = new TableButtonComponent("tablesv2.buttons.download");
+        $createNewEntryButton = new TableButtonComponent("tablesv2.buttons.createNewEntry", ["redirect" => "nivel_educativo_create"]);
+
+        if (!$long){
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermas", ["redirect" => "nivel_educativo_viewAll"]);
+        } else {
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermenos", ["redirect" => "nivel_educativo_view"]);
         }
 
-        if ($long) $maxEntriesShow = 100;
+        $content->addButton($vermasButton);
+        $content->addButton($descargaButton);
+        $content->addButton($createNewEntryButton);
+
+        /* Paginador */
+        $paginatorRowsSelector = new PaginatorRowsSelectorComponent();
+        if ($long) $paginatorRowsSelector = new PaginatorRowsSelectorComponent([100]);
+        $paginatorRowsSelector->valueSelected = $params->showing;
+        $content->paginatorRowsSelector($paginatorRowsSelector);
+
+        /* Searchbox */
+        $searchBox = new SearchBoxComponent();
+        $searchBox->placeholder = "Buscar...";
+        $searchBox->value = $params->search;
+        $content->searchBox($searchBox);
+
+        /* Modales usados */
+        $cautionModal = CautionModalComponent::new()
+            ->cautionMessage('¿Estás seguro?')
+            ->action('Estás eliminando el Nivel Educativo')
+            ->columns(['Nivel', 'Descripción'])
+            ->rows(['nombre', 'descripcion'])
+            ->lastWarningMessage('Borrar esto afectará a todo lo que esté vinculado a este Nivel Educativo')
+            ->confirmButton('Sí, bórralo')
+            ->cancelButton('Cancelar')
+            ->isForm(true)
+            ->dataInputName('id')
+            ->build();
+
+        $page->modals([$cautionModal]);
+
+        /* Lógica del controller */
+        
+        $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+
+        if ($params->page > $query->lastPage()){
+            $params->page = 1;
+            $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+        }
 
         $nivelesExistentes = NivelEducativo::select("nombre_nivel")
             ->distinct()
             ->where("estado", "=", 1)
             ->pluck("nombre_nivel");
-        
-        $data = [
-            'titulo' => 'Niveles Educativos',
-            'columnas' => [
-                'ID',
-                'Nivel',
-                'Descripción'
-            ],
-            'filas' => [],
-            'showing' => $maxEntriesShow,
-            'paginaActual' => $paginaActual,
-            'totalPaginas' => $query->lastPage(),
-            'resource' => $resource,
-            'view' => 'nivel_educativo_view',
-            'create' => 'nivel_educativo_create',
-            'edit' => 'nivel_educativo_edit',
-            'delete' => 'nivel_educativo_delete',
-            'filters' => $data['columnas'] ?? [],
-            'filterOptions' => [
-                'Nivel' => $nivelesExistentes,
-            ],
-            'long' => $long,
+
+        $filterConfig = new FilterConfig();
+        $filterConfig->filters = [
+            "ID", "Nivel", "Descripción"
         ];
-
-        if ($request->input("created", false)){
-            $data['created'] = $request->input('created');
-        }
-
-        if ($request->input("edited", false)){
-            $data['edited'] = $request->input('edited');
-        }
-
-        if ($request->input("abort", false)){
-            $data['abort'] = $request->input('abort');
-        }
-
-        if ($request->input("deleted", false)){
-            $data['deleted'] = $request->input('deleted');
-        }
+        $filterConfig->filterOptions = [
+            "Nivel" => $nivelesExistentes
+        ];
+        $content->filterConfig = $filterConfig;
+        
+        $table = new TableComponent();
+        $table->columns = ["ID", "Nivel", "Descripción"];
+        $table->rows = [];
 
         foreach ($query as $nivel){
-            array_push($data['filas'],
+            array_push($table->rows,
             [
                 $nivel->id_nivel,
                 $nivel->nombre_nivel,
                 $nivel->descripcion
             ]); 
         }
-        return view('gestiones.nivel_educativo.index', compact('data'));
+        $table->actions = [
+            new TableAction('edit', 'nivel_educativo_edit', $resource),
+            new TableAction('delete', '', $resource),
+        ];
+
+        $paginator = new TablePaginator($params->page, $query->lastPage(), []);
+        $table->paginator = $paginator;
+
+        $content->tableComponent($table);
+
+        $page->content($content->build());
+
+        return $page->render();
     }
 
     public function viewAll(Request $request){
@@ -215,272 +232,64 @@ class NivelEducativoController extends Controller
     public function export(Request $request){
         $format = $request->input('export', 'excel');
         $sqlColumns = ['id_nivel', 'nombre_nivel', 'descripcion'];
+
+        $params = RequestHelper::extractSearchParams($request);
         
-        // Obtener filtros aplicados
-        $appliedFilters = json_decode($request->input('applied_filters', '[]'), true) ?? [];
-        $search = $request->input('search');
-        
-        // Obtener todos los registros con filtros aplicados (sin paginación)
-        $query = NivelEducativo::where('estado', '=', '1');
-        
-        // Aplicar búsqueda general si existe
-        if (isset($search)) {
-            $query->whereAny($sqlColumns, 'LIKE', "%{$search}%");
+        $query = NivelEducativoController::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+
+        if ($params->page > $query->lastPage()){
+            $params->page = 1;
+            $query = NivelEducativoController::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
         }
-        
-        // Aplicar filtros dinámicos
-        foreach ($appliedFilters as $filter) {
-            $columnName = $filter['key'];
-            $value = $filter['value'];
-            
-            // Mapear nombres de columnas de la vista a nombres de BD
-            $columnMap = [
-                'ID' => 'id_nivel',
-                'Nivel' => 'nombre_nivel',
-                'Descripción' => 'descripcion'
-            ];
-            
-            $dbColumn = $columnMap[$columnName] ?? strtolower($columnName);
-            
-            // Aplicar filtro según el tipo de columna
-            if ($dbColumn === 'id_nivel') {
-                // Para ID, usar búsqueda exacta si es numérico
-                if (is_numeric($value)) {
-                    $query->where($dbColumn, '=', $value);
-                } else {
-                    $query->where($dbColumn, 'LIKE', "%{$value}%");
-                }
-            } else {
-                // Para texto, usar LIKE
-                $query->where($dbColumn, 'LIKE', "%{$value}%");
-            }
-        }
-        
-        $niveles = $query->get();
         
         if ($format === 'excel') {
-            return $this->exportExcel($niveles);
+            return $this->exportExcel($query);
         } elseif ($format === 'pdf') {
-            return $this->exportPdf($niveles);
+            return $this->exportPdf($query);
         }
         
         return abort(400, 'Formato no válido');
     }
 
-    private function exportExcel($niveles){
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        
-        // Configurar propiedades del documento
-        $spreadsheet->getProperties()
-            ->setCreator('Sistema SIGMA')
-            ->setTitle('Niveles Educativos')
-            ->setSubject('Exportación de Niveles Educativos')
-            ->setDescription('Listado de niveles educativos del sistema');
-        
-        // Configurar encabezados
+    private function exportExcel($niveles)
+    {
         $headers = ['ID', 'Nivel', 'Descripción'];
-        $column = 'A';
-        foreach ($headers as $header) {
-            $sheet->setCellValue($column . '1', $header);
-            $column++;
-        }
-        
-        // Estilos para encabezados
-        $headerStyle = [
-            'font' => [
-                'bold' => true,
-                'size' => 12,
-                'color' => ['rgb' => 'FFFFFF']
-            ],
-            'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '4F46E5'] // Color azul del tema
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER
-            ]
-        ];
-        
-        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
-        
-        // Agregar datos
-        $row = 2;
-        foreach ($niveles as $nivel) {
-            $sheet->setCellValue('A' . $row, $nivel->id_nivel);
-            $sheet->setCellValue('B' . $row, $nivel->nombre_nivel);
-            $sheet->setCellValue('C' . $row, $nivel->descripcion);
-            $row++;
-        }
-        
-        // Autoajustar columnas
-        foreach (range('A', 'C') as $columnID) {
-            $sheet->getColumnDimension($columnID)->setAutoSize(true);
-        }
-        
-        // Agregar bordes a toda la tabla
-        $styleArray = [
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000'],
-                ],
-            ],
-        ];
-        
-        $sheet->getStyle('A1:C' . ($row - 1))->applyFromArray($styleArray);
-        
         $fileName = 'niveles_educativos_' . date('Y-m-d_H-i-s') . '.xlsx';
-        
-        $writer = new Xlsx($spreadsheet);
-        
-        $responseHeaders = [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment;filename="' . $fileName . '"',
-            'Cache-Control' => 'max-age=0',
-            'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-            'Pragma' => 'public',
-        ];
-        
-        return response()->streamDownload(function() use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, $responseHeaders);
+        $title = 'Niveles Educativos';
+        $subject = 'Exportación de Niveles Educativos';
+        $description = 'Listado de niveles educativos del sistema';
+
+        return ExcelExportHelper::exportExcel(
+            $fileName,
+            $headers,
+            $niveles,
+            function($sheet, $row, $nivel) {
+                $sheet->setCellValue('A' . $row, $nivel->id_nivel);
+                $sheet->setCellValue('B' . $row, $nivel->nombre_nivel);
+                $sheet->setCellValue('C' . $row, $nivel->descripcion);
+            },
+            $title,
+            $subject,
+            $description
+        );
     }
 
-    private function exportPdf($niveles){
-        $options = new Options();
-        $options->set('defaultFont', 'Arial');
-        $options->set('isRemoteEnabled', true);
-        $dompdf = new Dompdf($options);
-        
-        // Generar HTML para el PDF
-        $html = $this->generatePdfHtml($niveles);
-        
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        
+    private function exportPdf($niveles)
+    {
         $fileName = 'niveles_educativos_' . date('Y-m-d_H-i-s') . '.pdf';
-        
-        return response($dompdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Cache-Control' => 'private, max-age=0, must-revalidate',
-            'Pragma' => 'public',
+        $html = PDFExportHelper::generateTableHtml([
+            'title' => 'Niveles Educativos',
+            'subtitle' => 'Niveles Educativos',
+            'headers' => ['ID', 'Nivel', 'Descripción'],
+            'rows' => $niveles->map(function($nivel) {
+                return [
+                    $nivel->id_nivel,
+                    $nivel->nombre_nivel,
+                    $nivel->descripcion
+                ];
+            })->toArray(),
+            'footer' => 'Sistema de Gestión Académica SIGMA - Generado automáticamente',
         ]);
-    }
-
-    private function generatePdfHtml($niveles){
-        $fecha = date('d/m/Y H:i:s');
-        $totalRegistros = count($niveles);
-        
-        $html = '
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <title>Niveles Educativos</title>
-            <style>
-                body { 
-                    font-family: Arial, sans-serif; 
-                    margin: 20px;
-                    font-size: 12px;
-                }
-                .header {
-                    text-align: center;
-                    margin-bottom: 30px;
-                    border-bottom: 2px solid #4F46E5;
-                    padding-bottom: 10px;
-                }
-                .header h1 {
-                    color: #4F46E5;
-                    margin: 0;
-                    font-size: 24px;
-                }
-                .header p {
-                    margin: 5px 0;
-                    color: #666;
-                }
-                .info-section {
-                    margin-bottom: 20px;
-                    background-color: #f8f9fa;
-                    padding: 10px;
-                    border-radius: 5px;
-                }
-                .info-section p {
-                    margin: 5px 0;
-                }
-                table { 
-                    width: 100%; 
-                    border-collapse: collapse; 
-                    margin-top: 10px;
-                }
-                th, td { 
-                    border: 1px solid #ddd; 
-                    padding: 8px; 
-                    text-align: left; 
-                }
-                th { 
-                    background-color: #4F46E5; 
-                    color: white;
-                    font-weight: bold;
-                }
-                tr:nth-child(even) {
-                    background-color: #f2f2f2;
-                }
-                .footer {
-                    margin-top: 30px;
-                    text-align: center;
-                    font-size: 10px;
-                    color: #666;
-                    border-top: 1px solid #ddd;
-                    padding-top: 10px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>Sistema SIGMA</h1>
-                <h2>Niveles Educativos</h2>
-                <p>Reporte generado el ' . $fecha . '</p>
-            </div>
-            
-            <div class="info-section">
-                <p><strong>Total de registros:</strong> ' . $totalRegistros . '</p>
-                <p><strong>Fecha de generación:</strong> ' . $fecha . '</p>
-            </div>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 10%;">ID</th>
-                        <th style="width: 30%;">Nivel</th>
-                        <th style="width: 60%;">Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>';
-        
-        foreach ($niveles as $nivel) {
-            $html .= '
-                    <tr>
-                        <td>' . htmlspecialchars($nivel->id_nivel) . '</td>
-                        <td>' . htmlspecialchars($nivel->nombre_nivel) . '</td>
-                        <td>' . htmlspecialchars($nivel->descripcion) . '</td>
-                    </tr>';
-        }
-        
-        $html .= '
-                </tbody>
-            </table>
-            
-            <div class="footer">
-                <p>Sistema de Gestión Académica SIGMA - Generado automáticamente</p>
-            </div>
-        </body>
-        </html>';
-        
-        return $html;
+        return PDFExportHelper::exportPdf($fileName, $html);
     }
 }

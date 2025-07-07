@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\TableAction;
 use App\Models\Alumno;
 use App\Models\Grado;
 use App\Models\Matricula;
@@ -165,6 +166,10 @@ class MatriculaController extends Controller
             'filterOptions' => [
                 'Grado' => $gradosExistentes,
                 'Seccion' => $seccionesExistentes,
+            ],
+            'actions' => [
+                new TableAction("edit", "matricula_edit", $tipoDeRecurso),
+                new TableAction("delete", '', $tipoDeRecurso),
             ]
         ];
 

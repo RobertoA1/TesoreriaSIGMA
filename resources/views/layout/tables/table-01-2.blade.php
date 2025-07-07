@@ -67,9 +67,9 @@
       <a
         class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
 
-        href="@if ($long) {{route('nivel_educativo_view')}} @else {{route('nivel_educativo_viewAll')}} @endif"
+        href="@if (isset($long) && $long) {{route($view)}} @else {{route($view)}} @endif"
       >
-        @if($long) Ver menos @else Ver más @endif
+        @if(isset($long) && $long) Ver menos @else Ver más @endif
       </a>
 
     @can('manage-resource', [$resource, 'download'])
@@ -157,7 +157,7 @@
               onchange="this.form.submit()"
               class="select-entries dark:bg-dark-900 h-9 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none py-2 pl-3 pr-8 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 text-gray-500 dark:text-gray-400 inline"
             > 
-              @if ($long)
+              @if (isset($long) && $long)
               <option value="100" selected class="text-gray-500 dark:bg-gray-900 dark:text-gray-400">
                 100
               </option>
@@ -234,17 +234,16 @@
           </th>
           @endforeach
 
-          @if (Gate::allows('manage-resource', [$resource, 'edit']) ||
-              Gate::allows('manage-resource', [$resource, 'delete']))
-          <th class="py-3">
-            <div class="flex items-center">
-              <p
-                class="font-medium text-gray-900 text-theme-xs dark:text-gray-300"
-              >
-                Acción
-              </p>
-            </div>
-          </th>
+          @if (isset($actions))
+            <th class="py-3">
+              <div class="flex items-center">
+                <p
+                  class="font-medium text-gray-900 text-theme-xs dark:text-gray-300"
+                >
+                  Acción
+                </p>
+              </div>
+            </th>
           @endif
         </tr>
       </thead>
@@ -253,35 +252,24 @@
       @foreach($filas as $fila)
         <tr>
           @for($i = 0; $i < count($columnas); $i++)
-          <td class="py-3">
-            <div class="flex items-center">
-              <p data-order="{{ $i }}" class="row{{ $fila[0] }} text-gray-600 text-theme-sm dark:text-gray-400">
-                {{ $fila[$i] }}
-              </p>
-            </div>
-          </td>
+            <td class="py-3">
+              <div class="flex items-center">
+                <p data-order="{{ $i }}" class="row{{ $fila[0] }} text-gray-600 text-theme-sm dark:text-gray-400">
+                  {{ $fila[$i] }}
+                </p>
+              </div>
+            </td>
           @endfor
 
-          @if (Gate::allows('manage-resource', [$resource, 'edit']) ||
-              Gate::allows('manage-resource', [$resource, 'delete']))
           <td class="py-3">
             <div class="flex gap-4 items-center">
-              @can('manage-resource', [$resource, 'edit'])
-              <a href="{{ route($edit, [$fila[0]]) }}" class="edit-button text-gray-600 text-theme-sm dark:text-gray-400">
-                Editar
-              </a>
-              @endcan
-
-              @can('manage-resource', [$resource, 'delete'])
-                  <button
-                    data-id="{{$fila[0]}}"
-                    class="delete-button text-gray-600 text-theme-sm dark:text-gray-400">
-                    Eliminar
-                  </button>
-              @endcan
+              @if (isset($actions))
+                @foreach ($actions as $action)
+                  {{$action->new($fila[0])}}
+                @endforeach
+              @endif
             </div>
           </td>
-          @endif
         </tr>
       @endforeach
       </tbody>
@@ -314,3 +302,10 @@
   </div>
 </div>
 </div>
+
+@push('custom-js')
+  <script src="{{ asset('js/tables.js') }}"></script>
+  <script src="{{ asset('js/delete-button-modal.js') }}"></script>
+  <script src="{{ asset('js/download-button.js') }}"></script>
+@endpush
+

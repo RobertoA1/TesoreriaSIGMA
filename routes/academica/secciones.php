@@ -4,6 +4,9 @@ use App\Http\Controllers\SeccionController;
 
 Route::get('/', [SeccionController::class,'index'])->name('view');
 
+Route::get('/mas', [SeccionController::class, 'viewAll'])
+    ->name('viewAll');
+
 Route::group(['middleware' => ['can:manage-resource,"academica","create"']],
     function(){
         Route::get('/crear', [SeccionController::class,'create'])->name('create'); //cambiar a crear xd
@@ -27,3 +30,10 @@ Route::group(['middleware' => ['can:manage-resource,"academica","view_details"']
         Route::get('/{id_grado}/{nombreSeccion}', [SeccionController::class,'view_details'])->name('view_details');
     }
 );
+
+Route::group(['middleware' => ['can:manage-resource,"academica","download"']], function(){
+    Route::get('/export', [SeccionController::class, 'export'])
+        ->name('export');
+
+    Route::redirect('/mas/export', '/grados/export');
+});

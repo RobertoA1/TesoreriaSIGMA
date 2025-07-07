@@ -2,24 +2,159 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\FilteredSearchQuery;
 use App\Models\Curso;
 use App\Models\NivelEducativo;
 use Illuminate\Http\Request;
+use App\Helpers\CRUDTablePage;
+use App\Helpers\ExcelExportHelper;
+use App\Helpers\PDFExportHelper;
+use App\Helpers\RequestHelper;
+use App\Helpers\TableAction;
+use App\Helpers\Tables\AdministrativoHeaderComponent;
+use App\Helpers\Tables\AdministrativoSidebarComponent;
+use App\Helpers\Tables\CautionModalComponent;
+use App\Helpers\Tables\CRUDTableComponent;
+use App\Helpers\Tables\FilterConfig;
+use App\Helpers\Tables\PaginatorRowsSelectorComponent;
+use App\Helpers\Tables\SearchBoxComponent;
+use App\Helpers\Tables\TableButtonComponent;
+use App\Helpers\Tables\TableComponent;
+use App\Helpers\Tables\TablePaginator;
+use App\Http\Controllers\Controller;
 
 class CursoController extends Controller
 {
-    private static function doSearch($sqlColumns, $search, $maxEntriesShow){
-        if (!isset($search)){
-            $query = Curso::where('estado', '=', '1')->paginate($maxEntriesShow);
+    private static function doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters = []){
+        $columnMap = [
+            'ID' => 'id_curso',
+            'Código del curso' => 'codigo_curso',
+            'Pertenece al nivel'=> 'NivelEducativo.nombre_nivel',
+            'Nombre del curso' => 'nombre_curso',
+        ];
+
+        $query = Curso::where('estado', '=', true);
+
+        FilteredSearchQuery::fromQuery($query, $sqlColumns, $search, $appliedFilters, $columnMap);
+
+        if ($maxEntriesShow == null) return $query->get();
+
+        return $query->paginate($maxEntriesShow);
+    }
+
+    public function index(Request $request, $long = false){
+        $sqlColumns = ['id_curso', 'codigo_curso', 'NivelEducativo.nombre_nivel', 'nombre_curso'];
+        $resource = 'academica';
+
+        $params = RequestHelper::extractSearchParams($request);
+        
+        $page = CRUDTablePage::new()
+            ->title("Cursos")
+            ->sidebar(new AdministrativoSidebarComponent())
+            ->header(new AdministrativoHeaderComponent());
+        
+        $content = CRUDTableComponent::new()
+            ->title("Cursos");
+
+        /* Definición de botones */
+        $filterButton = new TableButtonComponent("tablesv2.buttons.filtros");
+        $descargaButton = new TableButtonComponent("tablesv2.buttons.download");
+        $createNewEntryButton = new TableButtonComponent("tablesv2.buttons.createNewEntry", ["redirect" => "curso_create"]);
+
+        if (!$long){
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermas", ["redirect" => "curso_viewAll"]);
         } else {
-            $query = Curso::where('estado', '=', '1')
-                ->whereAny($sqlColumns, 'LIKE', "%{$search}%")
-                ->paginate($maxEntriesShow);    
+            $params->showing = 100;
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermenos", ["redirect" => "curso_view"]);
         }
 
-        return $query;
+        $content->addButton($filterButton);
+        $content->addButton($vermasButton);
+        $content->addButton($descargaButton);
+        $content->addButton($createNewEntryButton);
+
+        /* Paginador */
+        $paginatorRowsSelector = new PaginatorRowsSelectorComponent();
+        if ($long) $paginatorRowsSelector = new PaginatorRowsSelectorComponent([100]);
+        $paginatorRowsSelector->valueSelected = $params->showing;
+        $content->paginatorRowsSelector($paginatorRowsSelector);
+
+        /* Searchbox */
+        $searchBox = new SearchBoxComponent();
+        $searchBox->placeholder = "Buscar...";
+        $searchBox->value = $params->search;
+        $content->searchBox($searchBox);
+
+        /* Modales usados */
+        $cautionModal = CautionModalComponent::new()
+            ->cautionMessage('¿Estás seguro?')
+            ->action('Estás eliminando el Curso')
+            ->columns(["Código del curso", "Pertenece al nivel", "Nombre del curso"])
+            ->rows(['', '', ''])
+            ->lastWarningMessage('Borrar esto afectará a todo lo que esté vinculado a este Curso')
+            ->confirmButton('Sí, bórralo')
+            ->cancelButton('Cancelar')
+            ->isForm(true)
+            ->dataInputName('id')
+            ->build();
+
+        $page->modals([$cautionModal]);
+
+        /* Lógica del controller */
+        
+        $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+
+        if ($params->page > $query->lastPage()){
+            $params->page = 1;
+            $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+        }
+
+        $nivelesExistentes = NivelEducativo::select("nombre_nivel")
+            ->distinct()
+            ->where("estado", "=", 1)
+            ->pluck("nombre_nivel");
+
+        $filterConfig = new FilterConfig();
+        $filterConfig->filters = [
+            "ID", "Código del curso", "Pertenece al nivel", "Nombre del curso"
+        ];
+        $filterConfig->filterOptions = [
+            "Pertenece al nivel" => $nivelesExistentes
+        ];
+        $content->filterConfig = $filterConfig;
+        
+        $table = new TableComponent();
+        $table->columns = ["ID", "Código del curso", "Pertenece al nivel", "Nombre del curso"];
+        $table->rows = [];
+
+        foreach ($query as $curso){
+            array_push($table->rows,
+            [
+                $curso->id_curso,
+                $curso->codigo_curso,
+                $curso->niveleducativo->nombre_nivel,
+                $curso->nombre_curso,
+            ]); 
+        }
+        $table->actions = [
+            new TableAction('edit', 'curso_edit', $resource),
+            new TableAction('delete', '', $resource),
+        ];
+
+        $paginator = new TablePaginator($params->page, $query->lastPage(), []);
+        $table->paginator = $paginator;
+
+        $content->tableComponent($table);
+
+        $page->content($content->build());
+
+        return $page->render();
     }
-    public function index(Request $request){
+
+    public function viewAll(Request $request){
+        return static::index($request, true);
+    }
+    public function fallback(Request $request){
         $sqlColumns = ['id_curso', 'codigo_curso', 'nombre_curso'];
         $resource = 'academica';
 

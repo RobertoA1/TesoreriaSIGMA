@@ -4,6 +4,9 @@ use App\Http\Controllers\GradoController;
 
 Route::get('/', [GradoController::class,'index'])->name('view');
 
+Route::get('/mas', [GradoController::class, 'viewAll'])
+    ->name('viewAll');
+
 Route::group(['middleware' => ['can:manage-resource,"academica","create"']],
     function(){
         Route::get('/crear', [GradoController::class,'create'])->name('create'); //cambiar a crear xd
@@ -29,3 +32,10 @@ Route::group(['middleware' => ['can:manage-resource,"academica","view_details"']
         Route::get('/{id}/view_details', [GradoController::class,'view_details'])->name('view_details');
     }
 );
+
+Route::group(['middleware' => ['can:manage-resource,"academica","download"']], function(){
+    Route::get('/export', [GradoController::class, 'export'])
+        ->name('export');
+
+    Route::redirect('/mas/export', '/grados/export');
+});

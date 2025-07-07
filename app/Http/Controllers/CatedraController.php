@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\TableAction;
 use App\Models\Catedra;
 use App\Models\Curso;
 use App\Models\Grado;
@@ -167,6 +168,10 @@ class CatedraController extends Controller
                 'Curso' => $cursosExistentes,
                 'Grado' => $gradosExistentes,
                 'Seccion' => $seccionesExistentes,
+            ],
+            'actions' => [
+                new TableAction("edit", "catedra_edit", $tipoDeRecurso),
+                new TableAction("delete", '', $tipoDeRecurso),
             ]
         ];
 
