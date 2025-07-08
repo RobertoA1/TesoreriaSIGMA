@@ -423,7 +423,8 @@ class SeccionController extends Controller
                 $q->where('estado',1); // Alumnos activos
             })
             ->orderBy('fecha_matricula', 'desc')
-            ->paginate(10, ['*'], 'matricula_page');
+            ->paginate($Pagination)
+            ->withQueryString(); 
 
         $añosDisponibles = Matricula::where('id_grado', $id_grado)
             ->where('nombreSeccion', $nombreSeccion)

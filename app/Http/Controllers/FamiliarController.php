@@ -11,7 +11,10 @@ class FamiliarController extends Controller
 {
     private static function doSearch($sqlColumns, $search, $maxEntriesShow){
         if (!isset($search)){
-            $query = Familiar::where('estado', '=', '1')->paginate($maxEntriesShow);
+            $query = Familiar::where('estado', '=', '1')->orderBy('apellido_paterno')
+            ->orderBy('apellido_materno')
+            ->orderBy('primer_nombre')
+            ->orderBy('otros_nombres')->paginate($maxEntriesShow);
         } else {
             $query = Familiar::where('estado', '=', '1')
                 ->whereAny($sqlColumns, 'LIKE', "%{$search}%")

@@ -213,8 +213,12 @@ class MatriculaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
+        $nivel = $request->input('nivel_educativo');
+        $grado = $request->input('grado');
+        $seccion = $grado . '|' . $request->input('seccion');
+
         $alumnos = Alumno::where("estado", "=", "1")->get();
 
         $resultado_alumnos = $alumnos->map(function($alumno) {
@@ -255,7 +259,10 @@ class MatriculaController extends Controller
             'escalas' => $escalas,
             'grados' => $grados,
             'secciones' => $secciones,
-            "niveles" => $niveles
+            "niveles" => $niveles,
+            'nivelSeleccionado' => $nivel,
+            'gradoSeleccionado' => $grado,
+            'seccionSeleccionada' => $seccion
         ];
 
         return view('gestiones.matricula.create', compact('data'));

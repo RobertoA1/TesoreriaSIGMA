@@ -11,11 +11,13 @@ class DeudaController extends Controller
     private static function doSearch($sqlColumns, $search, $maxEntriesShow)
     {
         if (!isset($search)) {
-            $query = Deuda::where('estado', '=', '1')->orderBy('periodo', 'desc')->paginate($maxEntriesShow);
+            $query = Deuda::where('estado', '=', '1')->orderBy('id_concepto', 'asc')
+                ->orderBy('id_deuda', 'asc')->paginate($maxEntriesShow);
         } else {
             $query = Deuda::where('estado', '=', '1')
                 ->whereAny($sqlColumns, 'LIKE', "%{$search}%")
-                ->orderBy('periodo', 'desc')
+                ->orderBy('id_concepto', 'asc')
+                ->orderBy('id_deuda', 'asc')
                 ->paginate($maxEntriesShow);
                 
         }
