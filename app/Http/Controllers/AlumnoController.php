@@ -123,7 +123,8 @@ class AlumnoController extends Controller
             ['id' => 'Achuar', 'descripcion' => 'Achuar'],
             ['id' => 'Shawi', 'descripcion' => 'Shawi'],
             ['id' => 'Matsigenka', 'descripcion' => 'Matsigenka'],
-            ['id' => 'Yanesha', 'descripcion' => 'Yánesha']
+            ['id' => 'Yanesha', 'descripcion' => 'Yánesha'],
+            ['id' => 'Otro', 'descripcion' => 'Otro']
         ];
         
         $ubigeo = json_decode(file_get_contents(resource_path('data/ubigeo_peru.json')), true);
@@ -177,8 +178,8 @@ class AlumnoController extends Controller
             'agua_potable' => 'nullable|string|max:100',
             'desague' => 'nullable|string|max:100',
             's_s__h_h' => 'nullable|string|max:100',
-            'numero_de_habitaciones' => 'nullable|integer|min:1|max:11',
-            'numero_de_habitantes' => 'nullable|integer|min:1|max:11',
+            'numero_de_habitaciones' => 'nullable|integer|min:1|max:20',
+            'numero_de_habitantes' => 'nullable|integer|min:1|max:20',
             'situacion_de_vivienda' => 'required|string|max:100',
             'escala' => 'nullable|in:A,B,C,D',
         ], [
@@ -208,6 +209,8 @@ class AlumnoController extends Controller
             'material_vivienda.required' => 'Ingrese un material de vivienda válido.',
             'energia_electrica.required' => 'Ingrese una fuente de energía eléctrica válida.',
             'situacion_de_vivienda.required' => 'Ingrese una situación de vivienda válida.',
+            'numero_de_habitaciones.max' => 'Maximo Numero de Habitaciones = 20',
+            'numero_de_habitantes.max' => 'Maximo Numero de Habitantes = 20',
             'escala.in' => 'La escala debe ser A, B, C o D.',
         ]);
 
@@ -229,20 +232,20 @@ class AlumnoController extends Controller
         $estadoCivil = $request->input('estado_civil');
         $religion = $request->input('religion', '');
         $fechaBautizo = $request->input('fecha_bautizo', null);
-        $parroquiaBautizo = $request->input('parroquia_bautizo', '');
+        $parroquia_bautizo = $request->input('parroquia_de_bautizo', '');
         $colegioProcedencia = $request->input('colegio_de_procedencia', '');
         $direccion = $request->input('direccion');
         $telefono = $request->input('telefono', '');
         $medioTransporte = $request
             ->input('medio_de_transporte');
         $tiempoDemora = $request->input('tiempo_de_demora', '');
-        $materialVivienda = $request->input('material_de_vivienda');
+        $materialVivienda = $request->input('material_vivienda');
         $energiaElectrica = $request->input('energia_electrica');
         $aguaPotable = $request->input('agua_potable', '');
         $desague = $request->input('desague', '');
         $ss_hh = $request->input('s_s__h_h', '');
-        $numHabitaciones = $request->input('num_habitaciones', null);
-        $numHabitantes = $request->input('num_habitantes', null);
+        $numHabitaciones = $request->input('numero_de_habitaciones', null);
+        $numHabitantes = $request->input('numero_de_habitantes', null);
         $situacionVivienda = $request->input('situacion_de_vivienda');
         $escala = $request->input('escala', null);
 
@@ -266,7 +269,7 @@ class AlumnoController extends Controller
             'estado_civil' => $estadoCivil,
             'religion' => $religion,
             'fecha_bautizo' => $fechaBautizo,
-            'parroquia_bautizo' => $parroquiaBautizo,
+            'parroquia_bautizo' => $parroquia_bautizo,
             'colegio_procedencia' => $colegioProcedencia,
             'direccion' => $direccion,
             'telefono' => $telefono,
@@ -321,7 +324,8 @@ class AlumnoController extends Controller
             ['id' => 'Achuar', 'descripcion' => 'Achuar'],
             ['id' => 'Shawi', 'descripcion' => 'Shawi'],
             ['id' => 'Matsigenka', 'descripcion' => 'Matsigenka'],
-            ['id' => 'Yanesha', 'descripcion' => 'Yánesha']
+            ['id' => 'Yanesha', 'descripcion' => 'Yánesha'],
+            ['id' => 'Otro', 'descripcion' => 'Otro']
         ];
 
 
@@ -375,8 +379,8 @@ class AlumnoController extends Controller
                 'agua_potable' => $requested->agua_potable,
                 'desague' => $requested->desague,
                 's_s__h_h' => $requested->ss_hh,
-                'num_habitaciones' => $requested->num_habitaciones,
-                'num_habitantes' => $requested->num_habitantes,
+                'numero_de_habitaciones' => $requested->num_habitaciones,
+                'numero_de_habitantes' => $requested->num_habitantes,
                 'situacion_de_vivienda' => $requested->situacion_vivienda,
                 'escala' => $requested->escala,
             ]
@@ -388,6 +392,73 @@ class AlumnoController extends Controller
         if (!isset($id)) {
             return redirect(route('alumno_view'));
         }
+
+        $request -> validate([
+            'codigo_modular' => 'required|string|max:20',
+            'codigo_educando' => 'required|string|max:20',
+            'año_de_ingreso' => 'required|integer|min:1900|max:2100',
+            'd_n_i' => 'required|string|max:8',
+            'apellido_paterno' => 'required|string|max:50',
+            'apellido_materno' => 'required|string|max:50',
+            'primer_nombre' => 'required|string|max:50',
+            'otros_nombres' => 'nullable|string|max:50',
+            'sexo' => 'required|in:M,F',
+            'fecha_nacimiento' => 'required|date',
+            'pais' => 'required|string|max:20',
+            'departamento' => 'required|string|max:40',
+            'provincia' => 'required|string|max:40',
+            'distrito' => 'required|string|max:40',
+            'lengua_materna' => 'required|string|max:50',
+            'estado_civil' => 'required|in:S,C,V,D',
+            'religion' => 'nullable|string|max:50',
+            'fecha_bautizo' => 'nullable|date',
+            'parroquia_de_bautizo' => 'nullable|string|max:100',
+            'colegio_de_procedencia' => 'nullable|string|max:100',
+            'direccion' => 'required|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'medio_de_transporte' => 'required|string|max:50',
+            'tiempo_de_demora' => 'required|string|max:20',
+            'material_vivienda' => 'required|string|max:100',
+            'energia_electrica' => 'required|string|max:100',
+            'agua_potable' => 'nullable|string|max:100',
+            'desague' => 'nullable|string|max:100',
+            's_s__h_h' => 'nullable|string|max:100',
+            'numero_de_habitaciones' => 'nullable|integer|min:1|max:20',
+            'numero_de_habitantes' => 'nullable|integer|min:1|max:20',
+            'situacion_de_vivienda' => 'required|string|max:100',
+            'escala' => 'nullable|in:A,B,C,D',
+        ], [
+            'codigo_modular.required' => 'Ingrese un codigo valido.',
+            'codigo_educando.required' => 'Ingrese un codigo valido.',
+            'año_de_ingreso.required' => 'El año de ingreso es obligatorio.',
+            'd_n_i.required' => 'Ingrese un DNI válido.',
+            'apellido_paterno.required' => 'Ingrese un apellido paterno válido.',
+            'apellido_materno.required' => 'Ingrese un apellido materno válido.',
+            'primer_nombre.required' => 'Ingrese un primer nombre válido.',
+            'sexo.required' => 'El campo sexo, es obligatorio.',
+            'fecha_nacimiento.required' => 'Ingrese una fecha de nacimiento válida.',
+            'pais.required' => 'Ingrese un país válido.',
+            'departamento.required' => 'Ingrese un departamento válido.',
+            'provincia.required' => 'Ingrese una provincia válida.',
+            'distrito.required' => 'Ingrese un distrito válido.',
+            'lengua_materna.required' => 'Ingrese una lengua materna válida.',
+            'estado_civil.required' => 'El estado civil es obligatorio.',
+            'religion.max' => 'La religión no puede superar los 50 caracteres.',
+            'fecha_bautizo.date' => 'Ingrese una fecha de bautizo válida.',
+            'parroquia_de_bautizo.max' => 'La parroquia de bautizo no puede superar los 100 caracteres.',
+            'colegio_de_procedencia.max' => 'El colegio de procedencia no puede superar los 100 caracteres.',
+            'direccion.required' => 'Ingrese una dirección válida.',
+            'telefono.max' => 'El teléfono no puede superar los 20 caracteres.',
+            'medio_de_transporte.required' => 'Ingrese un medio de transporte válido.',
+            'tiempo_de_demora.required' => 'Ingrese un tiempo de demora válido.',
+            'material_vivienda.required' => 'Ingrese un material de vivienda válido.',
+            'energia_electrica.required' => 'Ingrese una fuente de energía eléctrica válida.',
+            'situacion_de_vivienda.required' => 'Ingrese una situación de vivienda válida.',
+            'numero_de_habitaciones.max' => 'Maximo Numero de Habitaciones = 20',
+            'numero_de_habitantes.max' => 'Maximo Numero de Habitantes = 20',
+            'escala.in' => 'La escala debe ser A, B, C o D.',
+        ]);
+
 
         $requested = Alumno::find($id);
 
@@ -410,7 +481,7 @@ class AlumnoController extends Controller
             $newEstadoCivil = $request->input('estado_civil');
             $newReligion = $request->input('religion', '');
             $newFechaBautizo = $request->input('fecha_bautizo', null);
-            $newParroquiaBautizo = $request->input('parroquia_bautizo', '');
+            $newParroquiaBautizo = $request->input('parroquia_de_bautizo', '');
             $newColegioProcedencia = $request->input('colegio_de_procedencia', '');
             $newDireccion = $request->input('direccion');
             $newTelefono = $request->input('telefono', '');
@@ -421,8 +492,8 @@ class AlumnoController extends Controller
             $newAguaPotable = 	$request->input('agua_potable', '');
             $newDesague = $request->input('desague', '');
             $newSs_hh = $request->input('s_s__h_h', '');
-            $newNumHabitaciones = $request->input('num_habitaciones', null);
-            $newNumHabitantes = $request->input('num_habitantes', null);
+            $newNumHabitaciones = $request->input('numero_de_habitaciones', null);
+            $newNumHabitantes = $request->input('numero_de_habitantes', null);
             $newSituacionVivienda = $request->input('situacion_de_vivienda');
             $newEscala = $request->input('escala', null);
 

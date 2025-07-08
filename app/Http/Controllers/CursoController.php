@@ -225,18 +225,10 @@ class CursoController extends Controller
     }
 
     public function create(Request $request){
-        $query = NivelEducativo::where('estado', '=', '1')->get();
-
-        $valores = [];
-        $niveles = []; 
-        foreach($query as $nivel){
-            array_push($valores, $nivel->id_nivel);
-            array_push($niveles, $nivel->nombre_nivel);
-        }
+        $niveles = NivelEducativo::where('estado', '=', '1')->get();
 
         $data = [
             'niveles' => $niveles,
-            'valores' => $valores,
             'return' => route('curso_view', ['abort' => true]),
         ];
 
@@ -279,20 +271,13 @@ class CursoController extends Controller
 
         $requested = Curso::findOrFail($id);
 
-        $query = NivelEducativo::where('estado', '=', '1')->get();
+        $niveles = NivelEducativo::where('estado', '=', '1')->get();
 
-        $valores = [];
-        $niveles = []; 
-        foreach($query as $nivel){
-            array_push($valores, $nivel->id_nivel);
-            array_push($niveles, $nivel->nombre_nivel);
-        }
 
         $data = [
             'return' => route('curso_view', ['abort' => true]),
             'id' => $id,
             'niveles' => $niveles,
-            'valores' => $valores,
             'default' => [
                 'nivel_educativo' => $requested->id_nivel,
                 'código_del_curso' => $requested->codigo_curso,
