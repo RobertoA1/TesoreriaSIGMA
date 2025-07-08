@@ -13,12 +13,14 @@
         'Fecha Matricula',
         'Año Escolar',
         'Alumno',
+        'Nivel Educativo',
         'Grado',
         'Seccion',
         'Escala',
         'Observaciones'
       ],
       'rows' => [
+        'null',
         'null',
         'null',
         'null',

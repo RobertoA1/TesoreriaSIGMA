@@ -419,9 +419,9 @@ class SeccionController extends Controller
             ->where('nombreSeccion', $nombreSeccion)
             ->where('año_escolar', $anioEscolar)
             ->where('estado', 1) // Matrículas activas
-    ->whereHas('alumno', function($q){
-        $q->where('estado',1); // Alumnos activos
-    })
+            ->whereHas('alumno', function($q){
+                $q->where('estado',1); // Alumnos activos
+            })
             ->orderBy('fecha_matricula', 'desc')
             ->paginate(10, ['*'], 'matricula_page');
 
@@ -429,6 +429,10 @@ class SeccionController extends Controller
             ->where('nombreSeccion', $nombreSeccion)
             ->distinct()
             ->pluck('año_escolar');
+
+        if ($añosDisponibles->isEmpty()) {
+            $añosDisponibles = collect([date('Y')]);
+        }
 
         return view('gestiones.seccion.view_details', compact(
             'seccion',
