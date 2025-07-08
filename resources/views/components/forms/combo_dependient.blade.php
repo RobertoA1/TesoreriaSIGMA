@@ -303,11 +303,23 @@ document.addEventListener('DOMContentLoaded', function() {
         options.forEach(option => {
             const searchText = option.dataset.search;
             const matchesSearch = searchText.includes(searchTerm);
-            const isVisible = option.style.display !== 'none';
+            const optionParent = option.dataset.parent;
             
-            if (isVisible) {
-                option.style.display = matchesSearch ? 'block' : 'none';
+            // Check if option should be visible based on parent dependency
+            let shouldShowByParent = true;
+            if (dependsOn) {
+                const parentContainer = document.querySelector(`[data-field-name="${dependsOn}"]`);
+                if (parentContainer) {
+                    const parentInput = parentContainer.querySelector('input[type="hidden"]');
+                    const parentValue = parentInput ? parentInput.value : '';
+                    shouldShowByParent = !optionParent || !parentValue || optionParent === parentValue;
+                }
+            } else {
+                shouldShowByParent = !optionParent || optionParent === '';
             }
+            
+            // Show option only if it matches search AND parent dependency
+            option.style.display = (matchesSearch && shouldShowByParent) ? 'block' : 'none';
         });
     });
 
@@ -333,11 +345,22 @@ document.addEventListener('DOMContentLoaded', function() {
             searchInput.value = '';
             
             // Reset search filter
-            options.forEach(opt => {
-                if (opt.style.display === 'none' && opt.dataset.search) {
-                    const shouldShow = !opt.dataset.parent || opt.dataset.parent === '';
-                    if (shouldShow) opt.style.display = 'block';
+           options.forEach(opt => {
+                const optionParent = opt.dataset.parent;
+                let shouldShow = true;
+                
+                if (dependsOn) {
+                    const parentContainer = document.querySelector(`[data-field-name="${dependsOn}"]`);
+                    if (parentContainer) {
+                        const parentInput = parentContainer.querySelector('input[type="hidden"]');
+                        const parentValue = parentInput ? parentInput.value : '';
+                        shouldShow = !optionParent || !parentValue || optionParent === parentValue;
+                    }
+                } else {
+                    shouldShow = !optionParent || optionParent === '';
                 }
+                
+                opt.style.display = shouldShow ? 'block' : 'none';
             });
             
             // First reset all dependent combos to clear their placeholders

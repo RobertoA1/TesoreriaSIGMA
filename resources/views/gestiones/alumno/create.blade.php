@@ -92,13 +92,15 @@
       </div>
 
       <div class="grid-cols-1 gap-4 grid sm:grid-cols-2 md:grid-cols-4">
-        <div>
-          @include('components.forms.string', [
-            'label' => 'Sexo',
-            'error' => $errors->first(Str::snake('Sexo')) ?? false,
-            'value' => old(Str::snake('Sexo'))
-          ])
-        </div> 
+        <div >
+          @include('components.forms.combo', [
+                'label' => 'Sexo',
+                'error' => $errors->first(Str::snake('Sexo')) ?? false,
+                'value' => old(Str::snake('Sexo')), // null o vacío
+                'options' => $data['sexos'],
+                'options_attributes' => ['id', 'descripcion']
+            ])
+        </div>
         <div>
           @include('components.forms.date', [
             'label' => 'Fecha Nacimiento',
@@ -114,60 +116,96 @@
           ])
         </div> 
         <div>
-          @include('components.forms.string', [
-            'label' => 'Escala',
-            'error' => $errors->first(Str::snake('Escala')) ?? false,
-            'value' => old(Str::snake('Escala'))
-          ])
+          @include('components.forms.combo', [
+                'label' => 'Escala',
+                'error' => $errors->first(Str::snake('Escala')) ?? false,
+                'value' => old(Str::snake('Escala')), // null o vacío
+                'options' => $data['escalas'],
+                'options_attributes' => ['id', 'descripcion']
+            ])
         </div> 
 
       </div>
 
       <div class="grid-cols-1 gap-4 grid sm:grid-cols-2 md:grid-cols-4">
         <div>
-          @include('components.forms.string', [
-            'label' => 'Pais',
-            'error' => $errors->first(Str::snake('Pais')) ?? false,
-            'value' => old(Str::snake('Pais'))
+           @include('components.forms.combo_dependient', [
+              'label' => 'País',
+              'name' => 'pais',
+              'error' => $errors->first(Str::snake('pais')) ?? false,
+              'placeholder' => 'Seleccionar país...',
+              'value' => old(Str::snake('pais')) ,
+              'value_field' => 'id_pais',
+              'text_field' => 'descripcion',
+              'options' => $data['paises'],
+              'enabled' => true,
+          ])          
+        </div> 
+        <div>
+          @include('components.forms.combo_dependient', [
+              'label' => 'Departamento',
+              'name' => 'departamento',
+              'error' => $errors->first(Str::snake('departamento')) ?? false,
+              'placeholder' => 'Seleccionar departamento...',
+              'depends_on' => 'pais',
+              'parent_field' => 'id_pais',
+              'value' => old(Str::snake('departamento')) ,
+              'value_field' => 'id_departamento',
+              'text_field' => 'descripcion',
+              'options' => $data['departamentos'],
+              'enabled' => false,
           ])
         </div> 
         <div>
-          @include('components.forms.string', [
-            'label' => 'Departamento',
-            'error' => $errors->first(Str::snake('Departamento')) ?? false,
-            'value' => old(Str::snake('Departamento'))
+          @include('components.forms.combo_dependient', [
+              'label' => 'Provincia',
+              'name' => 'provincia',
+              'error' => $errors->first(Str::snake('provincia')) ?? false,
+              'value' => old(Str::snake('provincia')),
+              'placeholder' => 'Seleccionar provincia...',
+              'depends_on' => 'departamento',
+              'parent_field' => 'id_departamento',
+              'value_field' => 'id_provincia',    // O la clave que uses
+              'text_field' => 'descripcion',
+              'options' => $data['provincias'],
+              'enabled' => false,
           ])
         </div> 
         <div>
-          @include('components.forms.string', [
-            'label' => 'Provincia',
-            'error' => $errors->first(Str::snake('Provincia')) ?? false,
-            'value' => old(Str::snake('Provincia'))
-          ])
-        </div> 
-        <div>
-          @include('components.forms.string', [
-            'label' => 'Distrito',
-            'error' => $errors->first(Str::snake('Distrito')) ?? false,
-            'value' => old(Str::snake('Distrito'))
+          @include('components.forms.combo_dependient', [
+              'label' => 'Distrito',
+              'name' => 'distrito',
+              'error' => $errors->first(Str::snake('distrito')) ?? false,
+              'value' => old(Str::snake('distrito')),
+              'placeholder' => 'Seleccionar distrito...',
+              'depends_on' => 'provincia',
+              'parent_field' => 'id_provincia',
+              'value_field' => 'id_distrito',    // O la clave que uses
+              'text_field' => 'descripcion',
+              'options' => $data['distritos'],
+              'enabled' => false,
           ])
         </div> 
       </div>
 
       <div class="grid-cols-1 gap-4 grid sm:grid-cols-2 md:grid-cols-4">
         <div>
-          @include('components.forms.string', [
-            'label' => 'Lengua Materna',
-            'error' => $errors->first(Str::snake('Lengua Materna')) ?? false,
-            'value' => old(Str::snake('Lengua Materna'))
-          ])
+          @include('components.forms.combo', [
+                'label' => 'Lengua Materna',
+                'error' => $errors->first(Str::snake('Lengua Materna')) ?? false,
+                'value' => old(Str::snake('Lengua Materna') ) , // null o vacío
+                'options' => $data['lenguasmaternas'],
+                'options_attributes' => ['id', 'descripcion']
+            ])
         </div> 
         <div>
-          @include('components.forms.string', [
-            'label' => 'Estado Civil',
-            'error' => $errors->first(Str::snake('Estado Civil')) ?? false,
-            'value' => old(Str::snake('Estado Civil'))
-          ])
+          @include('components.forms.combo', [
+                'label' => 'Estado Civil',
+                'error' => $errors->first(Str::snake('Estado Civil')) ?? false,
+                'value' => old(Str::snake('Estado Civil') ) , // null o vacío
+                'options' => $data['estadosciviles'],
+                'options_attributes' => ['id', 'descripcion']
+            ])
         </div> 
         <div>
           @include('components.forms.string', [

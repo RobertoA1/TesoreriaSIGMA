@@ -93,8 +93,54 @@ class AlumnoController extends Controller
     }
 
     public function create(Request $request) {
+        $sexos = [
+            ['id' => 'M', 'descripcion' => 'Masculino'],
+            ['id' => 'F', 'descripcion' => 'Femenino']
+        ];
+
+        $escalas = [
+            ['id' => 'A', 'descripcion' => 'A'],
+            ['id' => 'B', 'descripcion' => 'B'],
+            ['id' => 'C', 'descripcion' => 'C'],
+            ['id' => 'D', 'descripcion' => 'D'],
+            ['id' => 'E', 'descripcion' => 'E'],
+        ];
+
+        $estadosciviles = [
+            ['id' => 'C', 'descripcion' => 'Casado'],
+            ['id' => 'S', 'descripcion' => 'Soltero'],
+            ['id' => 'V', 'descripcion' => 'Viudo'],
+            ['id' => 'D', 'descripcion' => 'Divorciado']
+        ];
+
+        $lenguasmaternas = [
+            ['id' => 'Castellano', 'descripcion' => 'Castellano'],
+            ['id' => 'Quechua', 'descripcion' => 'Quechua'],
+            ['id' => 'Aymara', 'descripcion' => 'Aymara'],
+            ['id' => 'Ashaninka', 'descripcion' => 'Asháninka'],
+            ['id' => 'Shipibo-Konibo', 'descripcion' => 'Shipibo-Konibo'],
+            ['id' => 'Awajun', 'descripcion' => 'Awajún'],
+            ['id' => 'Achuar', 'descripcion' => 'Achuar'],
+            ['id' => 'Shawi', 'descripcion' => 'Shawi'],
+            ['id' => 'Matsigenka', 'descripcion' => 'Matsigenka'],
+            ['id' => 'Yanesha', 'descripcion' => 'Yánesha']
+        ];
+        
+        $ubigeo = json_decode(file_get_contents(resource_path('data/ubigeo_peru.json')), true);
+        $paises = $ubigeo['paises'];
+        $departamentos = $ubigeo['departamentos'];
+        $provincias = $ubigeo['provincias'];
+        $distritos = $ubigeo['distritos'];
         $data = [
             'return' => route('alumno_view', ['abort' => true]),
+            'sexos' => $sexos,
+            'paises' => $paises,
+            'provincias' => $provincias,
+            'distritos' => $distritos,
+            'estadosciviles' => $estadosciviles,
+            'departamentos' => $departamentos,
+            'lenguasmaternas' => $lenguasmaternas,
+            'escalas' => $escalas
         ];
 
         return view('gestiones.alumno.create', compact('data'));
@@ -245,11 +291,60 @@ class AlumnoController extends Controller
             return redirect(route('alumno_view'));
         }
 
+        $sexos = [
+            ['id' => 'M', 'descripcion' => 'Masculino'],
+            ['id' => 'F', 'descripcion' => 'Femenino']
+        ];
+
+        $estadosciviles = [
+            ['id' => 'C', 'descripcion' => 'Casado'],
+            ['id' => 'S', 'descripcion' => 'Soltero'],
+            ['id' => 'V', 'descripcion' => 'Viudo'],
+            ['id' => 'D', 'descripcion' => 'Divorciado']
+        ];
+
+        $escalas = [
+            ['id' => 'A', 'descripcion' => 'A'],
+            ['id' => 'B', 'descripcion' => 'B'],
+            ['id' => 'C', 'descripcion' => 'C'],
+            ['id' => 'D', 'descripcion' => 'D'],
+            ['id' => 'E', 'descripcion' => 'E'],
+        ];
+
+        $lenguasmaternas = [
+            ['id' => 'Castellano', 'descripcion' => 'Castellano'],
+            ['id' => 'Quechua', 'descripcion' => 'Quechua'],
+            ['id' => 'Aymara', 'descripcion' => 'Aymara'],
+            ['id' => 'Ashaninka', 'descripcion' => 'Asháninka'],
+            ['id' => 'Shipibo-Konibo', 'descripcion' => 'Shipibo-Konibo'],
+            ['id' => 'Awajun', 'descripcion' => 'Awajún'],
+            ['id' => 'Achuar', 'descripcion' => 'Achuar'],
+            ['id' => 'Shawi', 'descripcion' => 'Shawi'],
+            ['id' => 'Matsigenka', 'descripcion' => 'Matsigenka'],
+            ['id' => 'Yanesha', 'descripcion' => 'Yánesha']
+        ];
+
+
+        $ubigeo = json_decode(file_get_contents(resource_path('data/ubigeo_peru.json')), true);
+        $paises = $ubigeo['paises'];
+        $departamentos = $ubigeo['departamentos'];
+        $provincias = $ubigeo['provincias'];
+        $distritos = $ubigeo['distritos'];
+        
+
         $requested = Alumno::findOrFail($id);
 
         $data = [
             'return' => route('alumno_view', ['abort' => true]),
             'id' => $id,
+            'sexos' => $sexos,
+            'paises' => $paises,
+            'provincias' => $provincias,
+            'distritos' => $distritos,
+            'departamentos' => $departamentos,
+            'estadosciviles' => $estadosciviles,
+            'lenguasmaternas' => $lenguasmaternas,
+            'escalas' => $escalas,
             'default' => [
                 'codigo_educando' => $requested->codigo_educando,
                 'codigo_modular' => $requested->codigo_modular,

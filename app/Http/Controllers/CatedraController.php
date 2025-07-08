@@ -243,6 +243,8 @@ class CatedraController extends Controller
             ['id' => '2026', 'descripcion' => '2026']
         ];
 
+        
+
         $niveles = NivelEducativo::where("estado","=","1")->get();
 
         $grados = Grado::where("estado","=","1")->get();
