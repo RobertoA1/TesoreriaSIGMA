@@ -115,7 +115,7 @@ class AlumnoController extends Controller
             ->confirmButton('Sí, bórralo')
             ->cancelButton('Cancelar')
             ->isForm(true)
-            ->dataInputName('id_alumno')
+            ->dataInputName('id')
             ->build();
 
         $page->modals([$cautionModal]);
@@ -770,7 +770,8 @@ class AlumnoController extends Controller
     public function delete(Request $request) {
         $id = $request->input('id');
 
-        $requested = Alumno::find($id);
+        $requested = Alumno::findOrFail($id);
+
         $requested->update(['estado' => '0']);
 
         return redirect(route('alumno_view', ['deleted' => true]));

@@ -269,37 +269,29 @@ class MatriculaController extends Controller
 
     }
 
-    public function createNewEntry(Request $request){
+    public function createNewEntry(Request $request)
+{
+    $seccionData = $this->parseSeccionValue($request->seccion);
 
-        $seccionData = $this->parseSeccionValue($request->seccion);
-
-        $request->validate([
-            'alumno' => 'required',
-            'año_escolar' => 'required',
-            'nivel_educativo' => 'required',
-            'grado' => 'required',
-            'seccion' => [
-                'required',
-                function ($attribute, $value, $fail) use ($request, $seccionData) {
-                    $exists = Matricula::where('id_alumno', $request->alumno)
-                        ->where('año_escolar', $request->año_escolar)
-                        ->where('id_grado', $seccionData['id_grado'])
-                        ->where('nombreSeccion', $seccionData['nombreSeccion'])
-                        ->exists();
-                    
-                    if ($exists) {
-                        $fail('Esta combinación de alumno, año escolar y sección ya existe.');
-                    }
-                },
-            ],
-        ], [
-            'alumno.required' => 'El alumno es obligatorio.',
-            'año_escolar.required' => 'El año escolar es obligatorio.',
-            'nivel_educativo.required' => 'El nivel educativo es obligatorio.',
-            'grado.required' => 'El grado es obligatorio.',
-            'seccion.required' => 'La sección es obligatoria.',
-            'seccion.unique' => 'Esta combinación de docente, curso, año escolar y sección ya existe.',
-        ]);
+    $request->validate([
+        'alumno' => [
+            'required',
+            $this->validarAlumnoYaMatriculado($request),
+        ],
+        'año_escolar' => 'required',
+        'nivel_educativo' => 'required',
+        'grado' => 'required',
+        'seccion' => [
+            'required',
+            $this->validarCombinacionUnica($request, $seccionData),
+        ],
+    ], [
+        'alumno.required' => 'El alumno es obligatorio.',
+        'año_escolar.required' => 'El año escolar es obligatorio.',
+        'nivel_educativo.required' => 'El nivel educativo es obligatorio.',
+        'grado.required' => 'El grado es obligatorio.',
+        'seccion.required' => 'La sección es obligatoria.',
+    ]);
 
         $matricula = Matricula::create([
             'id_alumno' => $request->alumno,
@@ -314,7 +306,34 @@ class MatriculaController extends Controller
         $matricula->generarDeudas();
 
         return redirect(route('matricula_view', ['created' => true]));
+    }
 
+    private function validarAlumnoYaMatriculado($request)
+    {
+        return function ($attribute, $value, $fail) use ($request) {
+            $exists = Matricula::where('id_alumno', $value)
+                ->where('año_escolar', $request->año_escolar)
+                ->exists();
+
+            if ($exists) {
+                $fail('Este alumno ya está matriculado en el año escolar seleccionado.');
+            }
+        };
+    }
+
+    private function validarCombinacionUnica($request, $seccionData)
+    {
+        return function ($attribute, $value, $fail) use ($request, $seccionData) {
+            $exists = Matricula::where('id_alumno', $request->alumno)
+                ->where('año_escolar', $request->año_escolar)
+                ->where('id_grado', $seccionData['id_grado'])
+                ->where('nombreSeccion', $seccionData['nombreSeccion'])
+                ->exists();
+
+            if ($exists) {
+                $fail('Esta combinación de alumno y sección ya existe.');
+            }
+        };
     }
 
 
