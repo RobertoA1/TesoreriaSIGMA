@@ -2,12 +2,177 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\FilteredSearchQuery;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
+use App\Helpers\CRUDTablePage;
+use App\Helpers\ExcelExportHelper;
+use App\Helpers\PDFExportHelper;
+use App\Helpers\RequestHelper;
+use App\Helpers\TableAction;
+use App\Helpers\Tables\AdministrativoHeaderComponent;
+use App\Helpers\Tables\AdministrativoSidebarComponent;
+use App\Helpers\Tables\CautionModalComponent;
+use App\Helpers\Tables\CRUDTableComponent;
+use App\Helpers\Tables\FilterConfig;
+use App\Helpers\Tables\PaginatorRowsSelectorComponent;
+use App\Helpers\Tables\SearchBoxComponent;
+use App\Helpers\Tables\TableButtonComponent;
+use App\Helpers\Tables\TableComponent;
+use App\Helpers\Tables\TablePaginator;
+use App\Http\Controllers\Controller;
 
 class AlumnoController extends Controller
 {
-    private static function doSearch($sqlColumns, $search, $maxEntriesShow) {
+
+    private static function doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters = []){
+        $columnMap = [
+            'ID' => 'id_alumno',
+            'Código Educando' => 'codigo_educando',
+            'DNI' => 'dni',  
+            'Apellido Paterno' => 'apellido_paterno',
+            'Apellido Materno' => 'apellido_materno',
+            'Primer Nombre' => 'primer_nombre',
+            'Otros Nombres' => 'otros_nombres',
+            'Sexo' => 'sexo'
+        ];
+
+        /* Caso especial ya que el sexo debe establecerse según su búsqueda en BD */
+        $equiv = [
+            'masculino' => 'M',
+            'femenino' => 'F',
+        ];
+
+        foreach ($appliedFilters as &$appliedFilter){
+            if ($appliedFilter["key"] == 'Sexo'){
+                $appliedFilter["value"] = $equiv[strtolower($appliedFilter["value"])];
+                break;
+            }
+        }
+
+        $query = Alumno::where('estado', '=', true);
+
+        FilteredSearchQuery::fromQuery($query, $sqlColumns, $search, $appliedFilters, $columnMap);
+
+        if ($maxEntriesShow == null) return $query->get();
+
+        return $query->paginate($maxEntriesShow);
+    }
+    
+    public function index(Request $request, $long = false){
+        $sqlColumns = ['id_alumno', 'codigo_educando', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'sexo'];
+        $resource = 'alumnos';
+
+        $params = RequestHelper::extractSearchParams($request);
+        
+        $page = CRUDTablePage::new()
+            ->title("Alumnos")
+            ->sidebar(new AdministrativoSidebarComponent())
+            ->header(new AdministrativoHeaderComponent());
+        
+        $content = CRUDTableComponent::new()
+            ->title("Alumnos");
+
+        $filterButton = new TableButtonComponent("tablesv2.buttons.filtros");
+        $content->addButton($filterButton);
+
+        /* Definición de botones */
+
+        $descargaButton = new TableButtonComponent("tablesv2.buttons.download");
+        $createNewEntryButton = new TableButtonComponent("tablesv2.buttons.createNewEntry", ["redirect" => "alumno_create"]);
+
+        if (!$long){
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermas", ["redirect" => "alumno_viewAll"]);
+        } else {
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermenos", ["redirect" => "alumno_view"]);
+            $params->showing = 100;
+        }
+
+        $content->addButton($vermasButton);
+        $content->addButton($descargaButton);
+        $content->addButton($createNewEntryButton);
+
+        /* Paginador */
+        $paginatorRowsSelector = new PaginatorRowsSelectorComponent();
+        if ($long) $paginatorRowsSelector = new PaginatorRowsSelectorComponent([100]);
+        $paginatorRowsSelector->valueSelected = $params->showing;
+        $content->paginatorRowsSelector($paginatorRowsSelector);
+
+        /* Searchbox */
+        $searchBox = new SearchBoxComponent();
+        $searchBox->placeholder = "Buscar...";
+        $searchBox->value = $params->search;
+        $content->searchBox($searchBox);
+
+        /* Modales usados */
+        $cautionModal = CautionModalComponent::new()
+            ->cautionMessage('¿Estás seguro?')
+            ->action('Estás eliminando el Alumno')
+            ->columns(['Código Educando', 'DNI', 'Apellidos', 'Nombres', 'Sexo'])
+            ->rows(['', '', '', '', ''])
+            ->lastWarningMessage('Borrar esto afectará a todo lo que esté vinculado a este Alumno.')
+            ->confirmButton('Sí, bórralo')
+            ->cancelButton('Cancelar')
+            ->isForm(true)
+            ->dataInputName('id_alumno')
+            ->build();
+
+        $page->modals([$cautionModal]);
+
+        /* Lógica del controller */
+        
+        $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+
+        if ($params->page > $query->lastPage()){
+            $params->page = 1;
+            $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+        }
+
+        $filterConfig = new FilterConfig();
+        $filterConfig->filters = [
+            "ID", "Código Educando", "DNI", "Apellido Paterno", "Apellido Materno", "Primer Nombre", "Otros Nombres", "Sexo"
+        ];
+        $filterConfig->filterOptions = [
+            "Sexo" => ["Masculino", "Femenino"]
+        ];
+        $content->filterConfig = $filterConfig;
+        
+        $table = new TableComponent();
+        $table->columns = ["ID", "Código Educando", "DNI", "Apellidos", "Nombres", "Sexo"];
+        $table->rows = [];
+
+        foreach ($query as $alumno){
+            array_push($table->rows,
+            [
+                $alumno->id_alumno,
+                $alumno->codigo_educando,
+                $alumno->dni,
+                $alumno->apellido_paterno . " " . $alumno->apellido_materno,
+                $alumno->primer_nombre . " " . $alumno->otros_nombres,
+                $alumno->sexo,
+            ]); 
+        }
+        $table->actions = [
+            new TableAction('edit', 'alumno_edit', $resource),
+            new TableAction('delete', '', $resource),
+        ];
+
+        $paginator = new TablePaginator($params->page, $query->lastPage(), []);
+        $table->paginator = $paginator;
+
+        $content->tableComponent($table);
+
+        $page->content($content->build());
+
+        return $page->render();
+    }
+
+    public function viewAll(Request $request){
+        return static::index($request, true);
+    }
+
+
+    private static function fallbackDoSearch($sqlColumns, $search, $maxEntriesShow) {
         if (!isset($search)) {
             $query = Alumno::where('estado', '=', '1')->paginate($maxEntriesShow);
         } else {
@@ -19,7 +184,7 @@ class AlumnoController extends Controller
         return $query;
     }
 
-    public function index(Request $request) {
+    public function fallback(Request $request) {
         $sqlColumns = ['id_alumno','codigo_educando', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'sexo'];
         $resource = 'alumnos';
 
@@ -30,12 +195,12 @@ class AlumnoController extends Controller
         if (!is_numeric($paginaActual) || $paginaActual <= 0) $paginaActual = 1;
         if (!is_numeric($maxEntriesShow) || $maxEntriesShow <= 0) $maxEntriesShow = 10;
 
-        $query = AlumnoController::doSearch($sqlColumns, $search, $maxEntriesShow);
+        $query = AlumnoController::fallbackDoSearch($sqlColumns, $search, $maxEntriesShow);
 
         if ($paginaActual > $query->lastPage()) {
             $paginaActual = 1;
             $request['page'] = $paginaActual;
-            $query = AlumnoController::doSearch($sqlColumns, $search, $maxEntriesShow);
+            $query = AlumnoController::fallbackDoSearch($sqlColumns, $search, $maxEntriesShow);
         }
 
         $data = [
@@ -286,7 +451,7 @@ class AlumnoController extends Controller
             'escala' => $escala
         ]);
 
-        return redirect(route('alumno_view', ['created'=>true]));
+        return redirect(route('alumno_create', ['created'=>true]));
     }
 
     public function edit(Request $request, $id) {
