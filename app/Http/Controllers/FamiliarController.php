@@ -263,7 +263,7 @@ class FamiliarController extends Controller
         return view('gestiones.familiar.create', compact('data'));
     }
 
-    public function createNewEntry(Request $request)
+    public function createNewEntry(Request $request, $returnModel = false)
     {
         $request->validate([
         'dni' => 'required|string|max:20',
@@ -311,6 +311,10 @@ class FamiliarController extends Controller
             $syncData[$id_alumno] = ['parentesco' => $parentesco];
         }
         $familiar->alumnos()->sync($syncData);
+    }
+
+    if ($returnModel) {
+        return $familiar;
     }
 
     return redirect(route('familiar_view', ['created' => true]));

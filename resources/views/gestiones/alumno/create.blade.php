@@ -295,7 +295,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="md:col-span-2">
                         @include('components.forms.string', [
-                            'label' => 'Dirección',
+                            'label' => 'Direccion',
                             'name' => Str::snake('Direccion'),
                             'error' => $errors->first(Str::snake('Direccion')) ?? false,
                             'value' => old(Str::snake('Direccion'))
@@ -335,7 +335,7 @@
                     ])
 
                     @include('components.forms.string', [
-                        'label' => 'Energía Eléctrica',
+                        'label' => 'Energia Electrica',
                         'name' => Str::snake('Energia Electrica'),
                         'error' => $errors->first(Str::snake('Energia Electrica')) ?? false,
                         'value' => old(Str::snake('Energia Electrica'))
@@ -349,7 +349,7 @@
                     ])
 
                     @include('components.forms.string', [
-                        'label' => 'Desagüe',
+                        'label' => 'Desague',
                         'name' => Str::snake('Desague'),
                         'error' => $errors->first(Str::snake('Desague')) ?? false,
                         'value' => old(Str::snake('Desague'))
@@ -374,21 +374,21 @@
                     ])
 
                     @include('components.forms.string', [
-                        'label' => 'Número de Habitaciones',
+                        'label' => 'Numero de Habitaciones',
                         'name' => Str::snake('Numero de Habitaciones'),
                         'error' => $errors->first(Str::snake('Numero de Habitaciones')) ?? false,
                         'value' => old(Str::snake('Numero de Habitaciones'))
                     ])
 
                     @include('components.forms.string', [
-                        'label' => 'Número de Habitantes',
+                        'label' => 'Numero de Habitantes',
                         'name' => Str::snake('Numero de Habitantes'),
                         'error' => $errors->first(Str::snake('Numero de Habitantes')) ?? false,
                         'value' => old(Str::snake('Numero de Habitantes'))
                     ])
 
                     @include('components.forms.string', [
-                        'label' => 'Situación de Vivienda',
+                        'label' => 'Situacion de Vivienda',
                         'name' => Str::snake('Situacion de vivienda'),
                         'error' => $errors->first(Str::snake('Situacion de vivienda')) ?? false,
                         'value' => old(Str::snake('Situacion de vivienda'))

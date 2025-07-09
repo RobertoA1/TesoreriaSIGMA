@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\FilteredSearchQuery;
+use App\Models\ComposicionFamiliar;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
 use App\Helpers\CRUDTablePage;
@@ -223,6 +224,7 @@ class AlumnoController extends Controller
             'create' => 'alumno_create',
             'edit' => 'alumno_edit',
             'delete' => 'alumno_delete',
+            'add_familiar' => 'alumno_add_familiar',
         ];
 
         if ($request->input("created", false)) {
@@ -317,7 +319,7 @@ class AlumnoController extends Controller
             'codigo_modular' => 'required|string|max:20',
             'codigo_educando' => 'required|string|max:20',
             'año_de_ingreso' => 'required|integer|min:1900|max:2100',
-            'd_n_i' => 'required|string|max:8',
+            'd_n_i' => 'required|string|max:8|unique:alumnos,dni',
             'apellido_paterno' => 'required|string|max:50',
             'apellido_materno' => 'required|string|max:50',
             'primer_nombre' => 'required|string|max:50',
@@ -381,7 +383,7 @@ class AlumnoController extends Controller
 
         $codigoModular = $request->input('codigo_modular');
         $codigoEducando = $request->input('codigo_educando');
-        $añoIngreso = $request->input('año_ingreso');
+        $añoIngreso = $request->input('año_de_ingreso');
         $dni = $request->input('d_n_i');
         $apellidoPaterno = $request->input('apellido_paterno');
         $apellidoMaterno = $request->input('apellido_materno');
@@ -451,8 +453,72 @@ class AlumnoController extends Controller
             'escala' => $escala
         ]);
 
-        return redirect(route('alumno_create', ['created'=>true]));
+        
+
+        return redirect()->route('alumno_add_familiares', [
+            'id' => $alumno->id_alumno, // o el campo que sea tu PK
+            'created' => true
+        ]);
     }
+
+
+    public function add_familiares($id){
+        $alumno = Alumno::findOrFail($id);
+        $data = [
+            'return' => route('alumno_view', ['abort' => true]),
+            'id' => $id,
+            'default' => [
+                'codigo_educando' => $alumno->codigo_educando,
+                'codigo_modular' => $alumno->codigo_modular,
+                'año_ingreso' => $alumno->año_ingreso,
+                'd_n_i' => $alumno->dni,
+                'apellido_paterno' => $alumno->apellido_paterno,
+                'apellido_materno' => $alumno->apellido_materno,
+                'primer_nombre' => $alumno->primer_nombre,
+                'otros_nombres' => $alumno->otros_nombres,
+            ]
+        ];
+        
+        return view('gestiones.alumno.add_familiares', compact('data'));
+    }
+
+    public function guardarFamiliares(Request $request, $id) {
+        
+        $request->validate([
+            'dni' => 'required|string|max:20',
+            'apellido_paterno' => 'required|string|max:50',
+            'apellido_materno' => 'required|string|max:50',
+            'primer_nombre' => 'required|string|max:50',
+            'otros_nombres' => 'nullable|string|max:100',
+            'parentesco' => 'required',
+            'numero_contacto' => 'nullable|string|max:20',
+            'correo_electronico' => 'nullable|email|max:100',
+        ], [
+            'dni.required' => 'Ingrese un DNI válido.',
+            'apellido_paterno.required' => 'Ingrese el apellido paterno.',
+            'apellido_materno.required' => 'Ingrese el apellido materno.',
+            'primer_nombre.required' => 'Ingrese el primer nombre.',
+            'parentesco.required' => 'Ingrese el parentesco'
+        ]);
+
+
+        $familiarController = new FamiliarController();
+        $familiar = $familiarController->createNewEntry($request, true);
+
+
+        ComposicionFamiliar::create([
+            'id_alumno' => $id,
+            'id_familiar' => $familiar->idFamiliar, 
+            'parentesco' => $request->parentesco
+        ]);
+
+        return redirect()->route('alumno_view', ['edited' => true]);
+    }
+
+
+
+
+
 
     public function edit(Request $request, $id) {
         if (!isset($id)) {

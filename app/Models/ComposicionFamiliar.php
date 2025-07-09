@@ -14,6 +14,8 @@ class ComposicionFamiliar extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'id_alumno',
+        'id_familiar',
         'parentesco',
         'estado',
     ];

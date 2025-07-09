@@ -14,6 +14,13 @@ Route::group(['middleware' => ['can:manage-resource,"alumnos","create"']], funct
 
     Route::put('/crear', [AlumnoController::class, 'createNewEntry'])
         ->name('createNewEntry');
+
+    Route::get('/add/{id}/familiares', [AlumnoController::class, 'add_familiares'])
+        ->name('add_familiares');
+    
+   Route::post('/add/{id}/familiares', [AlumnoController::class, 'guardarFamiliares'])
+   ->name('guardar_familiares');
+        
 });
 
 Route::group(['middleware' => ['can:manage-resource,"alumnos","edit"']], function(){
