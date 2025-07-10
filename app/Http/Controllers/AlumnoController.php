@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\FilteredSearchQuery;
 use App\Models\ComposicionFamiliar;
 use App\Models\Familiar;
+use DB;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
 use App\Helpers\CRUDTablePage;
@@ -262,6 +263,10 @@ class AlumnoController extends Controller
     }
 
     public function create(Request $request) {
+
+        $sessionData = session('temp_student_data');
+        $hasSessionData = !empty($sessionData);
+
         $sexos = [
             ['id' => 'M', 'descripcion' => 'Masculino'],
             ['id' => 'F', 'descripcion' => 'Femenino']
@@ -310,7 +315,9 @@ class AlumnoController extends Controller
             'estadosciviles' => $estadosciviles,
             'departamentos' => $departamentos,
             'lenguasmaternas' => $lenguasmaternas,
-            'escalas' => $escalas
+            'escalas' => $escalas,
+            'has_session_data' => $hasSessionData,
+            'session_data' => $sessionData
         ];
 
         return view('gestiones.alumno.create', compact('data'));
@@ -328,7 +335,7 @@ class AlumnoController extends Controller
             'otros_nombres' => 'nullable|string|max:50',
             'sexo' => 'required|in:M,F',
             'fecha_nacimiento' => 'required|date',
-            'país' => 'required|string|max:20',
+            'pais' => 'required|string|max:20',
             'departamento' => 'required|string|max:40',
             'provincia' => 'required|string|max:40',
             'distrito' => 'required|string|max:40',
@@ -362,6 +369,7 @@ class AlumnoController extends Controller
             'año_de_ingreso.max' => 'El año de ingreso debe ser menor o igual a 2100.',
             'd_n_i.required' => 'Ingrese un DNI válido.',
             'd_n_i.max' => 'El DNI no puede superar los 8 caracteres.',
+            'd_n_i.unique' => 'El DNI debe ser único',
             'apellido_paterno.required' => 'Ingrese un apellido paterno válido.',
             'apellido_paterno.max' => 'El apellido paterno no puede superar los 50 caracteres.',
             'apellido_materno.required' => 'Ingrese un apellido materno válido.',
@@ -416,7 +424,7 @@ class AlumnoController extends Controller
 
         $codigoModular = $request->input('código_modular');
         $codigoEducando = $request->input('código_educando');
-        $añoIngreso = $request->input('año_ingreso');
+        $añoIngreso = $request->input('año_de_ingreso');
         $dni = $request->input('d_n_i');
         $apellidoPaterno = $request->input('apellido_paterno');
         $apellidoMaterno = $request->input('apellido_materno');
@@ -448,6 +456,51 @@ class AlumnoController extends Controller
         $numHabitantes = $request->input('número_de_habitantes', null);
         $situacionVivienda = $request->input('situación_de_vivienda');
         $escala = $request->input('escala', null);
+
+
+        $studentData = [
+            'código_modular' => $request->input('código_modular'),
+            'código_educando' => $request->input('código_educando'),
+            'año_de_ingreso' => $request->input('año_de_ingreso'),
+            'd_n_i' => $request->input('d_n_i'),
+            'apellido_paterno' => $request->input('apellido_paterno'),
+            'apellido_materno' => $request->input('apellido_materno'),
+            'primer_nombre' => $request->input('primer_nombre'),
+            'otros_nombres' => $request->input('otros_nombres', ''),
+            'sexo' => $request->input('sexo'),
+            'fecha_nacimiento' => $request->input('fecha_nacimiento'),
+            'país' => $request->input('pais'),
+            'departamento' => $request->input('departamento'),
+            'provincia' => $request->input('provincia'),
+            'distrito' => $request->input('distrito'),
+            'lengua_materna' => $request->input('lengua_materna'),
+            'estado_civil' => $request->input('estado_civil'),
+            'religión' => $request->input('religión', ''),
+            'fecha_bautizo' => $request->input('fecha_bautizo'),
+            'parroquia_de_bautizo' => $request->input('parroquia_de_bautizo', ''),
+            'colegio_de_procedencia' => $request->input('colegio_de_procedencia', ''),
+            'dirección' => $request->input('dirección'),
+            'teléfono' => $request->input('teléfono', ''),
+            'medio_de_transporte' => $request->input('medio_de_transporte'),
+            'tiempo_de_demora' => $request->input('tiempo_de_demora', ''),
+            'material_vivienda' => $request->input('material_vivienda'),
+            'energía_eléctrica' => $request->input('energía_eléctrica'),
+            'agua_potable' => $request->input('agua_potable', ''),
+            'desagüe' => $request->input('desagüe', ''),
+            'servicios_higiénicos' => $request->input('servicios_higiénicos', ''),
+            'número_de_habitaciones' => $request->input('número_de_habitaciones'),
+            'número_de_habitantes' => $request->input('número_de_habitantes'),
+            'situación_de_vivienda' => $request->input('situación_de_vivienda'),
+            'escala' => $request->input('escala'),
+        ];
+
+        // Si va a definir familiares, guardar en sesión y redirigir
+        if ($request->input('definir_familiares') == '1') {
+            session(['temp_student_data' => $studentData]);
+            
+            // Redirigir a la nueva ruta que maneja sesión
+            return redirect()->route('alumno_add_familiares_session');
+        }
 
 
         $alumno  = new Alumno([
@@ -487,17 +540,141 @@ class AlumnoController extends Controller
         ]);
 
         $alumno->save();
-
-        if ($request->input('definir_familiares') == '1'){
-            return redirect()->route('alumno_add_familiares', [
-                'id' => $alumno->id_alumno, // o el campo que sea tu PK
-                'created' => true
-            ]);
-        }
+        session()->forget('temp_student_data');
 
         return redirect()->route('alumno_view', [
             'created' => true
         ]);
+    }
+
+    public function add_familiares_session()
+    {
+        // Verificar que hay datos en sesión
+        $studentData = session('temp_student_data');
+        
+        if (!$studentData) {
+            return redirect()->route('alumno_create')
+                ->with('error', 'No se encontraron datos del estudiante. Por favor, complete el formulario nuevamente.');
+        }
+
+        $familiares = Familiar::where('estado','=',1)->get();
+        $familiares_limpios = [];
+                
+        foreach($familiares as $fam) {
+            $familiares_limpios[] = [
+                'id' => $fam->idFamiliar,
+                'nombre_completo' => $fam->apellido_paterno . ' ' . $fam->apellido_materno . ' ' . $fam->primer_nombre . ' ' . $fam->otros_nombres
+            ];
+        }               
+
+        $data = [
+            'return' => route('alumno_create'), // Siempre regresa al create
+            'familiares' => $familiares_limpios,
+            'is_session_mode' => true, // Flag para identificar que está en modo sesión
+            'default' => [
+                'codigo_educando' => $studentData['código_educando'],
+                'codigo_modular' => $studentData['código_modular'],
+                'año_ingreso' => $studentData['año_de_ingreso'],
+                'd_n_i' => $studentData['d_n_i'],
+                'apellido_paterno' => $studentData['apellido_paterno'],
+                'apellido_materno' => $studentData['apellido_materno'],
+                'primer_nombre' => $studentData['primer_nombre'],
+                'otros_nombres' => $studentData['otros_nombres'],
+            ]
+        ];
+                
+        return view('gestiones.alumno.add_familiares', compact('data'));
+    }
+
+    // guardar familiAres desde sesión
+    public function guardarFamiliaresSession(Request $request)
+    {
+        $studentData = session('temp_student_data');
+        
+        if (!$studentData) {
+            return redirect()->route('alumno_create')
+                ->with('error', 'Sesión expirada. Por favor, complete el formulario nuevamente.');
+        }
+
+        // Usar transacción para crear alumno y familiar juntos
+        DB::beginTransaction();
+        
+        try {
+            // 1. Crear el alumno
+            $alumno = new Alumno([
+                'codigo_modular' => $studentData['código_modular'],
+                'codigo_educando' => $studentData['código_educando'],
+                'año_ingreso' => $studentData['año_de_ingreso'],
+                'dni' => $studentData['d_n_i'],
+                'apellido_paterno' => $studentData['apellido_paterno'],
+                'apellido_materno' => $studentData['apellido_materno'],
+                'primer_nombre' => $studentData['primer_nombre'],
+                'otros_nombres' => $studentData['otros_nombres'],
+                'sexo' => $studentData['sexo'],
+                'fecha_nacimiento' => $studentData['fecha_nacimiento'],
+                'pais' => $studentData['país'],
+                'departamento' => $studentData['departamento'],
+                'provincia' => $studentData['provincia'],
+                'distrito' => $studentData['distrito'],
+                'lengua_materna' => $studentData['lengua_materna'],
+                'estado_civil' => $studentData['estado_civil'],
+                'religion' => $studentData['religión'],
+                'fecha_bautizo' => $studentData['fecha_bautizo'],
+                'parroquia_bautizo' => $studentData['parroquia_de_bautizo'],
+                'colegio_procedencia' => $studentData['colegio_de_procedencia'],
+                'direccion' => $studentData['dirección'],
+                'telefono' => $studentData['teléfono'],
+                'medio_transporte' => $studentData['medio_de_transporte'],
+                'tiempo_demora' => $studentData['tiempo_de_demora'],
+                'material_vivienda' => $studentData['material_vivienda'],
+                'energia_electrica' => $studentData['energía_eléctrica'],
+                'agua_potable' => $studentData['agua_potable'],
+                'desague' => $studentData['desagüe'],
+                'ss_hh' => $studentData['servicios_higiénicos'],
+                'num_habitaciones' => $studentData['número_de_habitaciones'],
+                'num_habitantes' => $studentData['número_de_habitantes'],
+                'situacion_vivienda' => $studentData['situación_de_vivienda'],
+                'escala' => $studentData['escala']
+            ]);
+            
+            $alumno->save();
+
+            // 2. Crear/asignar familiar
+            if ($request->modo_familiar === 'asignar') {
+                $this->validacionesSoloParaAsignar($request, $alumno->id_alumno);
+                
+                ComposicionFamiliar::create([
+                    'id_alumno' => $alumno->id_alumno,
+                    'id_familiar' => $request->familiar_existente,
+                    'parentesco' => $request->parentesco_del_familiar
+                ]);
+            } else {
+                $this->validacionesParaCrearAsignar($request);
+                
+                $familiarController = new FamiliarController();
+                $familiar = $familiarController->createNewEntry($request, true);
+                
+                ComposicionFamiliar::create([
+                    'id_alumno' => $alumno->id_alumno,
+                    'id_familiar' => $familiar->idFamiliar,
+                    'parentesco' => $request->parentesco
+                ]);
+            }
+
+            DB::commit();
+            
+            // Limpiar sesión después del éxito
+            session()->forget('temp_student_data');
+            
+            return redirect()->route('alumno_view', ['created' => true]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return redirect()->back()
+                ->with('error', 'Error al crear el estudiante y familiar. Por favor, intente nuevamente.')
+                ->withInput();
+        }
     }
 
     public function add_familiares($id){
@@ -510,8 +687,11 @@ class AlumnoController extends Controller
                 'nombre_completo' => $fam->apellido_paterno . ' ' . $fam->apellido_materno . ' ' . $fam->primer_nombre . ' ' . $fam->otros_nombres
             ];
         }       
+        $hasSessionData = session()->has('temp_student_data');
+        $returnUrl = $hasSessionData ? route('alumno_create') : route('alumno_view', ['abort' => true]);
+
         $data = [
-            'return' => route('alumno_view', ['abort' => true]),
+            'return' => $returnUrl,
             'id' => $id,
             'familiares' => $familiares_limpios,
             'default' => [
@@ -587,7 +767,7 @@ class AlumnoController extends Controller
             ]);
 
         } else {
-            // ✅ Validar datos para crear nuevo familiar
+            //  Validar datos para crear nuevo familiar
             $this->validacionesParaCrearAsignar($request);
             // Crear nuevo familiar desde otro controlador
             $familiarController = new FamiliarController();
@@ -601,7 +781,7 @@ class AlumnoController extends Controller
 
         }
 
-        // Relacionar familiar (nuevo o existente)
+        session()->forget('temp_student_data');
         
 
         return redirect()->route('alumno_view', ['edited' => true]);
@@ -674,7 +854,7 @@ class AlumnoController extends Controller
             'default' => [
                 'codigo_educando' => $requested->codigo_educando,
                 'codigo_modular' => $requested->codigo_modular,
-                'año_ingreso' => $requested->año_ingreso,
+                'año_de_ingreso' => $requested->año_ingreso,
                 'd_n_i' => $requested->dni,
                 'apellido_paterno' => $requested->apellido_paterno,
                 'apellido_materno' => $requested->apellido_materno,
@@ -682,7 +862,7 @@ class AlumnoController extends Controller
                 'otros_nombres' => $requested->otros_nombres,
                 'sexo' => $requested->sexo,
                 'fecha_nacimiento' => $requested->fecha_nacimiento,
-                'pais' => $requested->pais,
+                'país' => $requested->pais,
                 'departamento' => $requested->departamento,
                 'provincia' => $requested->provincia,
                 'distrito' => $requested->distrito,
@@ -719,7 +899,7 @@ class AlumnoController extends Controller
             'codigo_modular' => 'required|string|max:20',
             'codigo_educando' => 'required|string|max:20',
             'año_de_ingreso' => 'required|integer|min:1900|max:2100',
-            'd_n_i' => 'required|string|max:8',
+            'd_n_i' => 'required|string|max:8|unique:alumnos,dni',
             'apellido_paterno' => 'required|string|max:50',
             'apellido_materno' => 'required|string|max:50',
             'primer_nombre' => 'required|string|max:50',
@@ -760,6 +940,7 @@ class AlumnoController extends Controller
             'año_de_ingreso.max' => 'El año de ingreso debe ser menor o igual a 2100.',
             'd_n_i.required' => 'Ingrese un DNI válido.',
             'd_n_i.max' => 'El DNI no puede superar los 8 caracteres.',
+            'd_n_i.unique' => 'El DNI debe ser único',
             'apellido_paterno.required' => 'Ingrese un apellido paterno válido.',
             'apellido_paterno.max' => 'El apellido paterno no puede superar los 50 caracteres.',
             'apellido_materno.required' => 'Ingrese un apellido materno válido.',
@@ -816,7 +997,7 @@ class AlumnoController extends Controller
         if (isset($requested)) {
             $newCodigoEducando = $request->input('codigo_educando');
             $newCodigoModular = $request->input('codigo_modular');
-            $newAñoIngreso = $request->input('año_ingreso');
+            $newAñoIngreso = $request->input('año_de_ingreso');
             $newDni = $request->input('d_n_i');
             $newApellidoPaterno = $request->input('apellido_paterno');
             $newApellidoMaterno = $request->input('apellido_materno');

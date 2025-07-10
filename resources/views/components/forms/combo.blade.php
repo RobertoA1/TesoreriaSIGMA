@@ -71,7 +71,7 @@
         </div>
         
         <!-- Input hidden -->
-        <input type="hidden" name="{{ Str::snake($label) }}" value="{{ $value ?? '' }}">
+        <input type="hidden" name="{{ isset($name) ? Str::snake($name) : Str::snake($label) }}" value="{{ $value ?? '' }}">
     </div>
 </div>
 
