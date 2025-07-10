@@ -48,32 +48,32 @@
                     Información Básica
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @include('components.forms.string', [
+                     @include('components.forms.string', [
                         'label' => 'Código Educando',
                         'name' => Str::snake('Código Educando'),
                         'error' => $errors->first(Str::snake('Código Educando')) ?? false,
-                        'value' => old(Str::snake('Código Educando'))
+                        'value' => old(Str::snake('Código Educando'), $data['session_data']['código_educando'] ?? '')
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Código Modular',
                         'name' => Str::snake('Código Modular'),
                         'error' => $errors->first(Str::snake('Código Modular')) ?? false,
-                        'value' => old(Str::snake('Código Modular'))
+                        'value' => old(Str::snake('Código Modular'), $data['session_data']['código_modular'] ?? '')
                     ])
 
                     @include('components.forms.date-año', [
                         'label' => 'Año de Ingreso',
                         'name' => Str::snake('Año de Ingreso'),
                         'error' => $errors->first(Str::snake('Año de Ingreso')) ?? false,
-                        'value' => old(Str::snake('Año de Ingreso'))
+                        'value' => old(Str::snake('Año de Ingreso'), $data['session_data']['año_de_ingreso'] ?? '')
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'DNI',
                         'name' => Str::snake('DNI'),
                         'error' => $errors->first(Str::snake('DNI')) ?? false,
-                        'value' => old(Str::snake('DNI'))
+                        'value' => old(Str::snake('DNI'), $data['session_data']['d_n_i'] ?? '')
                     ])
                 </div>
             </div>
@@ -91,28 +91,28 @@
                         'label' => 'Apellido Paterno',
                         'name' => Str::snake('Apellido Paterno'),
                         'error' => $errors->first(Str::snake('Apellido Paterno')) ?? false,
-                        'value' => old(Str::snake('Apellido Paterno'))
+                        'value' => old(Str::snake('Apellido Paterno'), $data['session_data']['apellido_paterno'] ?? '')
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Apellido Materno',
                         'name' => Str::snake('Apellido Materno'),
                         'error' => $errors->first(Str::snake('Apellido Materno')) ?? false,
-                        'value' => old(Str::snake('Apellido Materno'))
+                        'value' => old(Str::snake('Apellido Materno'), $data['session_data']['apellido_materno'] ?? '')
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Primer Nombre',
                         'name' => Str::snake('Primer Nombre'),
                         'error' => $errors->first(Str::snake('Primer Nombre')) ?? false,
-                        'value' => old(Str::snake('Primer Nombre'))
+                        'value' => old(Str::snake('Primer Nombre'), $data['session_data']['primer_nombre'] ?? '')
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Otros Nombres',
                         'name' => Str::snake('Otros Nombres'),
                         'error' => $errors->first(Str::snake('Otros Nombres')) ?? false,
-                        'value' => old(Str::snake('Otros Nombres'))
+                        'value' => old(Str::snake('Otros Nombres'), $data['session_data']['otros_nombres'] ?? '')
                     ])
                 </div>
             </div>
@@ -130,7 +130,7 @@
                         'label' => 'Sexo',
                         'name' => Str::snake('Sexo'),
                         'error' => $errors->first(Str::snake('Sexo')) ?? false,
-                        'value' => old(Str::snake('Sexo')),
+                        'value' => old(Str::snake('Sexo'), $data['session_data']['sexo'] ?? ''),
                         'options' => $data['sexos'],
                         'options_attributes' => ['id', 'descripcion']
                     ])
@@ -139,21 +139,21 @@
                         'label' => 'Fecha Nacimiento',
                         'name' => Str::snake('Fecha Nacimiento'),
                         'error' => $errors->first(Str::snake('Fecha Nacimiento')) ?? false,
-                        'value' => old(Str::snake('Fecha Nacimiento'))
+                        'value' => old(Str::snake('Fecha Nacimiento'), $data['session_data']['fecha_nacimiento'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Teléfono',
                         'name' => Str::snake('Teléfono'),
                         'error' => $errors->first(Str::snake('Teléfono')) ?? false,
-                        'value' => old(Str::snake('Teléfono'))
+                        'value' => old(Str::snake('Teléfono'), $data['session_data']['teléfono'] ?? ''),
                     ])
 
                     @include('components.forms.combo', [
                         'label' => 'Escala',
                         'name' => Str::snake('Escala'),
                         'error' => $errors->first(Str::snake('Escala')) ?? false,
-                        'value' => old(Str::snake('Escala')),
+                        'value' => old(Str::snake('Escala'), $data['session_data']['escala'] ?? ''),
                         'options' => $data['escalas'],
                         'options_attributes' => ['id', 'descripcion']
                     ])
@@ -172,10 +172,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     @include('components.forms.combo_dependient', [
                         'label' => 'País',
-                        'name' => Str::snake('País'),
+                        'name' => Str::snake('Pais'),
                         'error' => $errors->first(Str::snake('País')) ?? false,
                         'placeholder' => 'Seleccionar país...',
-                        'value' => old(Str::snake('País')),
+                        'value' => old(Str::snake('País'), $data['session_data']['país'] ?? ''),
                         'value_field' => 'id_pais',
                         'text_field' => 'descripcion',
                         'options' => $data['paises'],
@@ -187,9 +187,9 @@
                         'name' => Str::snake('Departamento'),
                         'error' => $errors->first(Str::snake('Departamento')) ?? false,
                         'placeholder' => 'Seleccionar departamento...',
-                        'depends_on' => Str::snake('País'),
+                        'depends_on' => Str::snake('Pais'),
                         'parent_field' => 'id_pais',
-                        'value' => old(Str::snake('Departamento')),
+                        'value' => old(Str::snake('Departamento'), $data['session_data']['departamento'] ?? ''),
                         'value_field' => 'id_departamento',
                         'text_field' => 'descripcion',
                         'options' => $data['departamentos'],
@@ -200,7 +200,7 @@
                         'label' => 'Provincia',
                         'name' => Str::snake('Provincia'),
                         'error' => $errors->first(Str::snake('Provincia')) ?? false,
-                        'value' => old(Str::snake('Provincia')),
+                        'value' => old(Str::snake('Provincia'), $data['session_data']['provincia'] ?? ''),
                         'placeholder' => 'Seleccionar provincia...',
                         'depends_on' => Str::snake('Departamento'),
                         'parent_field' => 'id_departamento',
@@ -214,7 +214,7 @@
                         'label' => 'Distrito',
                         'name' => Str::snake('Distrito'),
                         'error' => $errors->first(Str::snake('Distrito')) ?? false,
-                        'value' => old(Str::snake('Distrito')),
+                        'value' => old(Str::snake('Distrito'), $data['session_data']['distrito'] ?? ''),
                         'placeholder' => 'Seleccionar distrito...',
                         'depends_on' => Str::snake('Provincia'),
                         'parent_field' => 'id_provincia',
@@ -239,7 +239,7 @@
                         'label' => 'Lengua Materna',
                         'name' => Str::snake('Lengua Materna'),
                         'error' => $errors->first(Str::snake('Lengua Materna')) ?? false,
-                        'value' => old(Str::snake('Lengua Materna')),
+                        'value' => old(Str::snake('Lengua Materna'), $data['session_data']['lengua_materna'] ?? ''),
                         'options' => $data['lenguasmaternas'],
                         'options_attributes' => ['id', 'descripcion']
                     ])
@@ -248,7 +248,7 @@
                         'label' => 'Estado Civil',
                         'name' => Str::snake('Estado Civil'),
                         'error' => $errors->first(Str::snake('Estado Civil')) ?? false,
-                        'value' => old(Str::snake('Estado Civil')),
+                        'value' => old(Str::snake('Estado Civil'), $data['session_data']['estado_civil'] ?? ''),
                         'options' => $data['estadosciviles'],
                         'options_attributes' => ['id', 'descripcion']
                     ])
@@ -257,14 +257,14 @@
                         'label' => 'Religión',
                         'name' => Str::snake('Religión'),
                         'error' => $errors->first(Str::snake('Religión')) ?? false,
-                        'value' => old(Str::snake('Religión'))
+                        'value' => old(Str::snake('Religión'), $data['session_data']['religión'] ?? ''),
                     ])
 
                     @include('components.forms.date', [
                         'label' => 'Fecha Bautizo',
                         'name' => Str::snake('Fecha Bautizo'),
                         'error' => $errors->first(Str::snake('Fecha Bautizo')) ?? false,
-                        'value' => old(Str::snake('Fecha Bautizo'))
+                        'value' => old(Str::snake('Fecha Bautizo'), $data['session_data']['fecha_bautizo'] ?? ''),
                     ])
                 </div>
             </div>
@@ -282,14 +282,14 @@
                         'label' => 'Parroquia de Bautizo',
                         'name' => Str::snake('Parroquia de Bautizo'),
                         'error' => $errors->first(Str::snake('Parroquia de Bautizo')) ?? false,
-                        'value' => old(Str::snake('Parroquia de Bautizo'))
+                        'value' => old(Str::snake('Parroquia de Bautizo'), $data['session_data']['parroquia_de_bautizo'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Colegio de Procedencia',
                         'name' => Str::snake('Colegio de Procedencia'),
                         'error' => $errors->first(Str::snake('Colegio de Procedencia')) ?? false,
-                        'value' => old(Str::snake('Colegio de Procedencia'))
+                        'value' => old(Str::snake('Colegio de Procedencia'), $data['session_data']['colegio_de_procedencia'] ?? ''),
                     ])
                 </div>
             </div>
@@ -308,7 +308,7 @@
                             'label' => 'Dirección',
                             'name' => Str::snake('Dirección'),
                             'error' => $errors->first(Str::snake('Dirección')) ?? false,
-                            'value' => old(Str::snake('Dirección'))
+                            'value' => old(Str::snake('Dirección'), $data['session_data']['dirección'] ?? ''),
                         ])
                     </div>
 
@@ -316,14 +316,14 @@
                         'label' => 'Medio de Transporte',
                         'name' => Str::snake('Medio de Transporte'),
                         'error' => $errors->first(Str::snake('Medio de Transporte')) ?? false,
-                        'value' => old(Str::snake('Medio de Transporte'))
+                        'value' => old(Str::snake('Medio de Transporte'), $data['session_data']['medio_de_transporte'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Tiempo de Demora',
                         'name' => Str::snake('Tiempo de Demora'),
                         'error' => $errors->first(Str::snake('Tiempo de Demora')) ?? false,
-                        'value' => old(Str::snake('Tiempo de Demora'))
+                        'value' => old(Str::snake('Tiempo de Demora'), $data['session_data']['tiempo_de_demora'] ?? ''),
                     ])
                 </div>
             </div>
@@ -341,28 +341,28 @@
                         'label' => 'Material Vivienda',
                         'name' => Str::snake('Material Vivienda'),
                         'error' => $errors->first(Str::snake('Material Vivienda')) ?? false,
-                        'value' => old(Str::snake('Material Vivienda'))
+                        'value' => old(Str::snake('Material Vivienda'), $data['session_data']['material_vivienda'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Energía Eléctrica',
                         'name' => Str::snake('Energía Eléctrica'),
                         'error' => $errors->first(Str::snake('Energía Eléctrica')) ?? false,
-                        'value' => old(Str::snake('Energía Eléctrica'))
+                        'value' => old(Str::snake('Energía Eléctrica'), $data['session_data']['energía_eléctrica'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Agua Potable',
                         'name' => Str::snake('Agua Potable'),
                         'error' => $errors->first(Str::snake('Agua Potable')) ?? false,
-                        'value' => old(Str::snake('Agua Potable'))
+                        'value' => old(Str::snake('Agua Potable'), $data['session_data']['agua_potable'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Desagüe',
                         'name' => Str::snake('Desagüe'),
                         'error' => $errors->first(Str::snake('Desagüe')) ?? false,
-                        'value' => old(Str::snake('Desagüe'))
+                        'value' => old(Str::snake('Desagüe'), $data['session_data']['desagüe'] ?? ''),
                     ])
                 </div>
             </div>
@@ -380,28 +380,28 @@
                         'label' => 'Servicios Higiénicos',
                         'name' => Str::snake('Servicios Higiénicos'),
                         'error' => $errors->first(Str::snake('Servicios Higiénicos')) ?? false,
-                        'value' => old(Str::snake('Servicios Higiénicos'))
+                        'value' => old(Str::snake('Servicios Higiénicos'), $data['session_data']['servicios_higiénicos'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Número de Habitaciones',
                         'name' => Str::snake('Número de Habitaciones'),
                         'error' => $errors->first(Str::snake('Número de Habitaciones')) ?? false,
-                        'value' => old(Str::snake('Número de Habitaciones'))
+                        'value' => old(Str::snake('Número de Habitaciones'), $data['session_data']['número_de_habitaciones'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Número de Habitantes',
                         'name' => Str::snake('Número de Habitantes'),
                         'error' => $errors->first(Str::snake('Número de Habitantes')) ?? false,
-                        'value' => old(Str::snake('Número de Habitantes'))
+                        'value' => old(Str::snake('Número de Habitantes'), $data['session_data']['número_de_habitantes'] ?? ''),
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Situación de Vivienda',
                         'name' => Str::snake('Situación de Vivienda'),
                         'error' => $errors->first(Str::snake('Situación de Vivienda')) ?? false,
-                        'value' => old(Str::snake('Situación de Vivienda'))
+                        'value' => old(Str::snake('Situación de Vivienda'), $data['session_data']['situación_de_vivienda'] ?? ''),
                     ])
                 </div>
             </div>
@@ -430,4 +430,25 @@
 @endsection
 
 @section('custom-js')
+    {{-- Script para limpiar sesión si cancela --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Si hay datos de sesión y el usuario cancela, limpiar la sesión
+            @if(isset($data['has_session_data']) && $data['has_session_data'])
+                const cancelButton = document.querySelector('a[href*="abort"]');
+                if (cancelButton) {
+                    cancelButton.addEventListener('click', function() {
+                        // Hacer una petición para limpiar la sesión
+                        fetch('{{ route("alumno_clear_session") }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                    });
+                }
+            @endif
+        });
+    </script>
 @endsection

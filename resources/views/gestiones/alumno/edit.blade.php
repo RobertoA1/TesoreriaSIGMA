@@ -62,7 +62,7 @@
                         'label' => 'Año de Ingreso',
                         'name' => Str::snake('Año de Ingreso'),
                         'error' => $errors->first(Str::snake('Año de Ingreso')) ?? false,
-                        'value' => old(Str::snake('Año de Ingreso')) ?? $data['default']['año_ingreso']
+                        'value' => old(Str::snake('Año de Ingreso')) ?? $data['default']['año_de_ingreso']
                     ])
                     @include('components.forms.string', [
                         'label' => 'DNI',
@@ -164,7 +164,7 @@
                         'name' => 'pais',
                         'error' => $errors->first(Str::snake('pais')) ?? false,
                         'placeholder' => 'Seleccionar país...',
-                        'value' => old(Str::snake('pais')) ?? $data['default'][Str::snake('pais')],
+                        'value' => old(Str::snake('país')) ?? $data['default'][Str::snake('país')],
                         'value_field' => 'id_pais',
                         'text_field' => 'descripcion',
                         'options' => $data['paises'],

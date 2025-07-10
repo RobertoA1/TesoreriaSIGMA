@@ -11,7 +11,7 @@
         <input 
             type="number" 
             id="{{ Str::snake($label) }}" 
-            name="{{ Str::snake($label) }}"
+            name="{{ isset($name) ? Str::snake($name) : Str::snake($label) }}"
             min="1900" 
             max="{{ now()->year+1}}"
             step="1" 
