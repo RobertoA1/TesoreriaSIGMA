@@ -1,21 +1,26 @@
 <?php
 
+use Illuminate\Http\Request;
+
+
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\HomeController; // Ya está importado, ¡genial!
 use Illuminate\Support\Facades\Route; // Asegúrate de que esta línea esté presente
 use Illuminate\Support\Facades\Gate; // Asegúrate de que esta línea esté presente si usas Gate
 
+
 Route::middleware(['auth'])->group(function(){
     // Modificamos esta ruta
-    Route::get('/', function(){
+    Route::get('/', function(Request $request){
         if (Gate::allows('is-admin')){
             // Si es admin, redirigimos a una ruta que maneja el HomeController
             return redirect()->route('admin.dashboard');
         }
 
-        // Si no es admin (pero está autenticado), va a la vista de usuario
-        return view('usuario-index');
+        return App\Http\Controllers\Home\HomeController::index($request);
     })->name('principal');
+
+    Route::post('/', [App\Http\Controllers\Home\HomeController::class, 'definirSesion']);
 
     // **NUEVA RUTA PARA EL ADMINISTRADOR**
     // Esta ruta será la que cargue el dashboard del administrador

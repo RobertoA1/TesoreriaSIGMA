@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\FilteredSearchQuery;
 use App\Models\NivelEducativo;
+use App\Models\Seccion;
 use DB;
 use Illuminate\Http\Request;
 use App\Models\Grado;
@@ -344,6 +345,7 @@ class GradoController extends Controller
         $grado = Grado::findOrFail($id);
         $grado->update(['estado' => '0']);
 
+
         return redirect(route('grado_view', ['deleted' => true]));
     }
 
@@ -385,5 +387,89 @@ class GradoController extends Controller
             'seccionPagination'
         ));
     }
+
+    public function export(Request $request)
+    {
+        $format = $request->input('export', 'excel');
+        $sqlColumns = ['id_alumno', 'codigo_educando', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'sexo'];
+
+        $params = RequestHelper::extractSearchParams($request);
+
+        // Para ambos formatos, obtener todos los registros (sin paginación)
+        $query = static::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
+
+        if ($format === 'excel') {
+            return $this->exportExcel($query);
+        } elseif ($format === 'pdf') {
+            return $this->exportPdf($query);
+        }
+
+        return abort(400, 'Formato no válido');
+    }
+
+private function exportExcel($grados)
+{
+    $headers = ['ID', 'Grado', 'Nivel Educativo'];
+    $fileName = 'grados_' . date('Y-m-d_H-i-s') . '.xlsx';
+    $title = 'Grados';
+    $subject = 'Exportación de Grados';
+    $description = 'Listado de grados del sistema';
+
+    return ExcelExportHelper::exportExcel(
+        $fileName,
+        $headers,
+        $grados,
+        function($sheet, $row, $grado) {
+            $sheet->setCellValue('A' . $row, $grado->id_grado);
+            $sheet->setCellValue('B' . $row, $grado->nombre_grado);
+            $sheet->setCellValue('C' . $row, $grado->nivelEducativo->descripcion ?? '');
+        },
+        $title,
+        $subject,
+        $description
+    );
+}
+
+private function exportPdf($grados)
+{
+    try {
+        if ($grados instanceof \Illuminate\Database\Eloquent\Collection) {
+            $data = $grados;
+        } elseif ($grados instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            $data = collect($grados->items());
+        } else {
+            $data = collect($grados);
+        }
+
+        if ($data->isEmpty()) {
+            return response()->json(['error' => 'No hay datos para exportar'], 400);
+        }
+
+        $fileName = 'grados_' . date('Y-m-d_H-i-s') . '.pdf';
+
+        $rows = $data->map(function($grado) {
+            return [
+                $grado->id_grado ?? 'N/A',
+                $grado->nombre_grado ?? 'N/A',
+                $grado->nivelEducativo->descripcion ?? 'N/A'
+            ];
+        })->toArray();
+
+        $html = PDFExportHelper::generateTableHtml([
+            'title' => 'Grados',
+            'subtitle' => 'Listado de Grados',
+            'headers' => ['ID', 'Grado', 'Nivel Educativo'],
+            'rows' => $rows,
+            'footer' => 'Sistema de Gestión Académica SIGMA - Generado automáticamente',
+        ]);
+
+        return PDFExportHelper::exportPdf($fileName, $html);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Error generando PDF: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 }

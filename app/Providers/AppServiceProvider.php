@@ -83,7 +83,7 @@ class AppServiceProvider extends ServiceProvider
         ConceptoPago::observe(ConceptoPagoObserver::class);
         Curso::observe(CursoObserver::class);
         DepartamentoAcademico::observe(DepartamentoAcademicoObserver::class);
-        DetallePago::observe(DetallePagoObserver::class);
+        // DetallePago::observe(DetallePagoObserver::class);
         Deuda::observe(DeudaObserver::class);
         Familiar::observe(FamiliarObserver::class);
         Matricula::observe(MatriculaObserver::class);
@@ -143,27 +143,35 @@ class AppServiceProvider extends ServiceProvider
                 'download' => ['Director'],
             ]
         ]]);
+
+        config(['familiar-permissions' => [
+            'datos' => [
+                'view' => ['Familiar'],
+            ],
+            'matriculas' => [
+                'view' => ['Familiar'],
+            ],
+            'pagos' => [
+                'view' => ['Familiar'],
+                'create' => ['Familiar'],
+            ],
+        ]]);
     }
 
     private function hasResourcePermissions(User $user, string $resource, string $action = 'view' ){
-        $permissions = config('permissions');
+        if ($user->tipo == 'Administrativo'){
+            $permissions = config('permissions');
+            $query = Administrativo::where('id_usuario', '=', $user->id_usuario)->get();
+            if ($query->count() == 0) return false;
+            $adminAccount = $query[0];
 
-        if ($user->tipo !== 'Administrativo'){
+            return in_array($adminAccount->cargo, $permissions[$resource][$action]);
+        } else if ($user->tipo == 'Familiar'){
+            $permissions = config('familiar-permissions');
+
+            return in_array('Familiar', $permissions[$resource][$action]);
+        } else {
             return false;
         }
-
-        $query = Administrativo::where('id_usuario', '=', $user->id_usuario)->get();
-        
-        if ($query->count() == 0) return false;
-        
-        $adminAccount = $query[0];
-
-
-        
-        
-
-        return in_array($adminAccount->cargo, $permissions[$resource][$action]);
     }
-
-
 }

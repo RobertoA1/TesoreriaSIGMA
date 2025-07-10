@@ -30,3 +30,9 @@ Route::group(['middleware' => ['can:manage-resource,"alumnos","delete"']], funct
         ->name('delete');
 });
 
+Route::group(['middleware' => ['can:manage-resource,"alumnos","download"']], function(){
+    Route::get('/export', [MatriculaController::class, 'export'])
+        ->name('export');
+
+    Route::redirect('/mas/export', '/matriculas/export');
+});

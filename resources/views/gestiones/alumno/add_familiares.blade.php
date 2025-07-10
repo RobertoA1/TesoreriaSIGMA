@@ -16,7 +16,7 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Estás a punto de crear o asignar un familiar al siguiente estudiante. Verifica los datos antes de continuar:</p>
             </div>
         </div>
-        
+                
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
             <div class="space-y-1">
                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Código Educando</span>
@@ -49,8 +49,14 @@
             </div>
             <div class="flex gap-3">
                 <input form="form" type="submit"
+                    id="boton_crear_o_asignar"
+                    class="cursor-pointer  items-center gap-2 rounded-lg border hidden border-green-300 bg-green-500 px-6 py-2.5 text-sm font-medium text-white  shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:border-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+                    value="👨‍👩‍👧‍👦 Crear y Asignar Familiar"
+                >
+                <input form="form2" type="submit"
+                    id="boton_asignar"
                     class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-green-300 bg-green-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:border-green-600 dark:bg-green-600 dark:hover:bg-green-700"
-                    value="👨‍👩‍👧‍👦 Crear Familiar"
+                    value="👨‍👩‍👧‍👦 Asignar Familiar"
                 >
                 <a href="{{ $data['return'] ?? route('familiar.index') }}"
                     class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
@@ -63,9 +69,170 @@
             </div>
         </div>
 
-        <form method="POST" id="form" action="{{ route('alumno_guardar_familiares', ['id' => $data['id']]) }}" class="mt-8">
+        <!-- Selector de Modo Mejorado -->
+        <div class="mb-8">
+            <label class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-6 block flex items-center">
+                <svg class="w-6 h-6 mr-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                ¿Deseas asignar un familiar ya existente?
+            </label>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Opción Crear Nuevo -->
+                <label class="relative cursor-pointer group">
+                    <input type="radio" id="modo_crear" name="modo_familiar" value="crear" 
+                        class="sr-only peer" {{ old('modo_familiar', 'crear') === 'crear' ? 'checked' : '' }}>
+                            
+                    <div class="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-gradient-to-br peer-checked:from-blue-100 peer-checked:to-indigo-100 dark:peer-checked:from-blue-900/40 dark:peer-checked:to-indigo-900/40 peer-checked:shadow-lg peer-checked:scale-105 hover:shadow-md hover:scale-102 group-hover:border-blue-300">
+                                        
+                        <!-- Indicador de selección -->
+                        <div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500 transition-all duration-300 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-white rounded-full scale-0 peer-checked:scale-100 transition-transform duration-300"></div>
+                        </div>
+                                        
+                        <!-- Icono principal -->
+                        <div class="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                                        
+                        <!-- Contenido -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                Crear nuevo familiar
+                            </h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Registra un familiar completamente nuevo en el sistema con toda su información personal
+                            </p>
+                        </div>
+                    </div>
+                </label>
+                        
+                <!-- Opción Asignar Existente -->
+                <label class="relative cursor-pointer group">
+                    <input type="radio" id="modo_asignar" name="modo_familiar" value="asignar" 
+                        class="sr-only peer" {{ old('modo_familiar') === 'asignar' ? 'checked' : '' }}>
+                            
+                    <div class="relative overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 transition-all duration-300 peer-checked:border-purple-500 peer-checked:bg-gradient-to-br peer-checked:from-purple-100 peer-checked:to-pink-100 dark:peer-checked:from-purple-900/40 dark:peer-checked:to-pink-900/40 peer-checked:shadow-lg peer-checked:scale-105 hover:shadow-md hover:scale-102 group-hover:border-purple-300">
+                                        
+                        <!-- Indicador de selección -->
+                        <div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-gray-300 peer-checked:border-purple-500 peer-checked:bg-purple-500 transition-all duration-300 flex items-center justify-center">
+                            <div class="w-2 h-2 bg-white rounded-full scale-0 peer-checked:scale-100 transition-transform duration-300"></div>
+                        </div>
+                                        
+                        <!-- Icono principal -->
+                        <div class="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            </svg>
+                        </div>
+                                        
+                        <!-- Contenido -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                Asignar familiar existente
+                            </h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Selecciona un familiar que ya está registrado en el sistema para vincularlo
+                            </p>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
 
-            @csrf
+        <input type="hidden" name="modo_familiar" id="input_modo_familiar" value="{{ old('modo_familiar', 'crear') }}">
+
+        {{-- 🔥 AQUÍ ESTÁN LAS RUTAS CONDICIONALES --}}
+        @if(isset($data['is_session_mode']) && $data['is_session_mode'])
+            {{-- Modo sesión: usar rutas especiales para datos temporales --}}
+            <form method="POST" id="form2" action="{{ route('alumno_guardar_familiares_session') }}" class="mt-8">
+                @csrf
+                <div id="asignar_familiar" class="mb-8 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            @include('components.forms.combo', [
+                                'label' => 'Familiar Existente',
+                                'name' => Str::snake('Familiar Existente'),
+                                'error' => $errors->first('Familiar Existente') ?? false,
+                                'value' => old(Str::snake('Familiar Existente')),
+                                'options' => $data['familiares'],
+                                'options_attributes' => ['id', 'nombre_completo']
+                            ])
+                        </div>
+                        <div>
+                            @include('components.forms.combo', [
+                                'label' => 'Parentesco Del Familiar',
+                                'name' => Str::snake('Parentesco Del Familiar'),
+                                'error' => $errors->first(Str::snake('Parentesco Del Familiar')) ?? false,
+                                'value' => old(Str::snake('Parentesco Del Familiar')),
+                                'options' => [
+                                    ['id' => 'Padre', 'descripcion' => 'Padre'],
+                                    ['id' => 'Madre', 'descripcion' => 'Madre'],
+                                    ['id' => 'Tio/a', 'descripcion' => 'Tio/a'],
+                                    ['id' => 'Abuelo/a', 'descripcion' => 'Abuelo/a'],
+                                    ['id' => 'Apoderado', 'descripcion' => 'Apoderado'],
+                                    ['id' => 'Otro', 'descripcion' => 'Otro'],
+                                ],
+                                'options_attributes' => ['id', 'descripcion']
+                            ])
+                        </div>
+                    </div>
+                </div>
+            </form>
+        @else
+            {{-- Modo normal: usar rutas existentes con ID --}}
+            <form method="POST" id="form2" action="{{ route('alumno_guardar_familiares', ['id' => $data['id']]) }}" class="mt-8">
+                @csrf
+                <div id="asignar_familiar" class="mb-8 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            @include('components.forms.combo', [
+                                'label' => 'Familiar Existente',
+                                'name' => Str::snake('Familiar Existente'),
+                                'error' => $errors->first('Familiar Existente') ?? false,
+                                'value' => old(Str::snake('Familiar Existente')),
+                                'options' => $data['familiares'],
+                                'options_attributes' => ['id', 'nombre_completo']
+                            ])
+                        </div>
+                        <div>
+                            @include('components.forms.combo', [
+                                'label' => 'Parentesco Del Familiar',
+                                'name' => Str::snake('Parentesco Del Familiar'),
+                                'error' => $errors->first(Str::snake('Parentesco Del Familiar')) ?? false,
+                                'value' => old(Str::snake('Parentesco Del Familiar')),
+                                'options' => [
+                                    ['id' => 'Padre', 'descripcion' => 'Padre'],
+                                    ['id' => 'Madre', 'descripcion' => 'Madre'],
+                                    ['id' => 'Tio/a', 'descripcion' => 'Tio/a'],
+                                    ['id' => 'Abuelo/a', 'descripcion' => 'Abuelo/a'],
+                                    ['id' => 'Apoderado', 'descripcion' => 'Apoderado'],
+                                    ['id' => 'Otro', 'descripcion' => 'Otro'],
+                                ],
+                                'options_attributes' => ['id', 'descripcion']
+                            ])
+                        </div>
+                    </div>
+                </div>
+            </form>
+        @endif
+                    
+        <div id="crear_familiar">
+            {{-- 🔥 AQUÍ TAMBIÉN RUTAS CONDICIONALES --}}
+            @if(isset($data['is_session_mode']) && $data['is_session_mode'])
+                {{-- Modo sesión: usar ruta especial --}}
+                <form method="POST" id="form" action="{{ route('alumno_guardar_familiares_session') }}" class="mt-8">
+                    @csrf
+                    <input type="hidden" name="modo_familiar" id="input_modo_familiar" value="{{ old('modo_familiar', 'crear') }}">
+            @else
+                {{-- Modo normal: usar ruta existente con ID --}}
+                <form method="POST" id="form" action="{{ route('alumno_guardar_familiares', ['id' => $data['id']]) }}" class="mt-8">
+                    @csrf
+                    <input type="hidden" name="modo_familiar" id="input_modo_familiar" value="{{ old('modo_familiar', 'crear') }}">
+            @endif
 
             <!-- Configuración de Usuario -->
             <div class="mb-8">
@@ -78,8 +245,8 @@
                 </h3>
                 <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <div class="flex items-center gap-3">
-                        <input type="checkbox" id="crear_usuario" name="crear_usuario" value="1" 
-                            {{ old('crear_usuario') ? 'checked' : '' }}
+                        <input type="checkbox" id="crear_usuario" name="crear_usuario" value="1"
+                             {{ old('crear_usuario') ? 'checked' : '' }}
                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                         <label for="crear_usuario" class="text-sm font-medium text-blue-800 dark:text-blue-200">
                             ¿Desea crear una cuenta de usuario para este familiar?
@@ -199,9 +366,122 @@
                     value="👨‍👩‍👧‍👦 Crear Familiar"
                 >
             </div>
-        </form>
+            </form>
+        </div>
     </div>
 @endsection
 
 @section('custom-js')
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const crear = document.getElementById("modo_crear")
+            const asignar = document.getElementById("modo_asignar")
+            const divCrear = document.getElementById("crear_familiar")
+            const divAsignar = document.getElementById("asignar_familiar")
+            const botonCrearOAsignar = document.getElementById("boton_crear_o_asignar")
+            const botonAsignar = document.getElementById("boton_asignar")
+            const modoFamiliarInput = document.getElementById("input_modo_familiar")
+            const formCrear = document.getElementById("form")
+            const formAsignar = document.getElementById("form2")
+
+            function toggleForm() {
+                // Agregar transiciones suaves
+                if (divCrear) divCrear.style.transition = "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                if (divAsignar) divAsignar.style.transition = "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+
+                if (asignar.checked) {
+                    modoFamiliarInput.value = "asignar"
+                    if (formAsignar) formAsignar.appendChild(modoFamiliarInput)
+
+                    // Animación suave para ocultar crear y mostrar asignar
+                    if (divCrear && divAsignar) {
+                        divCrear.style.opacity = "0"
+                        divCrear.style.transform = "translateY(-20px) scale(0.95)"
+
+                        setTimeout(() => {
+                            divCrear.classList.add("hidden")
+                            divAsignar.classList.remove("hidden")
+                            divAsignar.style.opacity = "0"
+                            divAsignar.style.transform = "translateY(20px) scale(0.95)"
+
+                            requestAnimationFrame(() => {
+                                divAsignar.style.opacity = "1"
+                                divAsignar.style.transform = "translateY(0) scale(1)"
+                            })
+                        }, 200)
+                    }
+
+                    // Cambiar botones con animación
+                    if (botonAsignar && botonCrearOAsignar) {
+                        botonCrearOAsignar.style.transform = "scale(0.9)"
+                        botonCrearOAsignar.style.opacity = "0"
+
+                        setTimeout(() => {
+                            botonAsignar.classList.remove("hidden")
+                            botonAsignar.classList.add("inline-flex")
+                            botonCrearOAsignar.classList.add("hidden")
+                            botonCrearOAsignar.classList.remove("inline-flex")
+
+                            botonAsignar.style.transform = "scale(0.9)"
+                            botonAsignar.style.opacity = "0"
+
+                            requestAnimationFrame(() => {
+                                botonAsignar.style.transform = "scale(1)"
+                                botonAsignar.style.opacity = "1"
+                            })
+                        }, 150)
+                    }
+                } else {
+                    modoFamiliarInput.value = "crear"
+                    if (formCrear) formCrear.appendChild(modoFamiliarInput)
+
+                    // Animación suave para ocultar asignar y mostrar crear
+                    if (divCrear && divAsignar) {
+                        divAsignar.style.opacity = "0"
+                        divAsignar.style.transform = "translateY(-20px) scale(0.95)"
+
+                        setTimeout(() => {
+                            divAsignar.classList.add("hidden")
+                            divCrear.classList.remove("hidden")
+                            divCrear.style.opacity = "0"
+                            divCrear.style.transform = "translateY(20px) scale(0.95)"
+
+                            requestAnimationFrame(() => {
+                                divCrear.style.opacity = "1"
+                                divCrear.style.transform = "translateY(0) scale(1)"
+                            })
+                        }, 200)
+                    }
+
+                    // Cambiar botones con animación
+                    if (botonAsignar && botonCrearOAsignar) {
+                        botonAsignar.style.transform = "scale(0.9)"
+                        botonAsignar.style.opacity = "0"
+
+                        setTimeout(() => {
+                            botonAsignar.classList.add("hidden")
+                            botonAsignar.classList.remove("inline-flex")
+                            botonCrearOAsignar.classList.remove("hidden")
+                            botonCrearOAsignar.classList.add("inline-flex")
+
+                            botonCrearOAsignar.style.transform = "scale(0.9)"
+                            botonCrearOAsignar.style.opacity = "0"
+
+                            requestAnimationFrame(() => {
+                                botonCrearOAsignar.style.transform = "scale(1)"
+                                botonCrearOAsignar.style.opacity = "1"
+                            })
+                        }, 150)
+                    }
+                }
+            }
+
+            // Event listeners
+            if (crear) crear.addEventListener("change", toggleForm)
+            if (asignar) asignar.addEventListener("change", toggleForm)
+
+            // Inicializar
+            toggleForm()
+        })
+    </script>
 @endsection

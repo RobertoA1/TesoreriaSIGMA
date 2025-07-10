@@ -25,3 +25,10 @@ Route::group(['middleware' => ['can:manage-resource,"academica","delete"']], fun
     Route::delete('/', [CatedraController::class, 'delete'])
         ->name('delete');
 });
+
+Route::group(['middleware' => ['can:manage-resource,"alumnos","download"']], function(){
+    Route::get('/export', [CatedraController::class, 'export'])
+        ->name('export');
+
+    Route::redirect('/mas/export', '/catedras/export');
+});

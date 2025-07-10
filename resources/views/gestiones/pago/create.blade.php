@@ -127,9 +127,7 @@
                             placeholder="Observaciones"></textarea>
                     </div>
                 </div>
-                <button type="button" id="agregar-detalle" class="mt-2 px-4 py-2 bg-amber-200 rounded-lg font-semibold text-sm text-gray-800 hover:bg-amber-300">
-                    + Agregar otro detalle de pago
-                </button>
+
             </div>
         </form>    
     </div>

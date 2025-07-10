@@ -20,6 +20,18 @@ Route::group(['middleware' => ['can:manage-resource,"alumnos","create"']], funct
     
    Route::post('/add/{id}/familiares', [AlumnoController::class, 'guardarFamiliares'])
    ->name('guardar_familiares');
+
+   Route::post('/clear-session', function() {
+        session()->forget('temp_student_data');
+        return response()->json(['success' => true]);
+    })->name('clear_session');
+
+    Route::get('/add-familiares-session', [AlumnoController::class, 'add_familiares_session'])
+    ->name('add_familiares_session');
+
+    Route::post('/guardar-familiares-session', [AlumnoController::class, 'guardarFamiliaresSession'])
+        ->name('guardar_familiares_session');
+
         
 });
 
@@ -40,5 +52,5 @@ Route::group(['middleware' => ['can:manage-resource,"alumnos","download"']], fun
     Route::get('/export', [AlumnoController::class, 'export'])
         ->name('export');
 
-    Route::redirect('/mas/export', '/niveles-educativos/export');
+    Route::redirect('/mas/export', '/alumnos/export');
 });

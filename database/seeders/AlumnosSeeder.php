@@ -96,16 +96,18 @@ class AlumnosSeeder extends Seeder
                                 'estado' => true
                             ]);
 
+                            $dni_familiar = $faker->unique()->numerify('########');
+
                             // Crear FAMILIAR y su USER
                             $user = User::factory()->create([
-                                'username' => 'familiar_' . $alumno->dni,
+                                'username' => $dni_familiar,
                                 'password' => bcrypt('12345'),
                                 'tipo' => 'Familiar',
                             ]);
 
                             $familiar = Familiar::create([
                                 'id_usuario' => $user->id_usuario,
-                                'dni' => $faker->unique()->numerify('########'),
+                                'dni' => $dni_familiar,
                                 'apellido_paterno' => $faker->lastName,
                                 'apellido_materno' => $faker->lastName,
                                 'primer_nombre' => $faker->firstName,

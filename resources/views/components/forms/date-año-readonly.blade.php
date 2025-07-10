@@ -11,12 +11,13 @@
         <input 
             type="number" 
             id="{{ Str::snake($label) }}" 
-            name="{{ isset($name) ? Str::snake($name) : Str::snake($label) }}"
+            name="{{ Str::snake($label) }}"
             min="1900" 
             max="{{ now()->year+1}}"
             step="1" 
             @if(isset($value)) value="{{ $value }}" @else value="{{ now()->year }}" @endif
             placeholder="{{ $placeholder ?? 'Ingrese el año' }}"
+            readonly
             class="custom-year-input dark:bg-dark-900 shadow-theme-xs focus:border-brand-300        focus:ring-brand-500/10 
                 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 
                 bg-transparent px-4 pr-10 py-2.5 text-sm text-gray-800 

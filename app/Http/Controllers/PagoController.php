@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumno;
+use App\Models\ConceptoPago;
+use App\Models\DetallePago;
 use App\Models\Deuda;
 use App\Models\Pago;
 use Illuminate\Http\Request;
@@ -103,9 +105,9 @@ class PagoController extends Controller
 
 
     public function create(Request $request){
-        $alumnos = \App\Models\Alumno::all(['id_alumno', 'codigo_educando']);
-        $deudas = \App\Models\Deuda::all(['id_deuda', 'id_alumno', 'id_concepto', 'periodo', 'monto_total']);
-        $conceptos = \App\Models\ConceptoPago::all(['id_concepto', 'descripcion']);
+        $alumnos = Alumno::all(['id_alumno', 'codigo_educando']);
+        $deudas = Deuda::all(['id_deuda', 'id_alumno', 'id_concepto', 'periodo', 'monto_total']);
+        $conceptos = ConceptoPago::all(['id_concepto', 'descripcion']);
 
         $data = [
             'return' => route('pago_view', ['abort' => true]),
@@ -148,8 +150,8 @@ class PagoController extends Controller
 
         // 3. Crear los detalles de pago
         foreach ($fechas as $i => $fecha) {
-            \App\Models\DetallePago::create([
-                'id_pago' => $pago->id_pago,
+            DetallePago::create([
+                'id_pago' => $pago->getKey(),
                 'fecha_pago' => $fecha,
                 'monto' => floatval($montos[$i]),
                 'nro_recibo' => $recibos[$i],

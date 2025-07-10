@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\TableAction;
 use App\Models\DepartamentoAcademico;
 use App\Models\Personal;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -250,6 +251,7 @@ class DocenteController extends Controller
         $departamentoNombre = DepartamentoAcademico::findOrFail($departamentoId)->nombre;
 
         Personal::create([
+            'id_usuario' => User::inRandomOrder()->first()?->id_usuario,
             'dni' => $request->input('dni'),
             'primer_nombre' => $request->input('primer_nombre'),
             'otros_nombres' => $request->input('otros_nombres'),
@@ -396,7 +398,6 @@ class DocenteController extends Controller
 
             $departamentoNombre = DepartamentoAcademico::findOrFail($departamentoId)->nombre;
 
-            $docente->id_usuario = null;
             $docente->dni = $request->input('dni');
             $docente->primer_nombre = $request->input('primer_nombre');
             $docente->apellido_paterno = $request->input('apellido_paterno');
