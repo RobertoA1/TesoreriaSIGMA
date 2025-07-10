@@ -15,14 +15,15 @@
 
     @php
         $titulo = "Alumnos asociados";
-        $columnas = ['ID', 'Nombres', 'Apellidos', 'DNI'];
+        $columnas = ['ID', 'DNI', 'Nombres', 'Apellidos',  'Parentesco'];
         $filas = [];
         foreach($familiar->alumnos as $alumno) {
             $filas[] = [
                 $alumno->id_alumno,
+                $alumno->dni,
                 $alumno->primer_nombre . ' ' . $alumno->otros_nombres,
                 $alumno->apellido_paterno . ' ' . $alumno->apellido_materno,
-                $alumno->dni,
+                $alumno->pivot->parentesco
             ];
         }
         $resource = 'alumnos';

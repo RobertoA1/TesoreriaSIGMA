@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\FilteredSearchQuery;
 use App\Models\ComposicionFamiliar;
+use App\Models\Familiar;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
 use App\Helpers\CRUDTablePage;
@@ -22,6 +23,7 @@ use App\Helpers\Tables\TableButtonComponent;
 use App\Helpers\Tables\TableComponent;
 use App\Helpers\Tables\TablePaginator;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\Rule;
 
 class AlumnoController extends Controller
 {
@@ -500,9 +502,18 @@ class AlumnoController extends Controller
 
     public function add_familiares($id){
         $alumno = Alumno::findOrFail($id);
+        $familiares = Familiar::where('estado','=',1)->get();
+        
+        foreach($familiares as $fam) {
+            $familiares_limpios[] = [
+                'id' => $fam->idFamiliar,
+                'nombre_completo' => $fam->apellido_paterno . ' ' . $fam->apellido_materno . ' ' . $fam->primer_nombre . ' ' . $fam->otros_nombres
+            ];
+        }       
         $data = [
             'return' => route('alumno_view', ['abort' => true]),
             'id' => $id,
+            'familiares' => $familiares_limpios,
             'default' => [
                 'codigo_educando' => $alumno->codigo_educando,
                 'codigo_modular' => $alumno->codigo_modular,
@@ -518,39 +529,83 @@ class AlumnoController extends Controller
         return view('gestiones.alumno.add_familiares', compact('data'));
     }
 
-    public function guardarFamiliares(Request $request, $id) {
-        
+
+    protected function validacionesSoloParaAsignar(Request $request, $idAlumno)
+    {
         $request->validate([
-            'dni' => 'required|string|max:20',
-            'apellido_paterno' => 'required|string|max:50',
-            'apellido_materno' => 'required|string|max:50',
-            'primer_nombre' => 'required|string|max:50',
-            'otros_nombres' => 'nullable|string|max:100',
-            'parentesco' => 'required',
-            'numero_contacto' => 'nullable|string|max:20',
-            'correo_electronico' => 'nullable|email|max:100',
+            'familiar_existente' => [
+                'required',
+                'exists:familiares,idFamiliar',
+                // Validar que la combinación no exista
+                Rule::unique('composiciones_familiares', 'id_familiar')
+                    ->where(function ($query) use ($idAlumno, $request) {
+                        return $query->where('id_alumno', $idAlumno)
+                                    ->where('id_familiar', $request->familiar_existente);
+                    }),
+            ],
+            'parentesco_del_familiar' => 'required|string|max:50'
         ], [
-            'dni.required' => 'Ingrese un DNI válido.',
-            'apellido_paterno.required' => 'Ingrese el apellido paterno.',
-            'apellido_materno.required' => 'Ingrese el apellido materno.',
-            'primer_nombre.required' => 'Ingrese el primer nombre.',
-            'parentesco.required' => 'Ingrese el parentesco'
+            'familiar_existente.required' => 'Debe seleccionar un familiar existente.',
+            'familiar_existente.exists' => 'El familiar seleccionado no existe.',
+            'familiar_existente.unique' => 'Este familiar ya está asignado al alumno.',
+            'parentesco_del_familiar.required' => 'Debe indicar el parentesco.',
         ]);
+    }
 
 
-        $familiarController = new FamiliarController();
-        $familiar = $familiarController->createNewEntry($request, true);
+    protected function validacionesParaCrearAsignar(Request $request){
+        $request->validate([
+                'dni' => 'required|string|max:20',
+                'apellido_paterno' => 'required|string|max:50',
+                'apellido_materno' => 'required|string|max:50',
+                'primer_nombre' => 'required|string|max:50',
+                'otros_nombres' => 'nullable|string|max:100',
+                'parentesco' => 'required',
+                'numero_contacto' => 'nullable|string|max:20',
+                'correo_electronico' => 'nullable|email|max:100',
+            ], [
+                'dni.required' => 'Ingrese un DNI válido.',
+                'apellido_paterno.required' => 'Ingrese el apellido paterno.',
+                'apellido_materno.required' => 'Ingrese el apellido materno.',
+                'primer_nombre.required' => 'Ingrese el primer nombre.',
+                'parentesco.required' => 'Ingrese el parentesco.'
+            ]);
+    }
 
 
-        ComposicionFamiliar::create([
-            'id_alumno' => $id,
-            'id_familiar' => $familiar->idFamiliar, 
-            'parentesco' => $request->parentesco
-        ]);
+    public function guardarFamiliares(Request $request, $id)
+    {
+        if ($request->modo_familiar === 'asignar') {
+            $this->validacionesSoloParaAsignar($request, $id);
+            // Asignar familiar existente
+            $familiar = Familiar::findOrFail($request->familiar_existente);
+
+            ComposicionFamiliar::create([
+                'id_alumno' => $id,
+                'id_familiar' => $request->familiar_existente,
+                'parentesco' => $request->parentesco_del_familiar
+            ]);
+
+        } else {
+            // ✅ Validar datos para crear nuevo familiar
+            $this->validacionesParaCrearAsignar($request);
+            // Crear nuevo familiar desde otro controlador
+            $familiarController = new FamiliarController();
+            $familiar = $familiarController->createNewEntry($request, true);
+
+            ComposicionFamiliar::create([
+                'id_alumno' => $id,
+                'id_familiar' => $familiar->idFamiliar,
+                'parentesco' => $request->parentesco
+            ]);
+
+        }
+
+        // Relacionar familiar (nuevo o existente)
+        
 
         return redirect()->route('alumno_view', ['edited' => true]);
     }
-
 
 
 
