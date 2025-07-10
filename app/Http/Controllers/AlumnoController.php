@@ -2,12 +2,178 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\FilteredSearchQuery;
+use App\Models\ComposicionFamiliar;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
+use App\Helpers\CRUDTablePage;
+use App\Helpers\ExcelExportHelper;
+use App\Helpers\PDFExportHelper;
+use App\Helpers\RequestHelper;
+use App\Helpers\TableAction;
+use App\Helpers\Tables\AdministrativoHeaderComponent;
+use App\Helpers\Tables\AdministrativoSidebarComponent;
+use App\Helpers\Tables\CautionModalComponent;
+use App\Helpers\Tables\CRUDTableComponent;
+use App\Helpers\Tables\FilterConfig;
+use App\Helpers\Tables\PaginatorRowsSelectorComponent;
+use App\Helpers\Tables\SearchBoxComponent;
+use App\Helpers\Tables\TableButtonComponent;
+use App\Helpers\Tables\TableComponent;
+use App\Helpers\Tables\TablePaginator;
+use App\Http\Controllers\Controller;
 
 class AlumnoController extends Controller
 {
-    private static function doSearch($sqlColumns, $search, $maxEntriesShow) {
+
+    private static function doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters = []){
+        $columnMap = [
+            'ID' => 'id_alumno',
+            'Código Educando' => 'codigo_educando',
+            'DNI' => 'dni',  
+            'Apellido Paterno' => 'apellido_paterno',
+            'Apellido Materno' => 'apellido_materno',
+            'Primer Nombre' => 'primer_nombre',
+            'Otros Nombres' => 'otros_nombres',
+            'Sexo' => 'sexo'
+        ];
+
+        /* Caso especial ya que el sexo debe establecerse según su búsqueda en BD */
+        $equiv = [
+            'masculino' => 'M',
+            'femenino' => 'F',
+        ];
+
+        foreach ($appliedFilters as &$appliedFilter){
+            if ($appliedFilter["key"] == 'Sexo'){
+                $appliedFilter["value"] = $equiv[strtolower($appliedFilter["value"])];
+                break;
+            }
+        }
+
+        $query = Alumno::where('estado', '=', true);
+
+        FilteredSearchQuery::fromQuery($query, $sqlColumns, $search, $appliedFilters, $columnMap);
+
+        if ($maxEntriesShow == null) return $query->get();
+
+        return $query->paginate($maxEntriesShow);
+    }
+    
+    public function index(Request $request, $long = false){
+        $sqlColumns = ['id_alumno', 'codigo_educando', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'sexo'];
+        $resource = 'alumnos';
+
+        $params = RequestHelper::extractSearchParams($request);
+        
+        $page = CRUDTablePage::new()
+            ->title("Alumnos")
+            ->sidebar(new AdministrativoSidebarComponent())
+            ->header(new AdministrativoHeaderComponent());
+        
+        $content = CRUDTableComponent::new()
+            ->title("Alumnos");
+
+        $filterButton = new TableButtonComponent("tablesv2.buttons.filtros");
+        $content->addButton($filterButton);
+
+        /* Definición de botones */
+
+        $descargaButton = new TableButtonComponent("tablesv2.buttons.download");
+        $createNewEntryButton = new TableButtonComponent("tablesv2.buttons.createNewEntry", ["redirect" => "alumno_create"]);
+
+        if (!$long){
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermas", ["redirect" => "alumno_viewAll"]);
+        } else {
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermenos", ["redirect" => "alumno_view"]);
+            $params->showing = 100;
+        }
+
+        $content->addButton($vermasButton);
+        $content->addButton($descargaButton);
+        $content->addButton($createNewEntryButton);
+
+        /* Paginador */
+        $paginatorRowsSelector = new PaginatorRowsSelectorComponent();
+        if ($long) $paginatorRowsSelector = new PaginatorRowsSelectorComponent([100]);
+        $paginatorRowsSelector->valueSelected = $params->showing;
+        $content->paginatorRowsSelector($paginatorRowsSelector);
+
+        /* Searchbox */
+        $searchBox = new SearchBoxComponent();
+        $searchBox->placeholder = "Buscar...";
+        $searchBox->value = $params->search;
+        $content->searchBox($searchBox);
+
+        /* Modales usados */
+        $cautionModal = CautionModalComponent::new()
+            ->cautionMessage('¿Estás seguro?')
+            ->action('Estás eliminando el Alumno')
+            ->columns(['Código Educando', 'DNI', 'Apellidos', 'Nombres', 'Sexo'])
+            ->rows(['', '', '', '', ''])
+            ->lastWarningMessage('Borrar esto afectará a todo lo que esté vinculado a este Alumno.')
+            ->confirmButton('Sí, bórralo')
+            ->cancelButton('Cancelar')
+            ->isForm(true)
+            ->dataInputName('id')
+            ->build();
+
+        $page->modals([$cautionModal]);
+
+        /* Lógica del controller */
+        
+        $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+
+        if ($params->page > $query->lastPage()){
+            $params->page = 1;
+            $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+        }
+
+        $filterConfig = new FilterConfig();
+        $filterConfig->filters = [
+            "ID", "Código Educando", "DNI", "Apellido Paterno", "Apellido Materno", "Primer Nombre", "Otros Nombres", "Sexo"
+        ];
+        $filterConfig->filterOptions = [
+            "Sexo" => ["Masculino", "Femenino"]
+        ];
+        $content->filterConfig = $filterConfig;
+        
+        $table = new TableComponent();
+        $table->columns = ["ID", "Código Educando", "DNI", "Apellidos", "Nombres", "Sexo"];
+        $table->rows = [];
+
+        foreach ($query as $alumno){
+            array_push($table->rows,
+            [
+                $alumno->id_alumno,
+                $alumno->codigo_educando,
+                $alumno->dni,
+                $alumno->apellido_paterno . " " . $alumno->apellido_materno,
+                $alumno->primer_nombre . " " . $alumno->otros_nombres,
+                $alumno->sexo,
+            ]); 
+        }
+        $table->actions = [
+            new TableAction('edit', 'alumno_edit', $resource),
+            new TableAction('delete', '', $resource),
+        ];
+
+        $paginator = new TablePaginator($params->page, $query->lastPage(), []);
+        $table->paginator = $paginator;
+
+        $content->tableComponent($table);
+
+        $page->content($content->build());
+
+        return $page->render();
+    }
+
+    public function viewAll(Request $request){
+        return static::index($request, true);
+    }
+
+
+    private static function fallbackDoSearch($sqlColumns, $search, $maxEntriesShow) {
         if (!isset($search)) {
             $query = Alumno::where('estado', '=', '1')->paginate($maxEntriesShow);
         } else {
@@ -19,7 +185,7 @@ class AlumnoController extends Controller
         return $query;
     }
 
-    public function index(Request $request) {
+    public function fallback(Request $request) {
         $sqlColumns = ['id_alumno','codigo_educando', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'sexo'];
         $resource = 'alumnos';
 
@@ -30,12 +196,12 @@ class AlumnoController extends Controller
         if (!is_numeric($paginaActual) || $paginaActual <= 0) $paginaActual = 1;
         if (!is_numeric($maxEntriesShow) || $maxEntriesShow <= 0) $maxEntriesShow = 10;
 
-        $query = AlumnoController::doSearch($sqlColumns, $search, $maxEntriesShow);
+        $query = AlumnoController::fallbackDoSearch($sqlColumns, $search, $maxEntriesShow);
 
         if ($paginaActual > $query->lastPage()) {
             $paginaActual = 1;
             $request['page'] = $paginaActual;
-            $query = AlumnoController::doSearch($sqlColumns, $search, $maxEntriesShow);
+            $query = AlumnoController::fallbackDoSearch($sqlColumns, $search, $maxEntriesShow);
         }
 
         $data = [
@@ -58,6 +224,7 @@ class AlumnoController extends Controller
             'create' => 'alumno_create',
             'edit' => 'alumno_edit',
             'delete' => 'alumno_delete',
+            'add_familiar' => 'alumno_add_familiar',
         ];
 
         if ($request->input("created", false)) {
@@ -152,7 +319,7 @@ class AlumnoController extends Controller
             'código_modular' => 'required|string|max:20',
             'código_educando' => 'required|string|max:20',
             'año_de_ingreso' => 'required|integer|min:1900|max:2100',
-            'd_n_i' => 'required|string|max:8',
+            'd_n_i' => 'required|string|max:8|unique:alumnos,dni',
             'apellido_paterno' => 'required|string|max:50',
             'apellido_materno' => 'required|string|max:50',
             'primer_nombre' => 'required|string|max:50',
@@ -323,8 +490,75 @@ class AlumnoController extends Controller
 
         $alumno->save();
 
-        return redirect(route('alumno_view', ['created'=>true]));
+        if ($request->input('definir_familiares') == '1'){
+            dd($alumno);
+        }
+
+        $alumno->save();
+
+        return redirect()->route('alumno_add_familiares', [
+            'id' => $alumno->id_alumno, // o el campo que sea tu PK
+            'created' => true
+        ]);
     }
+
+    public function add_familiares($id){
+        $alumno = Alumno::findOrFail($id);
+        $data = [
+            'return' => route('alumno_view', ['abort' => true]),
+            'id' => $id,
+            'default' => [
+                'codigo_educando' => $alumno->codigo_educando,
+                'codigo_modular' => $alumno->codigo_modular,
+                'año_ingreso' => $alumno->año_ingreso,
+                'd_n_i' => $alumno->dni,
+                'apellido_paterno' => $alumno->apellido_paterno,
+                'apellido_materno' => $alumno->apellido_materno,
+                'primer_nombre' => $alumno->primer_nombre,
+                'otros_nombres' => $alumno->otros_nombres,
+            ]
+        ];
+        
+        return view('gestiones.alumno.add_familiares', compact('data'));
+    }
+
+    public function guardarFamiliares(Request $request, $id) {
+        
+        $request->validate([
+            'dni' => 'required|string|max:20',
+            'apellido_paterno' => 'required|string|max:50',
+            'apellido_materno' => 'required|string|max:50',
+            'primer_nombre' => 'required|string|max:50',
+            'otros_nombres' => 'nullable|string|max:100',
+            'parentesco' => 'required',
+            'numero_contacto' => 'nullable|string|max:20',
+            'correo_electronico' => 'nullable|email|max:100',
+        ], [
+            'dni.required' => 'Ingrese un DNI válido.',
+            'apellido_paterno.required' => 'Ingrese el apellido paterno.',
+            'apellido_materno.required' => 'Ingrese el apellido materno.',
+            'primer_nombre.required' => 'Ingrese el primer nombre.',
+            'parentesco.required' => 'Ingrese el parentesco'
+        ]);
+
+
+        $familiarController = new FamiliarController();
+        $familiar = $familiarController->createNewEntry($request, true);
+
+
+        ComposicionFamiliar::create([
+            'id_alumno' => $id,
+            'id_familiar' => $familiar->idFamiliar, 
+            'parentesco' => $request->parentesco
+        ]);
+
+        return redirect()->route('alumno_view', ['edited' => true]);
+    }
+
+
+
+
+
 
     public function edit(Request $request, $id) {
         if (!isset($id)) {
@@ -605,7 +839,8 @@ class AlumnoController extends Controller
     public function delete(Request $request) {
         $id = $request->input('id');
 
-        $requested = Alumno::find($id);
+        $requested = Alumno::findOrFail($id);
+
         $requested->update(['estado' => '0']);
 
         return redirect(route('alumno_view', ['deleted' => true]));

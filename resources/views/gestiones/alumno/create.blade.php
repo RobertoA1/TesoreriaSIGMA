@@ -378,7 +378,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     @include('components.forms.string', [
                         'label' => 'Servicios Higiénicos',
-                        'name' => '',
+                        'name' => Str::snake('Servicios Higiénicos'),
                         'error' => $errors->first(Str::snake('Servicios Higiénicos')) ?? false,
                         'value' => old(Str::snake('Servicios Higiénicos'))
                     ])

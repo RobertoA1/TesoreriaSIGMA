@@ -7,9 +7,160 @@ use App\Models\User;
 use App\Models\Alumno;
 use Illuminate\Http\Request;
 
+use App\Helpers\FilteredSearchQuery;
+use App\Helpers\CRUDTablePage;
+use App\Helpers\ExcelExportHelper;
+use App\Helpers\PDFExportHelper;
+use App\Helpers\RequestHelper;
+use App\Helpers\TableAction;
+use App\Helpers\Tables\AdministrativoHeaderComponent;
+use App\Helpers\Tables\AdministrativoSidebarComponent;
+use App\Helpers\Tables\CautionModalComponent;
+use App\Helpers\Tables\CRUDTableComponent;
+use App\Helpers\Tables\FilterConfig;
+use App\Helpers\Tables\PaginatorRowsSelectorComponent;
+use App\Helpers\Tables\SearchBoxComponent;
+use App\Helpers\Tables\TableButtonComponent;
+use App\Helpers\Tables\TableComponent;
+use App\Helpers\Tables\TablePaginator;
+use App\Http\Controllers\Controller;
+
 class FamiliarController extends Controller
 {
-    private static function doSearch($sqlColumns, $search, $maxEntriesShow){
+
+    private static function doSearch($sqlColumns, $search, $maxEntriesShow, $appliedFilters = []){
+        $columnMap = [
+            'ID' => 'idFamiliar',
+            'DNI' => 'dni',
+            'Apellido Paterno' => 'apellido_paterno',
+            'Apellido Materno' => 'apellido_materno',
+            'Primer Nombre' => 'primer_nombre',
+            'Otros Nombres' => 'otros_nombres',
+            'Número de Contacto' => 'numero_contacto',
+            'Correo Electrónico' => 'correo_electronico',
+        ];
+
+        $query = Familiar::where('estado', '=', true);
+
+        FilteredSearchQuery::fromQuery($query, $sqlColumns, $search, $appliedFilters, $columnMap);
+
+        if ($maxEntriesShow == null) return $query->get();
+
+        return $query->paginate($maxEntriesShow);
+    }
+    
+    public function index(Request $request, $long = false){
+        $sqlColumns = ['idFamiliar', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'numero_contacto', 'correo_electronico'];
+        $resource = 'alumnos';
+
+        $params = RequestHelper::extractSearchParams($request);
+        
+        $page = CRUDTablePage::new()
+            ->title("Familiares")
+            ->sidebar(new AdministrativoSidebarComponent())
+            ->header(new AdministrativoHeaderComponent());
+        
+        $content = CRUDTableComponent::new()
+            ->title("Familiares");
+
+        $filterButton = new TableButtonComponent("tablesv2.buttons.filtros");
+        $content->addButton($filterButton);
+
+        /* Definición de botones */
+
+        $descargaButton = new TableButtonComponent("tablesv2.buttons.download");
+        $createNewEntryButton = new TableButtonComponent("tablesv2.buttons.createNewEntry", ["redirect" => "familiar_create"]);
+
+        if (!$long){
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermas", ["redirect" => "familiar_viewAll"]);
+        } else {
+            $vermasButton = new TableButtonComponent("tablesv2.buttons.vermenos", ["redirect" => "familiar_view"]);
+            $params->showing = 100;
+        }
+
+        $content->addButton($vermasButton);
+        $content->addButton($descargaButton);
+        $content->addButton($createNewEntryButton);
+
+        /* Paginador */
+        $paginatorRowsSelector = new PaginatorRowsSelectorComponent();
+        if ($long) $paginatorRowsSelector = new PaginatorRowsSelectorComponent([100]);
+        $paginatorRowsSelector->valueSelected = $params->showing;
+        $content->paginatorRowsSelector($paginatorRowsSelector);
+
+        /* Searchbox */
+        $searchBox = new SearchBoxComponent();
+        $searchBox->placeholder = "Buscar...";
+        $searchBox->value = $params->search;
+        $content->searchBox($searchBox);
+
+        /* Modales usados */
+        $cautionModal = CautionModalComponent::new()
+            ->cautionMessage('¿Estás seguro?')
+            ->action('Estás eliminando el Alumno')
+            ->columns(['Nivel', 'Descripción'])
+            ->rows(['nombre', 'descripcion'])
+            ->lastWarningMessage('Borrar esto afectará a todo lo que esté vinculado a este Nivel Educativo')
+            ->confirmButton('Sí, bórralo')
+            ->cancelButton('Cancelar')
+            ->isForm(true)
+            ->dataInputName('id')
+            ->build();
+
+        $page->modals([$cautionModal]);
+
+        /* Lógica del controller */
+        
+        $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+
+        if ($params->page > $query->lastPage()){
+            $params->page = 1;
+            $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+        }
+
+        $filterConfig = new FilterConfig();
+        $filterConfig->filters = [
+            "ID", "DNI", "Apellido Paterno", "Apellido Materno", "Primer Nombre", "Otros Nombres", "Número de Contacto", "Correo Electrónico"
+        ];
+        $filterConfig->filterOptions = [];
+        $content->filterConfig = $filterConfig;
+        
+        $table = new TableComponent();
+        $table->columns = ["ID", "DNI", "Apellidos", "Nombres", "Número de Contacto", "Correo Electrónico"];
+        $table->rows = [];
+
+        foreach ($query as $familiar){
+            array_push($table->rows,
+            [
+                $familiar->idFamiliar,
+                $familiar->dni,
+                $familiar->apellido_paterno . " " . $familiar->apellido_materno,
+                $familiar->primer_nombre . " " . $familiar->otros_nombres,
+                $familiar->numero_contacto,
+                $familiar->correo_electronico,
+            ]); 
+        }
+        $table->actions = [
+            new TableAction('edit', 'familiar_edit', $resource),
+            new TableAction('delete', '', $resource),
+            new TableAction('familiar_ver_alumnos', 'familiar_detalles', $resource),
+        ];
+
+        $paginator = new TablePaginator($params->page, $query->lastPage(), []);
+        $table->paginator = $paginator;
+
+        $content->tableComponent($table);
+
+        $page->content($content->build());
+
+        return $page->render();
+    }
+
+    public function viewAll(Request $request){
+        return static::index($request, true);
+    }
+
+    private static function fallbackDoSearch($sqlColumns, $search, $maxEntriesShow){
         if (!isset($search)){
             $query = Familiar::where('estado', '=', '1')->orderBy('apellido_paterno')
             ->orderBy('apellido_materno')
@@ -24,7 +175,7 @@ class FamiliarController extends Controller
     }
 
 
-    public function index(Request $request){
+    public function fallback(Request $request){
         $sqlColumns = ['idFamiliar','dni','apellido_paterno','apellido_materno', 'primer_nombre', 'otros_nombres','numero_contacto','correo_electronico'];
         $resource = 'alumnos';
 
@@ -35,12 +186,12 @@ class FamiliarController extends Controller
         if (!is_numeric($paginaActual) || $paginaActual <= 0) $paginaActual = 1;
         if (!is_numeric($maxEntriesShow) || $maxEntriesShow <= 0) $maxEntriesShow = 10;
 
-        $query = FamiliarController::doSearch($sqlColumns, $search, $maxEntriesShow);
+        $query = FamiliarController::fallbackDoSearch($sqlColumns, $search, $maxEntriesShow);
 
         if ($paginaActual > $query->lastPage()){
             $paginaActual = 1;
             $request['page'] = $paginaActual;
-            $query = FamiliarController::doSearch($sqlColumns, $search, $maxEntriesShow);
+            $query = FamiliarController::fallbackDoSearch($sqlColumns, $search, $maxEntriesShow);
         }
 
         $data = [
@@ -112,7 +263,7 @@ class FamiliarController extends Controller
         return view('gestiones.familiar.create', compact('data'));
     }
 
-    public function createNewEntry(Request $request)
+    public function createNewEntry(Request $request, $returnModel = false)
     {
         $request->validate([
         'dni' => 'required|string|max:20',
@@ -160,6 +311,10 @@ class FamiliarController extends Controller
             $syncData[$id_alumno] = ['parentesco' => $parentesco];
         }
         $familiar->alumnos()->sync($syncData);
+    }
+
+    if ($returnModel) {
+        return $familiar;
     }
 
     return redirect(route('familiar_view', ['created' => true]));
