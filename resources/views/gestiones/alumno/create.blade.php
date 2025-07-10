@@ -15,8 +15,16 @@
             <div class="flex gap-3">
                 <input form="form" type="submit"
                     class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                    value="Crear Alumno"
+                    @click="document.querySelector('.definir_familiares').value = '1';" 
+                    value="Crear alumno y definir familiares"
                 >
+
+                <input form="form" type="submit"
+                    class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-blue-300 px-6 py-2.5 text-sm font-medium text-black dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-600"
+                    value="Crear alumno únicamente"
+                    @click="document.querySelector('.definir_familiares').value = '0';"
+                >
+
                 <a href="{{ $data['return'] }}"
                     class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
@@ -29,6 +37,8 @@
             @method('PUT')
             @csrf
 
+            <input type="text" class="definir_familiares" name="definir_familiares" value="0" hidden>
+
             <!-- Información Básica -->
             <div class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
@@ -40,16 +50,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     @include('components.forms.string', [
                         'label' => 'Código Educando',
-                        'name' => Str::snake('Codigo Educando'),
-                        'error' => $errors->first(Str::snake('Codigo Educando')) ?? false,
-                        'value' => old(Str::snake('Codigo Educando'))
+                        'name' => Str::snake('Código Educando'),
+                        'error' => $errors->first(Str::snake('Código Educando')) ?? false,
+                        'value' => old(Str::snake('Código Educando'))
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Código Modular',
-                        'name' => Str::snake('Codigo Modular'),
-                        'error' => $errors->first(Str::snake('Codigo Modular')) ?? false,
-                        'value' => old(Str::snake('Codigo Modular'))
+                        'name' => Str::snake('Código Modular'),
+                        'error' => $errors->first(Str::snake('Código Modular')) ?? false,
+                        'value' => old(Str::snake('Código Modular'))
                     ])
 
                     @include('components.forms.date-año', [
@@ -134,9 +144,9 @@
 
                     @include('components.forms.string', [
                         'label' => 'Teléfono',
-                        'name' => Str::snake('Telefono'),
-                        'error' => $errors->first(Str::snake('Telefono')) ?? false,
-                        'value' => old(Str::snake('Telefono'))
+                        'name' => Str::snake('Teléfono'),
+                        'error' => $errors->first(Str::snake('Teléfono')) ?? false,
+                        'value' => old(Str::snake('Teléfono'))
                     ])
 
                     @include('components.forms.combo', [
@@ -155,17 +165,17 @@
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-4 0 3 3 0 016 0z"></path>
                     </svg>
                     Ubicación Geográfica
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     @include('components.forms.combo_dependient', [
                         'label' => 'País',
-                        'name' => 'pais',
-                        'error' => $errors->first(Str::snake('pais')) ?? false,
+                        'name' => Str::snake('País'),
+                        'error' => $errors->first(Str::snake('País')) ?? false,
                         'placeholder' => 'Seleccionar país...',
-                        'value' => old(Str::snake('pais')),
+                        'value' => old(Str::snake('País')),
                         'value_field' => 'id_pais',
                         'text_field' => 'descripcion',
                         'options' => $data['paises'],
@@ -174,12 +184,12 @@
 
                     @include('components.forms.combo_dependient', [
                         'label' => 'Departamento',
-                        'name' => 'departamento',
-                        'error' => $errors->first(Str::snake('departamento')) ?? false,
+                        'name' => Str::snake('Departamento'),
+                        'error' => $errors->first(Str::snake('Departamento')) ?? false,
                         'placeholder' => 'Seleccionar departamento...',
-                        'depends_on' => 'pais',
+                        'depends_on' => Str::snake('País'),
                         'parent_field' => 'id_pais',
-                        'value' => old(Str::snake('departamento')),
+                        'value' => old(Str::snake('Departamento')),
                         'value_field' => 'id_departamento',
                         'text_field' => 'descripcion',
                         'options' => $data['departamentos'],
@@ -188,11 +198,11 @@
 
                     @include('components.forms.combo_dependient', [
                         'label' => 'Provincia',
-                        'name' => 'provincia',
-                        'error' => $errors->first(Str::snake('provincia')) ?? false,
-                        'value' => old(Str::snake('provincia')),
+                        'name' => Str::snake('Provincia'),
+                        'error' => $errors->first(Str::snake('Provincia')) ?? false,
+                        'value' => old(Str::snake('Provincia')),
                         'placeholder' => 'Seleccionar provincia...',
-                        'depends_on' => 'departamento',
+                        'depends_on' => Str::snake('Departamento'),
                         'parent_field' => 'id_departamento',
                         'value_field' => 'id_provincia',
                         'text_field' => 'descripcion',
@@ -202,11 +212,11 @@
 
                     @include('components.forms.combo_dependient', [
                         'label' => 'Distrito',
-                        'name' => 'distrito',
-                        'error' => $errors->first(Str::snake('distrito')) ?? false,
-                        'value' => old(Str::snake('distrito')),
+                        'name' => Str::snake('Distrito'),
+                        'error' => $errors->first(Str::snake('Distrito')) ?? false,
+                        'value' => old(Str::snake('Distrito')),
                         'placeholder' => 'Seleccionar distrito...',
-                        'depends_on' => 'provincia',
+                        'depends_on' => Str::snake('Provincia'),
                         'parent_field' => 'id_provincia',
                         'value_field' => 'id_distrito',
                         'text_field' => 'descripcion',
@@ -245,9 +255,9 @@
 
                     @include('components.forms.string', [
                         'label' => 'Religión',
-                        'name' => Str::snake('Religion'),
-                        'error' => $errors->first(Str::snake('Religion')) ?? false,
-                        'value' => old(Str::snake('Religion'))
+                        'name' => Str::snake('Religión'),
+                        'error' => $errors->first(Str::snake('Religión')) ?? false,
+                        'value' => old(Str::snake('Religión'))
                     ])
 
                     @include('components.forms.date', [
@@ -296,9 +306,9 @@
                     <div class="md:col-span-2">
                         @include('components.forms.string', [
                             'label' => 'Dirección',
-                            'name' => Str::snake('Direccion'),
-                            'error' => $errors->first(Str::snake('Direccion')) ?? false,
-                            'value' => old(Str::snake('Direccion'))
+                            'name' => Str::snake('Dirección'),
+                            'error' => $errors->first(Str::snake('Dirección')) ?? false,
+                            'value' => old(Str::snake('Dirección'))
                         ])
                     </div>
 
@@ -311,9 +321,9 @@
 
                     @include('components.forms.string', [
                         'label' => 'Tiempo de Demora',
-                        'name' => Str::snake('Tiempo de demora'),
-                        'error' => $errors->first(Str::snake('Tiempo de demora')) ?? false,
-                        'value' => old(Str::snake('Tiempo de demora'))
+                        'name' => Str::snake('Tiempo de Demora'),
+                        'error' => $errors->first(Str::snake('Tiempo de Demora')) ?? false,
+                        'value' => old(Str::snake('Tiempo de Demora'))
                     ])
                 </div>
             </div>
@@ -336,9 +346,9 @@
 
                     @include('components.forms.string', [
                         'label' => 'Energía Eléctrica',
-                        'name' => Str::snake('Energia Electrica'),
-                        'error' => $errors->first(Str::snake('Energia Electrica')) ?? false,
-                        'value' => old(Str::snake('Energia Electrica'))
+                        'name' => Str::snake('Energía Eléctrica'),
+                        'error' => $errors->first(Str::snake('Energía Eléctrica')) ?? false,
+                        'value' => old(Str::snake('Energía Eléctrica'))
                     ])
 
                     @include('components.forms.string', [
@@ -350,9 +360,9 @@
 
                     @include('components.forms.string', [
                         'label' => 'Desagüe',
-                        'name' => Str::snake('Desague'),
-                        'error' => $errors->first(Str::snake('Desague')) ?? false,
-                        'value' => old(Str::snake('Desague'))
+                        'name' => Str::snake('Desagüe'),
+                        'error' => $errors->first(Str::snake('Desagüe')) ?? false,
+                        'value' => old(Str::snake('Desagüe'))
                     ])
                 </div>
             </div>
@@ -367,49 +377,53 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     @include('components.forms.string', [
-                        'label' => 'SS.HH.',
-                        'name' => Str::snake('SS_HH'),
-                        'error' => $errors->first(Str::snake('SS_HH')) ?? false,
-                        'value' => old(Str::snake('SS_HH'))
+                        'label' => 'Servicios Higiénicos',
+                        'name' => '',
+                        'error' => $errors->first(Str::snake('Servicios Higiénicos')) ?? false,
+                        'value' => old(Str::snake('Servicios Higiénicos'))
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Número de Habitaciones',
-                        'name' => Str::snake('Numero de Habitaciones'),
-                        'error' => $errors->first(Str::snake('Numero de Habitaciones')) ?? false,
-                        'value' => old(Str::snake('Numero de Habitaciones'))
+                        'name' => Str::snake('Número de Habitaciones'),
+                        'error' => $errors->first(Str::snake('Número de Habitaciones')) ?? false,
+                        'value' => old(Str::snake('Número de Habitaciones'))
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Número de Habitantes',
-                        'name' => Str::snake('Numero de Habitantes'),
-                        'error' => $errors->first(Str::snake('Numero de Habitantes')) ?? false,
-                        'value' => old(Str::snake('Numero de Habitantes'))
+                        'name' => Str::snake('Número de Habitantes'),
+                        'error' => $errors->first(Str::snake('Número de Habitantes')) ?? false,
+                        'value' => old(Str::snake('Número de Habitantes'))
                     ])
 
                     @include('components.forms.string', [
                         'label' => 'Situación de Vivienda',
-                        'name' => Str::snake('Situacion de vivienda'),
-                        'error' => $errors->first(Str::snake('Situacion de vivienda')) ?? false,
-                        'value' => old(Str::snake('Situacion de vivienda'))
+                        'name' => Str::snake('Situación de Vivienda'),
+                        'error' => $errors->first(Str::snake('Situación de Vivienda')) ?? false,
+                        'value' => old(Str::snake('Situación de Vivienda'))
                     ])
                 </div>
             </div>
 
             <!-- Botones de acción -->
             <div class="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <input form="form" type="submit"
+                    class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    value="Crear alumno y definir familiares" @click="document.querySelector('.definir_familiares').value = '1';"
+                >
+
+                <input form="form" type="submit"
+                    class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-blue-300 px-6 py-2.5 text-sm font-medium text-black dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-600"
+                    value="Crear alumno únicamente"
+                    @click="document.querySelector('.definir_familiares').value = '0';"
+                >
+
                 <a href="{{ $data['return'] }}"
                     class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
                     Cancelar
                 </a>
-                <input form="form" type="submit"
-                    class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                    value="🎓 Crear Alumno"
-                >
             </div>
         </form>
     </div>

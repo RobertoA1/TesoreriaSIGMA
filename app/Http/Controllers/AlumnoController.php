@@ -149,8 +149,8 @@ class AlumnoController extends Controller
 
     public function createNewEntry(Request $request) {
         $request -> validate([
-            'codigo_modular' => 'required|string|max:20',
-            'codigo_educando' => 'required|string|max:20',
+            'código_modular' => 'required|string|max:20',
+            'código_educando' => 'required|string|max:20',
             'año_de_ingreso' => 'required|integer|min:1900|max:2100',
             'd_n_i' => 'required|string|max:8',
             'apellido_paterno' => 'required|string|max:50',
@@ -165,57 +165,88 @@ class AlumnoController extends Controller
             'distrito' => 'required|string|max:40',
             'lengua_materna' => 'required|string|max:50',
             'estado_civil' => 'required|in:S,C,V,D',
-            'religion' => 'nullable|string|max:50',
+            'religión' => 'nullable|string|max:50',
             'fecha_bautizo' => 'nullable|date',
             'parroquia_de_bautizo' => 'nullable|string|max:100',
             'colegio_de_procedencia' => 'nullable|string|max:100',
-            'direccion' => 'required|string|max:255',
-            'telefono' => 'nullable|string|max:20',
+            'dirección' => 'required|string|max:255',
+            'teléfono' => 'nullable|string|max:20',
             'medio_de_transporte' => 'required|string|max:50',
             'tiempo_de_demora' => 'required|string|max:20',
             'material_vivienda' => 'required|string|max:100',
-            'energia_electrica' => 'required|string|max:100',
+            'energía_eléctrica' => 'required|string|max:100',
             'agua_potable' => 'nullable|string|max:100',
-            'desague' => 'nullable|string|max:100',
-            's_s__h_h' => 'nullable|string|max:100',
-            'numero_de_habitaciones' => 'nullable|integer|min:1|max:20',
-            'numero_de_habitantes' => 'nullable|integer|min:1|max:20',
-            'situacion_de_vivienda' => 'required|string|max:100',
-            'escala' => 'nullable|in:A,B,C,D',
+            'desagüe' => 'nullable|string|max:100',
+            'servicios_higiénicos' => 'nullable|string|max:100',
+            'número_de_habitaciones' => 'nullable|integer|min:1|max:20',
+            'número_de_habitantes' => 'nullable|integer|min:1|max:20',
+            'situación_de_vivienda' => 'required|string|max:100',
+            'escala' => 'nullable|in:A,B,C,D,E',
         ], [
-            'codigo_modular.required' => 'Ingrese un codigo valido.',
-            'codigo_educando.required' => 'Ingrese un codigo valido.',
+            'código_modular.required' => 'Ingrese un código modular válido.',
+            'código_modular.max' => 'El código modular no puede superar los 20 caracteres.',
+            'código_educando.required' => 'Ingrese un código educando válido.',
+            'código_educando.max' => 'El código educando no puede superar los 20 caracteres.',
             'año_de_ingreso.required' => 'El año de ingreso es obligatorio.',
+            'año_de_ingreso.integer' => 'El año de ingreso debe ser un número.',
+            'año_de_ingreso.min' => 'El año de ingreso debe ser mayor o igual a 1900.',
+            'año_de_ingreso.max' => 'El año de ingreso debe ser menor o igual a 2100.',
             'd_n_i.required' => 'Ingrese un DNI válido.',
+            'd_n_i.max' => 'El DNI no puede superar los 8 caracteres.',
             'apellido_paterno.required' => 'Ingrese un apellido paterno válido.',
+            'apellido_paterno.max' => 'El apellido paterno no puede superar los 50 caracteres.',
             'apellido_materno.required' => 'Ingrese un apellido materno válido.',
+            'apellido_materno.max' => 'El apellido materno no puede superar los 50 caracteres.',
             'primer_nombre.required' => 'Ingrese un primer nombre válido.',
-            'sexo.required' => 'El campo sexo, es obligatorio.',
+            'primer_nombre.max' => 'El primer nombre no puede superar los 50 caracteres.',
+            'otros_nombres.max' => 'Los otros nombres no pueden superar los 50 caracteres.',
+            'sexo.required' => 'El campo sexo es obligatorio.',
+            'sexo.in' => 'El sexo debe ser Masculino (M) o Femenino (F).',
             'fecha_nacimiento.required' => 'Ingrese una fecha de nacimiento válida.',
+            'fecha_nacimiento.date' => 'La fecha de nacimiento debe ser una fecha válida.',
             'pais.required' => 'Ingrese un país válido.',
+            'pais.max' => 'El país no puede superar los 20 caracteres.',
             'departamento.required' => 'Ingrese un departamento válido.',
+            'departamento.max' => 'El departamento no puede superar los 40 caracteres.',
             'provincia.required' => 'Ingrese una provincia válida.',
+            'provincia.max' => 'La provincia no puede superar los 40 caracteres.',
             'distrito.required' => 'Ingrese un distrito válido.',
+            'distrito.max' => 'El distrito no puede superar los 40 caracteres.',
             'lengua_materna.required' => 'Ingrese una lengua materna válida.',
+            'lengua_materna.max' => 'La lengua materna no puede superar los 50 caracteres.',
             'estado_civil.required' => 'El estado civil es obligatorio.',
-            'religion.max' => 'La religión no puede superar los 50 caracteres.',
+            'estado_civil.in' => 'El estado civil debe ser S, C, V o D.',
+            'religión.max' => 'La religión no puede superar los 50 caracteres.',
             'fecha_bautizo.date' => 'Ingrese una fecha de bautizo válida.',
             'parroquia_de_bautizo.max' => 'La parroquia de bautizo no puede superar los 100 caracteres.',
             'colegio_de_procedencia.max' => 'El colegio de procedencia no puede superar los 100 caracteres.',
-            'direccion.required' => 'Ingrese una dirección válida.',
-            'telefono.max' => 'El teléfono no puede superar los 20 caracteres.',
+            'dirección.required' => 'Ingrese una dirección válida.',
+            'dirección.max' => 'La dirección no puede superar los 255 caracteres.',
+            'teléfono.max' => 'El teléfono no puede superar los 20 caracteres.',
             'medio_de_transporte.required' => 'Ingrese un medio de transporte válido.',
+            'medio_de_transporte.max' => 'El medio de transporte no puede superar los 50 caracteres.',
             'tiempo_de_demora.required' => 'Ingrese un tiempo de demora válido.',
+            'tiempo_de_demora.max' => 'El tiempo de demora no puede superar los 20 caracteres.',
             'material_vivienda.required' => 'Ingrese un material de vivienda válido.',
-            'energia_electrica.required' => 'Ingrese una fuente de energía eléctrica válida.',
-            'situacion_de_vivienda.required' => 'Ingrese una situación de vivienda válida.',
-            'numero_de_habitaciones.max' => 'Maximo Numero de Habitaciones = 20',
-            'numero_de_habitantes.max' => 'Maximo Numero de Habitantes = 20',
-            'escala.in' => 'La escala debe ser A, B, C o D.',
+            'material_vivienda.max' => 'El material de vivienda no puede superar los 100 caracteres.',
+            'energía_eléctrica.required' => 'Ingrese una fuente de energía eléctrica válida.',
+            'energía_eléctrica.max' => 'La energía eléctrica no puede superar los 100 caracteres.',
+            'agua_potable.max' => 'El campo agua potable no puede superar los 100 caracteres.',
+            'desagüe.max' => 'El campo desagüe no puede superar los 100 caracteres.',
+            'servicios_higiénicos.max' => 'El campo S.S.H.H. no puede superar los 100 caracteres.',
+            'número_de_habitaciones.max' => 'Máximo número de habitaciones = 20.',
+            'número_de_habitaciones.min' => 'Mínimo número de habitaciones = 1.',
+            'número_de_habitaciones.integer' => 'El número de habitaciones debe ser un número válido.',
+            'número_de_habitantes.max' => 'Máximo número de habitantes = 20.',
+            'número_de_habitantes.min' => 'Mínimo número de habitantes = 1.',
+            'número_de_habitantes.integer' => 'El número de habitantes debe ser un número válido.',
+            'situación_de_vivienda.required' => 'Ingrese una situación de vivienda válida.',
+            'situación_de_vivienda.max' => 'La situación de vivienda no puede superar los 100 caracteres.',
+            'escala.in' => 'La escala debe ser A, B, C, D o E.'
         ]);
 
-        $codigoModular = $request->input('codigo_modular');
-        $codigoEducando = $request->input('codigo_educando');
+        $codigoModular = $request->input('código_modular');
+        $codigoEducando = $request->input('código_educando');
         $añoIngreso = $request->input('año_ingreso');
         $dni = $request->input('d_n_i');
         $apellidoPaterno = $request->input('apellido_paterno');
@@ -230,27 +261,27 @@ class AlumnoController extends Controller
         $distrito = $request->input('distrito');
         $lenguaMaterna = $request->input('lengua_materna');
         $estadoCivil = $request->input('estado_civil');
-        $religion = $request->input('religion', '');
+        $religion = $request->input('religión', '');
         $fechaBautizo = $request->input('fecha_bautizo', null);
         $parroquia_bautizo = $request->input('parroquia_de_bautizo', '');
         $colegioProcedencia = $request->input('colegio_de_procedencia', '');
-        $direccion = $request->input('direccion');
-        $telefono = $request->input('telefono', '');
+        $direccion = $request->input('dirección');
+        $telefono = $request->input('teléfono', '');
         $medioTransporte = $request
             ->input('medio_de_transporte');
         $tiempoDemora = $request->input('tiempo_de_demora', '');
         $materialVivienda = $request->input('material_vivienda');
-        $energiaElectrica = $request->input('energia_electrica');
+        $energiaElectrica = $request->input('energía_eléctrica');
         $aguaPotable = $request->input('agua_potable', '');
-        $desague = $request->input('desague', '');
-        $ss_hh = $request->input('s_s__h_h', '');
-        $numHabitaciones = $request->input('numero_de_habitaciones', null);
-        $numHabitantes = $request->input('numero_de_habitantes', null);
-        $situacionVivienda = $request->input('situacion_de_vivienda');
+        $desague = $request->input('desagüe', '');
+        $ss_hh = $request->input('servicios_higiénicos', '');
+        $numHabitaciones = $request->input('número_de_habitaciones', null);
+        $numHabitantes = $request->input('número_de_habitantes', null);
+        $situacionVivienda = $request->input('situación_de_vivienda');
         $escala = $request->input('escala', null);
 
 
-        $alumno  = Alumno::create([
+        $alumno  = new Alumno([
             'codigo_modular' => $codigoModular,
             'codigo_educando' => $codigoEducando,
             'año_ingreso' => $añoIngreso,
@@ -285,6 +316,12 @@ class AlumnoController extends Controller
             'situacion_vivienda' => $situacionVivienda,
             'escala' => $escala
         ]);
+
+        if ($request->input('definir_familiares') == '1'){
+            dd($alumno);
+        }
+
+        $alumno->save();
 
         return redirect(route('alumno_view', ['created'=>true]));
     }
@@ -428,34 +465,63 @@ class AlumnoController extends Controller
             'situacion_de_vivienda' => 'required|string|max:100',
             'escala' => 'nullable|in:A,B,C,D',
         ], [
-            'codigo_modular.required' => 'Ingrese un codigo valido.',
-            'codigo_educando.required' => 'Ingrese un codigo valido.',
+            'codigo_modular.required' => 'Ingrese un código modular válido.',
+            'codigo_modular.max' => 'El código modular no puede superar los 20 caracteres.',
+            'codigo_educando.required' => 'Ingrese un código educando válido.',
+            'codigo_educando.max' => 'El código educando no puede superar los 20 caracteres.',
             'año_de_ingreso.required' => 'El año de ingreso es obligatorio.',
+            'año_de_ingreso.integer' => 'El año de ingreso debe ser un número.',
+            'año_de_ingreso.min' => 'El año de ingreso debe ser mayor o igual a 1900.',
+            'año_de_ingreso.max' => 'El año de ingreso debe ser menor o igual a 2100.',
             'd_n_i.required' => 'Ingrese un DNI válido.',
+            'd_n_i.max' => 'El DNI no puede superar los 8 caracteres.',
             'apellido_paterno.required' => 'Ingrese un apellido paterno válido.',
+            'apellido_paterno.max' => 'El apellido paterno no puede superar los 50 caracteres.',
             'apellido_materno.required' => 'Ingrese un apellido materno válido.',
+            'apellido_materno.max' => 'El apellido materno no puede superar los 50 caracteres.',
             'primer_nombre.required' => 'Ingrese un primer nombre válido.',
-            'sexo.required' => 'El campo sexo, es obligatorio.',
+            'primer_nombre.max' => 'El primer nombre no puede superar los 50 caracteres.',
+            'otros_nombres.max' => 'Los otros nombres no pueden superar los 50 caracteres.',
+            'sexo.required' => 'El campo sexo es obligatorio.',
+            'sexo.in' => 'El sexo debe ser Masculino (M) o Femenino (F).',
             'fecha_nacimiento.required' => 'Ingrese una fecha de nacimiento válida.',
+            'fecha_nacimiento.date' => 'La fecha de nacimiento debe ser una fecha válida.',
             'pais.required' => 'Ingrese un país válido.',
+            'pais.max' => 'El país no puede superar los 20 caracteres.',
             'departamento.required' => 'Ingrese un departamento válido.',
+            'departamento.max' => 'El departamento no puede superar los 40 caracteres.',
             'provincia.required' => 'Ingrese una provincia válida.',
+            'provincia.max' => 'La provincia no puede superar los 40 caracteres.',
             'distrito.required' => 'Ingrese un distrito válido.',
+            'distrito.max' => 'El distrito no puede superar los 40 caracteres.',
             'lengua_materna.required' => 'Ingrese una lengua materna válida.',
+            'lengua_materna.max' => 'La lengua materna no puede superar los 50 caracteres.',
             'estado_civil.required' => 'El estado civil es obligatorio.',
+            'estado_civil.in' => 'El estado civil debe ser S, C, V o D.',
             'religion.max' => 'La religión no puede superar los 50 caracteres.',
             'fecha_bautizo.date' => 'Ingrese una fecha de bautizo válida.',
             'parroquia_de_bautizo.max' => 'La parroquia de bautizo no puede superar los 100 caracteres.',
             'colegio_de_procedencia.max' => 'El colegio de procedencia no puede superar los 100 caracteres.',
             'direccion.required' => 'Ingrese una dirección válida.',
+            'direccion.max' => 'La dirección no puede superar los 255 caracteres.',
             'telefono.max' => 'El teléfono no puede superar los 20 caracteres.',
             'medio_de_transporte.required' => 'Ingrese un medio de transporte válido.',
+            'medio_de_transporte.max' => 'El medio de transporte no puede superar los 50 caracteres.',
             'tiempo_de_demora.required' => 'Ingrese un tiempo de demora válido.',
+            'tiempo_de_demora.max' => 'El tiempo de demora no puede superar los 20 caracteres.',
             'material_vivienda.required' => 'Ingrese un material de vivienda válido.',
+            'material_vivienda.max' => 'El material de vivienda no puede superar los 100 caracteres.',
             'energia_electrica.required' => 'Ingrese una fuente de energía eléctrica válida.',
+            'energia_electrica.max' => 'La energía eléctrica no puede superar los 100 caracteres.',
+            'agua_potable.max' => 'El campo agua potable no puede superar los 100 caracteres.',
+            'desague.max' => 'El campo desagüe no puede superar los 100 caracteres.',
+            's_s__h_h.max' => 'El campo S.S.H.H. no puede superar los 100 caracteres.',
+            'numero_de_habitaciones.max' => 'Máximo número de habitaciones = 20.',
+            'numero_de_habitaciones.min' => 'Mínimo número de habitaciones = 1.',
+            'numero_de_habitantes.max' => 'Máximo número de habitantes = 20.',
+            'numero_de_habitantes.min' => 'Mínimo número de habitantes = 1.',
             'situacion_de_vivienda.required' => 'Ingrese una situación de vivienda válida.',
-            'numero_de_habitaciones.max' => 'Maximo Numero de Habitaciones = 20',
-            'numero_de_habitantes.max' => 'Maximo Numero de Habitantes = 20',
+            'situacion_de_vivienda.max' => 'La situación de vivienda no puede superar los 100 caracteres.',
             'escala.in' => 'La escala debe ser A, B, C o D.',
         ]);
 
