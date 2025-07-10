@@ -60,7 +60,12 @@ class AlumnoController extends Controller
 
         if ($maxEntriesShow == null) return $query->get();
 
-        return $query->paginate($maxEntriesShow);
+        if ($maxEntriesShow === null) {
+            return $query->get();
+        } else {
+            // Para vista normal: paginar
+            return $query->paginate($maxEntriesShow);
+        }
     }
     
     public function index(Request $request, $long = false){
@@ -1083,66 +1088,118 @@ class AlumnoController extends Controller
 
     public function export(Request $request)
     {
-        $format = $request->input('export', 'excel');
-        $sqlColumns = ['id_alumno', 'codigo_educando', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'sexo'];
+        try {
+            $format = $request->input('export', 'excel');
+            
+            // Validar formato
+            if (!in_array($format, ['excel', 'pdf'])) {
+                return abort(400, 'Formato no válido');
+            }
 
-        $params = RequestHelper::extractSearchParams($request);
+            $sqlColumns = [
+                'id_alumno', 
+                'codigo_educando', 
+                'dni', 
+                'apellido_paterno', 
+                'apellido_materno', 
+                'primer_nombre', 
+                'otros_nombres', 
+                'sexo'
+            ];
+            
+            $params = RequestHelper::extractSearchParams($request);
+            
+            // 🔥 OBTENER TODOS LOS REGISTROS (sin paginación)
+            $query = static::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
+            
+            \Log::info('Exportando alumnos', [
+                'format' => $format,
+                'total_records' => $query->count(),
+                'search' => $params->search,
+                'filters' => $params->applied_filters
+            ]);
 
-        // Para ambos formatos, obtener todos los registros (sin paginación)
-        $query = static::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
+            if ($format === 'excel') {
+                return $this->exportExcel($query);
+            } elseif ($format === 'pdf') {
+                return $this->exportPdf($query);
+            }
 
-        if ($format === 'excel') {
-            return $this->exportExcel($query);
-        } elseif ($format === 'pdf') {
-            return $this->exportPdf($query);
+            return abort(400, 'Formato no válido');
+
+        } catch (\Exception $e) {
+            \Log::error('Error en exportación de alumnos: ' . $e->getMessage(), [
+                'format' => $request->input('export'),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Error durante la exportación: ' . $e->getMessage()
+            ], 500);
         }
-
-        return abort(400, 'Formato no válido');
     }
 
+    // 🔥 MÉTODO EXPORT EXCEL MEJORADO
     private function exportExcel($alumnos)
     {
-        $headers = ['ID', 'Código Educando', 'DNI', 'Apellidos', 'Nombres', 'Sexo'];
-        $fileName = 'alumnos_' . date('Y-m-d_H-i-s') . '.xlsx';
-        $title = 'Alumnos';
-        $subject = 'Exportación de Alumnos';
-        $description = 'Listado de alumnos del sistema';
+        try {
+            \Log::info('Iniciando exportación Excel de alumnos', [
+                'data_type' => get_class($alumnos),
+                'count' => $alumnos->count()
+            ]);
 
-        return ExcelExportHelper::exportExcel(
-            $fileName,
-            $headers,
-            $alumnos,
-            function($sheet, $row, $alumno) {
-                $sheet->setCellValue('A' . $row, $alumno->id_alumno);
-                $sheet->setCellValue('B' . $row, $alumno->codigo_educando);
-                $sheet->setCellValue('C' . $row, $alumno->dni);
-                $sheet->setCellValue('D' . $row, trim($alumno->apellido_paterno . ' ' . $alumno->apellido_materno));
-                $sheet->setCellValue('E' . $row, trim($alumno->primer_nombre . ' ' . $alumno->otros_nombres));
-                $sheet->setCellValue('F' . $row, $alumno->sexo);
-            },
-            $title,
-            $subject,
-            $description
-        );
+            $headers = ['ID', 'Código Educando', 'DNI', 'Apellidos', 'Nombres', 'Sexo'];
+            $fileName = 'alumnos_' . date('Y-m-d_H-i-s') . '.xlsx';
+            $title = 'Alumnos';
+            $subject = 'Exportación de Alumnos';
+            $description = 'Listado de alumnos del sistema';
+
+            return ExcelExportHelper::exportExcel(
+                $fileName,
+                $headers,
+                $alumnos,
+                function($sheet, $row, $alumno) {
+                    $sheet->setCellValue('A' . $row, $alumno->id_alumno ?? 'N/A');
+                    $sheet->setCellValue('B' . $row, $alumno->codigo_educando ?? 'N/A');
+                    $sheet->setCellValue('C' . $row, $alumno->dni ?? 'N/A');
+                    $sheet->setCellValue('D' . $row, trim(($alumno->apellido_paterno ?? '') . ' ' . ($alumno->apellido_materno ?? '')));
+                    $sheet->setCellValue('E' . $row, trim(($alumno->primer_nombre ?? '') . ' ' . ($alumno->otros_nombres ?? '')));
+                    $sheet->setCellValue('F' . $row, $alumno->sexo ?? 'N/A');
+                },
+                $title,
+                $subject,
+                $description
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Error en exportExcel de alumnos', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            throw $e;
+        }
     }
 
+    // 🔥 MÉTODO EXPORT PDF MEJORADO
     private function exportPdf($alumnos)
     {
         try {
-            if ($alumnos instanceof \Illuminate\Database\Eloquent\Collection) {
-                $data = $alumnos;
-            } elseif ($alumnos instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-                $data = collect($alumnos->items());
-            } else {
-                $data = collect($alumnos);
-            }
+            \Log::info('Iniciando exportación PDF de alumnos', [
+                'data_type' => get_class($alumnos),
+                'count' => $alumnos->count()
+            ]);
+
+            // Como doSearch ahora devuelve Collection cuando maxEntriesShow es null
+            $data = $alumnos;
 
             if ($data->isEmpty()) {
+                \Log::warning('No hay alumnos para exportar');
                 return response()->json(['error' => 'No hay datos para exportar'], 400);
             }
 
             $fileName = 'alumnos_' . date('Y-m-d_H-i-s') . '.pdf';
-
+            
             $rows = $data->map(function($alumno) {
                 return [
                     $alumno->id_alumno ?? 'N/A',
@@ -1154,6 +1211,8 @@ class AlumnoController extends Controller
                 ];
             })->toArray();
 
+            \Log::info('Filas preparadas para PDF de alumnos', ['total_rows' => count($rows)]);
+
             $html = PDFExportHelper::generateTableHtml([
                 'title' => 'Alumnos',
                 'subtitle' => 'Listado de Alumnos',
@@ -1162,13 +1221,16 @@ class AlumnoController extends Controller
                 'footer' => 'Sistema de Gestión Académica SIGMA - Generado automáticamente',
             ]);
 
-            // Aquí simplemente retornas el helper:
             return PDFExportHelper::exportPdf($fileName, $html);
 
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Error generando PDF: ' . $e->getMessage()
-            ], 500);
+            \Log::error('Error en exportPdf de alumnos', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
+            throw $e;
         }
     }
 

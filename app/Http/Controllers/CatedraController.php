@@ -113,7 +113,14 @@ class CatedraController extends Controller
             }
         }
 
-        return $query->paginate($pagination);
+        if ($pagination === null) {
+            // Para exportación: devolver todos los registros
+            return $query->get();
+        } else {
+            // Para vista normal: paginar
+            return $query->paginate($pagination);
+        }
+
     }
 
     public function index(Request $request)
@@ -496,87 +503,92 @@ class CatedraController extends Controller
     
     public function export(Request $request)
     {
-        try {
-            $format = $request->input('export', 'excel');
-            
-            $sqlColumns = ["id_catedra", "año_escolar", "id_personal", "id_curso", "id_grado", "secciones_nombreSeccion"];
-            $params = RequestHelper::extractSearchParams($request);
-            
-            if ($format === 'pdf') {
-                $query = static::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
-                return $this->exportPdf($query);
-            }
-            
-            // Para Excel: mantener paginación
-            $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
-            
-            if ($params->page > $query->lastPage()) {
-                $params->page = 1;
-                $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
-            }
-            
-            if ($format === 'excel') {
-                return $this->exportExcel($query);
-            }
-            
-            return abort(400, 'Formato no válido');
-            
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        $format = $request->input('export', 'excel');
+        
+        // 🔥 COLUMNAS CORRECTAS PARA CÁTEDRAS
+        $sqlColumns = [
+            'id_catedra', 
+            'año_escolar', 
+            'id_personal', 
+            'id_curso', 
+            'id_grado', 
+            'secciones_nombreSeccion'
+        ];
+        
+        $params = RequestHelper::extractSearchParams($request);
+        
+        // 🔥 OBTENER TODOS LOS REGISTROS (sin paginación)
+        $query = static::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
+        
+        \Log::info('Exportando cátedras', [
+            'format' => $format,
+            'total_records' => $query->count(),
+            'search' => $params->search,
+            'filters' => $params->applied_filters
+        ]);
+
+        if ($format === 'excel') {
+            return $this->exportExcel($query);
+        } elseif ($format === 'pdf') {
+            return $this->exportPdf($query);
         }
+
+        return abort(400, 'Formato no válido');
     }
 
+    // 🔥 MÉTODO EXPORT EXCEL MEJORADO
     private function exportExcel($catedras)
-{
-    $headers = ['ID', 'Año Escolar', 'Docente', 'Curso', 'Grado', 'Sección'];
-    $fileName = 'catedras_' . date('Y-m-d_H-i-s') . '.xlsx';
-    $title = 'Cátedras';
-    $subject = 'Exportación de Cátedras';
-    $description = 'Listado de cátedras del sistema';
+    {
+        $headers = ['ID', 'Año Escolar', 'Docente', 'Curso', 'Grado', 'Sección'];
+        $fileName = 'catedras_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $title = 'Cátedras';
+        $subject = 'Exportación de Cátedras';
+        $description = 'Listado de cátedras del sistema';
 
-    return ExcelExportHelper::exportExcel(
-        $fileName,
-        $headers,
-        $catedras,
-        function($sheet, $row, $catedra) {
-            $docente = trim(
-                ($catedra->personal?->apellido_paterno ?? '') . ' ' .
-                ($catedra->personal?->apellido_materno ?? '') . ' ' .
-                ($catedra->personal?->primer_nombre ?? '') . ' ' .
-                ($catedra->personal?->otros_nombres ?? '')
-            );
-            $sheet->setCellValue('A' . $row, $catedra->id_catedra);
-            $sheet->setCellValue('B' . $row, $catedra->año_escolar);
-            $sheet->setCellValue('C' . $row, $docente);
-            $sheet->setCellValue('D' . $row, $catedra->curso?->nombre_curso ?? '');
-            $sheet->setCellValue('E' . $row, $catedra->grado?->nombre_grado ?? '');
-            $sheet->setCellValue('F' . $row, $catedra->seccion_relacionada?->nombreSeccion ?? '');
-        },
-        $title,
-        $subject,
-        $description
-    );
-}
+        return ExcelExportHelper::exportExcel(
+            $fileName,
+            $headers,
+            $catedras,
+            function($sheet, $row, $catedra) {
+                $docente = trim(
+                    ($catedra->personal?->apellido_paterno ?? '') . ' ' .
+                    ($catedra->personal?->apellido_materno ?? '') . ' ' .
+                    ($catedra->personal?->primer_nombre ?? '') . ' ' .
+                    ($catedra->personal?->otros_nombres ?? '')
+                );
 
-private function exportPdf($catedras)
+                $sheet->setCellValue('A' . $row, $catedra->id_catedra);
+                $sheet->setCellValue('B' . $row, $catedra->año_escolar);
+                $sheet->setCellValue('C' . $row, $docente);
+                $sheet->setCellValue('D' . $row, $catedra->curso?->nombre_curso ?? '');
+                $sheet->setCellValue('E' . $row, $catedra->grado?->nombre_grado ?? '');
+                $sheet->setCellValue('F' . $row, $catedra->seccion?->nombreSeccion ?? '');
+            },
+            $title,
+            $subject,
+            $description
+        );
+    }
+
+    // 🔥 MÉTODO EXPORT PDF MEJORADO
+    private function exportPdf($catedras)
     {
         try {
+            \Log::info('Iniciando exportación PDF de cátedras', [
+                'data_type' => get_class($catedras),
+                'count' => $catedras->count()
+            ]);
 
-            // Manejar datos
-            if ($catedras instanceof \Illuminate\Database\Eloquent\Collection) {
-                $data = $catedras;
-            } elseif ($catedras instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-                $data = collect($catedras->items());
-            } else {
-                $data = collect($catedras);
-            }
+            // Como ahora doSearch devuelve Collection cuando pagination es null
+            $data = $catedras;
 
             if ($data->isEmpty()) {
+                \Log::warning('No hay cátedras para exportar');
                 return response()->json(['error' => 'No hay datos para exportar'], 400);
             }
 
             $fileName = 'catedras_' . date('Y-m-d_H-i-s') . '.pdf';
-
+            
             $rows = $data->map(function($catedra) {
                 $docente = trim(
                     ($catedra->personal?->apellido_paterno ?? '') . ' ' .
@@ -584,22 +596,18 @@ private function exportPdf($catedras)
                     ($catedra->personal?->primer_nombre ?? '') . ' ' .
                     ($catedra->personal?->otros_nombres ?? '')
                 );
-                
-                // 🔥 OBTENER SECCIÓN DE FORMA SEGURA
-                $seccion = Seccion::where('id_grado', $catedra->id_grado)
-                    ->where('nombreSeccion', $catedra->secciones_nombreSeccion)
-                    ->first();
-                
+
                 return [
                     $catedra->id_catedra ?? 'N/A',
                     $catedra->año_escolar ?? 'N/A',
                     $docente ?: 'N/A',
                     $catedra->curso?->nombre_curso ?? 'N/A',
                     $catedra->grado?->nombre_grado ?? 'N/A',
-                    $seccion?->nombreSeccion ?? 'N/A'
+                    $catedra->seccion?->nombreSeccion ?? 'N/A'
                 ];
             })->toArray();
 
+            \Log::info('Filas preparadas para PDF', ['total_rows' => count($rows)]);
 
             $html = PDFExportHelper::generateTableHtml([
                 'title' => 'Cátedras',
@@ -609,14 +617,18 @@ private function exportPdf($catedras)
                 'footer' => 'Sistema de Gestión Académica SIGMA - Generado automáticamente',
             ]);
 
-
             return PDFExportHelper::exportPdf($fileName, $html);
 
         } catch (\Exception $e) {
-
+            \Log::error('Error en exportPdf de cátedras', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'error' => 'Error generando PDF de cátedras: ' . $e->getMessage()
             ], 500);
         }
     }
+
 }

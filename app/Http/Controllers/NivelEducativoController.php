@@ -241,33 +241,25 @@ class NivelEducativoController extends Controller
         return redirect(route('nivel_educativo_view', ['deleted' => true]));
     }
     
-    public function export(Request $request){
+    public function export(Request $request)
+    {
         $format = $request->input('export', 'excel');
-        $sqlColumns = ['id_nivel', 'nombre_nivel', 'descripcion'];
+        $sqlColumns = ['id_alumno', 'codigo_educando', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'sexo'];
 
         $params = RequestHelper::extractSearchParams($request);
-        
-        if ($format === 'pdf') {
-            // Para PDF: obtener TODOS los registros (sin paginación)
-            $query = NivelEducativoController::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
-            return $this->exportPdf($query);
-        }
 
-        $query = NivelEducativoController::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+        // Para ambos formatos, obtener todos los registros (sin paginación)
+        $query = static::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
 
-        if ($params->page > $query->lastPage()){
-            $params->page = 1;
-            $query = NivelEducativoController::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
-        }
-        
         if ($format === 'excel') {
             return $this->exportExcel($query);
         } elseif ($format === 'pdf') {
             return $this->exportPdf($query);
         }
-        
+
         return abort(400, 'Formato no válido');
     }
+
 
     private function exportExcel($niveles)
     {
