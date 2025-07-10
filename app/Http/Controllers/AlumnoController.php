@@ -326,7 +326,7 @@ class AlumnoController extends Controller
             'otros_nombres' => 'nullable|string|max:50',
             'sexo' => 'required|in:M,F',
             'fecha_nacimiento' => 'required|date',
-            'pais' => 'required|string|max:20',
+            'país' => 'required|string|max:20',
             'departamento' => 'required|string|max:40',
             'provincia' => 'required|string|max:40',
             'distrito' => 'required|string|max:40',
@@ -348,7 +348,7 @@ class AlumnoController extends Controller
             'número_de_habitaciones' => 'nullable|integer|min:1|max:20',
             'número_de_habitantes' => 'nullable|integer|min:1|max:20',
             'situación_de_vivienda' => 'required|string|max:100',
-            'escala' => 'nullable|in:A,B,C,D,E',
+            'escala' => 'required|in:A,B,C,D,E',
         ], [
             'código_modular.required' => 'Ingrese un código modular válido.',
             'código_modular.max' => 'El código modular no puede superar los 20 caracteres.',
@@ -483,12 +483,6 @@ class AlumnoController extends Controller
             'situacion_vivienda' => $situacionVivienda,
             'escala' => $escala
         ]);
-
-        if ($request->input('definir_familiares') == '1'){
-            dd($alumno);
-        }
-
-        $alumno->save();
 
         if ($request->input('definir_familiares') == '1'){
             dd($alumno);
