@@ -1,15 +1,20 @@
 <?php
 
+use Illuminate\Http\Request;
+
+use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\LoginController;
 
 Route::middleware(['auth'])->group(function(){
-    Route::get('/', function(){
+    Route::get('/', function(Request $request){
         if (Gate::allows('is-admin')){
             return view('administrativo-index');
         }
 
-        return view('usuario-index');
+        return HomeController::index($request);
     })->name('principal');
+
+    Route::post('/', [HomeController::class, 'definirSesion']);
 });
 
 Route::get('/login', [LoginController::class, 'index'])->name('login');
