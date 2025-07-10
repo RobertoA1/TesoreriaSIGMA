@@ -4,7 +4,11 @@
             <input type="hidden" name="page" value="{{ $currentPage - 1 }}">
             @foreach($queryParams ?? [] as $key => $value)
                 @if($key !== 'page')
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @if(is_array($value))
+                        <input type="hidden" name="{{ $key }}" value="{{ json_encode($value) }}">
+                    @else
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endif
                 @endif
             @endforeach
             <button type="submit" class="anterior-pag flex gap-2 text-gray-700 hover:bg-gray-100 bg-white dark:hover:text-gray-100 dark:text-gray-300 dark:bg-gray-700 border dark:border-gray-500 rounded-lg py-2 px-4">
@@ -23,7 +27,11 @@
             <input type="hidden" name="page" value="{{ $currentPage + 1 }}">
             @foreach($queryParams ?? [] as $key => $value)
                 @if($key !== 'page')
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @if(is_array($value))
+                        <input type="hidden" name="{{ $key }}" value="{{ json_encode($value) }}">
+                    @else
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endif
                 @endif
             @endforeach
             <button type="submit" class="siguiente-pag flex gap-2 text-gray-700 hover:bg-gray-100 bg-white dark:hover:text-gray-100 dark:text-gray-300 dark:bg-gray-700 border dark:border-gray-500 rounded-lg py-2 px-4">

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ExcelExportHelper;
+use App\Helpers\PDFExportHelper;
+use App\Helpers\RequestHelper;
 use App\Helpers\TableAction;
 use App\Models\Catedra;
 use App\Models\Curso;
@@ -490,5 +493,130 @@ class CatedraController extends Controller
         return redirect(route('catedra_view', ['deleted' => true]));
     }
 
+    
+    public function export(Request $request)
+    {
+        try {
+            $format = $request->input('export', 'excel');
+            
+            $sqlColumns = ["id_catedra", "año_escolar", "id_personal", "id_curso", "id_grado", "secciones_nombreSeccion"];
+            $params = RequestHelper::extractSearchParams($request);
+            
+            if ($format === 'pdf') {
+                $query = static::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
+                return $this->exportPdf($query);
+            }
+            
+            // Para Excel: mantener paginación
+            $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+            
+            if ($params->page > $query->lastPage()) {
+                $params->page = 1;
+                $query = static::doSearch($sqlColumns, $params->search, $params->showing, $params->applied_filters);
+            }
+            
+            if ($format === 'excel') {
+                return $this->exportExcel($query);
+            }
+            
+            return abort(400, 'Formato no válido');
+            
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 
+    private function exportExcel($catedras)
+{
+    $headers = ['ID', 'Año Escolar', 'Docente', 'Curso', 'Grado', 'Sección'];
+    $fileName = 'catedras_' . date('Y-m-d_H-i-s') . '.xlsx';
+    $title = 'Cátedras';
+    $subject = 'Exportación de Cátedras';
+    $description = 'Listado de cátedras del sistema';
+
+    return ExcelExportHelper::exportExcel(
+        $fileName,
+        $headers,
+        $catedras,
+        function($sheet, $row, $catedra) {
+            $docente = trim(
+                ($catedra->personal?->apellido_paterno ?? '') . ' ' .
+                ($catedra->personal?->apellido_materno ?? '') . ' ' .
+                ($catedra->personal?->primer_nombre ?? '') . ' ' .
+                ($catedra->personal?->otros_nombres ?? '')
+            );
+            $sheet->setCellValue('A' . $row, $catedra->id_catedra);
+            $sheet->setCellValue('B' . $row, $catedra->año_escolar);
+            $sheet->setCellValue('C' . $row, $docente);
+            $sheet->setCellValue('D' . $row, $catedra->curso?->nombre_curso ?? '');
+            $sheet->setCellValue('E' . $row, $catedra->grado?->nombre_grado ?? '');
+            $sheet->setCellValue('F' . $row, $catedra->seccion_relacionada?->nombreSeccion ?? '');
+        },
+        $title,
+        $subject,
+        $description
+    );
+}
+
+private function exportPdf($catedras)
+    {
+        try {
+
+            // Manejar datos
+            if ($catedras instanceof \Illuminate\Database\Eloquent\Collection) {
+                $data = $catedras;
+            } elseif ($catedras instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+                $data = collect($catedras->items());
+            } else {
+                $data = collect($catedras);
+            }
+
+            if ($data->isEmpty()) {
+                return response()->json(['error' => 'No hay datos para exportar'], 400);
+            }
+
+            $fileName = 'catedras_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            $rows = $data->map(function($catedra) {
+                $docente = trim(
+                    ($catedra->personal?->apellido_paterno ?? '') . ' ' .
+                    ($catedra->personal?->apellido_materno ?? '') . ' ' .
+                    ($catedra->personal?->primer_nombre ?? '') . ' ' .
+                    ($catedra->personal?->otros_nombres ?? '')
+                );
+                
+                // 🔥 OBTENER SECCIÓN DE FORMA SEGURA
+                $seccion = Seccion::where('id_grado', $catedra->id_grado)
+                    ->where('nombreSeccion', $catedra->secciones_nombreSeccion)
+                    ->first();
+                
+                return [
+                    $catedra->id_catedra ?? 'N/A',
+                    $catedra->año_escolar ?? 'N/A',
+                    $docente ?: 'N/A',
+                    $catedra->curso?->nombre_curso ?? 'N/A',
+                    $catedra->grado?->nombre_grado ?? 'N/A',
+                    $seccion?->nombreSeccion ?? 'N/A'
+                ];
+            })->toArray();
+
+
+            $html = PDFExportHelper::generateTableHtml([
+                'title' => 'Cátedras',
+                'subtitle' => 'Listado de Cátedras',
+                'headers' => ['ID', 'Año Escolar', 'Docente', 'Curso', 'Grado', 'Sección'],
+                'rows' => $rows,
+                'footer' => 'Sistema de Gestión Académica SIGMA - Generado automáticamente',
+            ]);
+
+
+            return PDFExportHelper::exportPdf($fileName, $html);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => 'Error generando PDF de cátedras: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

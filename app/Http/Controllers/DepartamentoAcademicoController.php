@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DepartamentoAcademico;
+use App\Models\Personal;
 use Illuminate\Http\Request;
 
 class DepartamentoAcademicoController extends Controller
@@ -143,6 +144,14 @@ class DepartamentoAcademicoController extends Controller
 
         $requested = DepartamentoAcademico::find($id);
         $requested->update(['estado' => '0']);
+
+        $docentes = Personal::where('id_departamento','=',$request->input('id'))->get();
+
+        foreach($docentes as $doc){
+            $doc->estado = 0;
+            $doc->save();
+        }
+
 
         return redirect(route('departamento_academico_view', ['deleted' => true]));
     }

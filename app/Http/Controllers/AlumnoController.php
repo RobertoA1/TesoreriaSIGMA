@@ -161,7 +161,10 @@ class AlumnoController extends Controller
             new TableAction('delete', '', $resource),
         ];
 
-        $paginator = new TablePaginator($params->page, $query->lastPage(), []);
+        $paginator = new TablePaginator($params->page, $query->lastPage(), ['search' => $params->search,
+        'showing' => $params->showing,
+        'applied_filters' => $params->applied_filters
+    ]);
         $table->paginator = $paginator;
 
         $content->tableComponent($table);
@@ -1076,6 +1079,97 @@ class AlumnoController extends Controller
         $requested->update(['estado' => '0']);
 
         return redirect(route('alumno_view', ['deleted' => true]));
+    }
+
+    public function export(Request $request)
+    {
+        $format = $request->input('export', 'excel');
+        $sqlColumns = ['id_alumno', 'codigo_educando', 'dni', 'apellido_paterno', 'apellido_materno', 'primer_nombre', 'otros_nombres', 'sexo'];
+
+        $params = RequestHelper::extractSearchParams($request);
+
+        // Para ambos formatos, obtener todos los registros (sin paginación)
+        $query = static::doSearch($sqlColumns, $params->search, null, $params->applied_filters);
+
+        if ($format === 'excel') {
+            return $this->exportExcel($query);
+        } elseif ($format === 'pdf') {
+            return $this->exportPdf($query);
+        }
+
+        return abort(400, 'Formato no válido');
+    }
+
+    private function exportExcel($alumnos)
+    {
+        $headers = ['ID', 'Código Educando', 'DNI', 'Apellidos', 'Nombres', 'Sexo'];
+        $fileName = 'alumnos_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $title = 'Alumnos';
+        $subject = 'Exportación de Alumnos';
+        $description = 'Listado de alumnos del sistema';
+
+        return ExcelExportHelper::exportExcel(
+            $fileName,
+            $headers,
+            $alumnos,
+            function($sheet, $row, $alumno) {
+                $sheet->setCellValue('A' . $row, $alumno->id_alumno);
+                $sheet->setCellValue('B' . $row, $alumno->codigo_educando);
+                $sheet->setCellValue('C' . $row, $alumno->dni);
+                $sheet->setCellValue('D' . $row, trim($alumno->apellido_paterno . ' ' . $alumno->apellido_materno));
+                $sheet->setCellValue('E' . $row, trim($alumno->primer_nombre . ' ' . $alumno->otros_nombres));
+                $sheet->setCellValue('F' . $row, $alumno->sexo);
+            },
+            $title,
+            $subject,
+            $description
+        );
+    }
+
+    private function exportPdf($alumnos)
+    {
+        try {
+            if ($alumnos instanceof \Illuminate\Database\Eloquent\Collection) {
+                $data = $alumnos;
+            } elseif ($alumnos instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+                $data = collect($alumnos->items());
+            } else {
+                $data = collect($alumnos);
+            }
+
+            if ($data->isEmpty()) {
+                return response()->json(['error' => 'No hay datos para exportar'], 400);
+            }
+
+            $fileName = 'alumnos_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            $rows = $data->map(function($alumno) {
+                return [
+                    $alumno->id_alumno ?? 'N/A',
+                    $alumno->codigo_educando ?? 'N/A',
+                    $alumno->dni ?? 'N/A',
+                    trim(($alumno->apellido_paterno ?? '') . ' ' . ($alumno->apellido_materno ?? '')),
+                    trim(($alumno->primer_nombre ?? '') . ' ' . ($alumno->otros_nombres ?? '')),
+                    $alumno->sexo ?? 'N/A'
+                ];
+            })->toArray();
+
+            $html = PDFExportHelper::generateTableHtml([
+                'title' => 'Alumnos',
+                'subtitle' => 'Listado de Alumnos',
+                'headers' => ['ID', 'Código Educando', 'DNI', 'Apellidos', 'Nombres', 'Sexo'],
+                'rows' => $rows,
+                'footer' => 'Sistema de Gestión Académica SIGMA - Generado automáticamente',
+            ]);
+
+            // Aquí simplemente retornas el helper:
+            return PDFExportHelper::exportPdf($fileName, $html);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error generando PDF: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 }

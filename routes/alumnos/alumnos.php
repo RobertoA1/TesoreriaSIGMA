@@ -52,5 +52,5 @@ Route::group(['middleware' => ['can:manage-resource,"alumnos","download"']], fun
     Route::get('/export', [AlumnoController::class, 'export'])
         ->name('export');
 
-    Route::redirect('/mas/export', '/niveles-educativos/export');
+    Route::redirect('/mas/export', '/alumnos/export');
 });

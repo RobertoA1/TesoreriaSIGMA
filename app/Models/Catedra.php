@@ -46,4 +46,12 @@ class Catedra extends Model
         return $this->hasOne(Seccion::class, 'id_grado', 'id_grado')
             ->where('nombreSeccion', $this->secciones_nombreSeccion);
     }
+
+    public function getSeccionRelacionadaAttribute()
+    {
+        return Seccion::where('id_grado', $this->id_grado)
+            ->where('nombreSeccion', $this->secciones_nombreSeccion)
+            ->first();
+    }
+
 }
