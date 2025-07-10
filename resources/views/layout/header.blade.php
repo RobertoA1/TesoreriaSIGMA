@@ -617,12 +617,33 @@
             <img src="./images/user/owner.jpg" alt="User" />
           </span>
         -->
-          @php
-            $user = Auth::user();
-            $name = $user->username;
-            $apellido = "";
-            $cargo = 'Usuario'
-          @endphp
+        @php
+    use App\Models\Familiar;
+    use Illuminate\Support\Facades\Auth;
+
+    $user = Auth::user();
+
+    
+
+    $name = $user->username;
+    $apellido = "";
+    $cargo = 'Usuario';
+
+    if ($user->tipo === 'Padre') {
+        $familiar = Familiar::where('id_usuario', '=', $user->id_usuario)->first();
+
+        
+        if ($familiar) {
+            $name = $familiar->primer_nombre;
+            $apellido = $familiar->apellido_paterno;
+            $cargo = 'Padre de Familia';
+        } else {
+            $cargo = 'Padre (Perfil no encontrado)';
+        }
+    } else {
+        $cargo = $user->tipo ?? 'Tipo Desconocido';
+    }
+@endphp
 
           <span class="text-theme-sm mr-1 block font-medium"> {{ $name }}</span>
 

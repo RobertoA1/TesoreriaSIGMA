@@ -617,17 +617,43 @@
             <img src="./images/user/owner.jpg" alt="User" />
           </span>
         -->
-          @php
-            use App\Models\Administrativo;
-            $id_usuario = Auth::user()->id_usuario;
+         @php
+    use App\Models\Administrativo; // Asegúrate de importar esta clase
+    use Illuminate\Support\Facades\Auth;
 
-            $query = Administrativo::where('id_usuario', '=', $id_usuario)->get();
+    // Obtener el objeto User autenticado
+    $user = Auth::user();
 
-            $name = $query[0]->primer_nombre;
-            $apellido = $query[0]->apellido_paterno;
-            $cargo = $query[0]->cargo;
+    // Asumimos que el ID de la tabla 'users' se llama 'id_usuario'
+    // y que siempre estará presente si el usuario está autenticado.
+    $id_usuario = $user->id_usuario; 
 
-          @endphp
+    // Inicializar variables con valores por defecto
+    $name = $user->username; 
+    $apellido = '';
+    $cargo = 'Usuario'; // Cargo por defecto si no se encuentra el administrativo
+
+    // --- Lógica EXCLUSIVA para Administrativos ---
+    // Solo buscamos en la tabla 'Administrativo' si el tipo de usuario es 'Administrativo'
+    if ($user->tipo === 'Administrativo') {
+        // Buscar el registro de Administrativo usando el id_usuario
+        // Usamos ->first() para obtener un modelo o null, evitando el error "Undefined array key 0"
+        $admin = Administrativo::where('id_usuario', '=', $id_usuario)->first();
+
+        if ($admin) { // Si se encontró el registro del administrativo
+            $name = $admin->primer_nombre;
+            $apellido = $admin->apellido_paterno;
+            $cargo = $admin->cargo;
+        } else {
+            // Si el usuario es de tipo 'Administrativo' pero no tiene un registro asociado
+            // Esto podría indicar una inconsistencia en la base de datos
+            $cargo = 'Administrativo (Perfil no encontrado)';
+        }
+    } 
+    // No hay 'else if' para 'Familiar' porque, según tu aclaración, 
+    // este bloque es solo para administrativos.
+    // Si un Familiar llegara a esta vista, vería los valores por defecto ($user->username, "Usuario").
+@endphp
 
           <span class="text-theme-sm mr-1 block font-medium"> {{ $name }}</span>
 
