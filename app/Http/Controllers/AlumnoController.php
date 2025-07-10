@@ -540,7 +540,7 @@ class AlumnoController extends Controller
         ]);
 
         $alumno->save();
-        //session()->forget('temp_student_data');
+        session()->forget('temp_student_data');
 
         return redirect()->route('alumno_view', [
             'created' => true
