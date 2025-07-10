@@ -275,17 +275,22 @@ class CatedraController extends Controller
             'nivel_educativo' => 'required',
             'grado' => 'required',
             'seccion' => [
-                'required',
+            'required',
                 function ($attribute, $value, $fail) use ($request, $seccionData) {
-                    $exists = Catedra::where('id_personal', $request->docente)
+                    $catedraExistente = Catedra::with('personal')
                         ->where('id_curso', $request->curso)
                         ->where('año_escolar', $request->año_escolar)
                         ->where('id_grado', $seccionData['id_grado'])
                         ->where('secciones_nombreSeccion', $seccionData['nombreSeccion'])
-                        ->exists();
-                    
-                    if ($exists) {
-                        $fail('Esta combinación de docente, curso, año escolar y sección ya existe.');
+                        ->where('estado', '1')
+                        ->first();
+                                        
+                    if ($catedraExistente) {
+                        $docenteActual = $catedraExistente->personal->apellido_paterno . ' ' . 
+                                    $catedraExistente->personal->apellido_materno . ' ' . 
+                                    $catedraExistente->personal->primer_nombre;
+                        
+                        $fail("Esta combinación ya está asignada al docente: {$docenteActual}");
                     }
                 },
             ],
