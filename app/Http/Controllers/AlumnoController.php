@@ -484,14 +484,16 @@ class AlumnoController extends Controller
             'escala' => $escala
         ]);
 
-        if ($request->input('definir_familiares') == '1'){
-            dd($alumno);
-        }
-
         $alumno->save();
 
-        return redirect()->route('alumno_add_familiares', [
-            'id' => $alumno->id_alumno, // o el campo que sea tu PK
+        if ($request->input('definir_familiares') == '1'){
+            return redirect()->route('alumno_add_familiares', [
+                'id' => $alumno->id_alumno, // o el campo que sea tu PK
+                'created' => true
+            ]);
+        }
+
+        return redirect()->route('alumno_view', [
             'created' => true
         ]);
     }
