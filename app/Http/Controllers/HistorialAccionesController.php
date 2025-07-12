@@ -81,7 +81,10 @@ class HistorialAccionesController extends Controller
         foreach ($query as $accion){
             $conceptoAccion = ConceptoAccion::find($accion->id_concepto_accion);
             $usuario = User::find($accion->id_autor);
+
+
             $autor = Administrativo::where('id_usuario', '=', $usuario->getKey())->first();
+
 
             array_push($data['filas'],
             [

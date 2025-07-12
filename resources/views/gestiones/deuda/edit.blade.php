@@ -43,6 +43,7 @@
 
       @include('components.forms.string-ineditable', [
         'label' => 'Periodo',
+        'name' => 'periodo',
         'error' => $errors->first(Str::snake('Periodo')) ?? false,
         'value' => old(Str::snake('Periodo')) ?? $data['default'][Str::snake('Periodo')],
         'readonly' => true

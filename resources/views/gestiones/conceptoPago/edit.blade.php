@@ -30,6 +30,7 @@
 
       @include('components.forms.string-ineditable', [
         'label' => 'Descripción',
+        'name' => 'descripción',
         'error' => $errors->first(Str::snake('Descripción')) ?? false,
         'value' => old(Str::snake('Descripción')) ?? $data['default']['descripcion'],
         'readonly' => true
@@ -37,6 +38,7 @@
 
       @include('components.forms.string-ineditable', [
         'label' => 'Escala',
+        'name' => 'escala',
         'error' => $errors->first(Str::snake('Escala')) ?? false,
         'value' => old(Str::snake('Escala')) ?? $data['default']['escala'],
         'readonly' => true
