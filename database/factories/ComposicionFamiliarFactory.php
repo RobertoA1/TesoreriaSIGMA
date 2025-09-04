@@ -21,6 +21,7 @@ class ComposicionFamiliarFactory extends Factory
         return [
             'id_alumno' => Alumno::factory(),      
             'id_familiar' => Familiar::factory(),
+            'parentesco' => $this->faker->randomElement(['Padre', 'Madre', 'Hermano', 'Tío', 'Abuelo', 'Otro']),
         ];
     }
 }

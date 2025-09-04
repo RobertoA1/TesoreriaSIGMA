@@ -49,6 +49,7 @@ class Alumno extends Model
         'num_habitantes',
         'situacion_vivienda',
         'escala',
+        'estado',
     ];
 
     protected function casts(): array{
@@ -59,6 +60,13 @@ class Alumno extends Model
             'num_habitaciones' => 'integer', 
             'num_habitantes' => 'integer',
         ];
+    }
+
+    public function familiares()
+    {
+        return $this->belongsToMany(Familiar::class, 'composiciones_familiares', 'id_alumno', 'id_familiar')
+                    ->withPivot('parentesco')
+                    ->withTimestamps();
     }
 
 }

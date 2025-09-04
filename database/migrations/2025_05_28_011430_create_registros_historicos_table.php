@@ -11,11 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('registros_historicos', function (Blueprint $table) {
+        Schema::create('registro_historico', function (Blueprint $table) {
             $table->increments('id_registro_historico');
 
             // id_concepto_accion INT FK
-            $table->unsignedInteger('id_concepto_accion'); // Se mantiene unsignedInteger porque no es un ID estándar de Laravel por defecto
+            $table->unsignedInteger('id_concepto_accion');
+
+            $table->foreignId('id_autor')
+                ->constrained('users', 'id_usuario') // 'users' es el nombre de la tabla, 'id_usuario' es la PK.
+                ->onDelete('cascade'); // Si el usuario autor se elimina, se borran sus registros.
+            
+            $table->unsignedBigInteger('id_entidad_afectada')->nullable();
+            $table->string('tipo_entidad_afectada')->nullable();
 
             // fecha_accion DATETIME
             $table->dateTime('fecha_accion');
@@ -26,28 +33,13 @@ return new class extends Migration
             // estado TINYINT
             $table->boolean('estado')->default(true);
 
-            // Clave foránea para id_usuario_autor (renombrado a id_autor en la migración por tu request)
-            // Esto asume que la PK en 'users' se llama 'id_usuario'.
-            // Laravel automáticamente usará 'unsignedBigInteger' para 'id_autor' si tu tabla 'users' usa $table->id().
-            // Si 'users' usa 'increments()', ambas deben ser 'unsignedInteger'.
-            // Si tu 'id_usuario' en 'users' es BIGINT, entonces 'id_autor' también lo será con foreignId().
-            $table->foreignId('id_autor')
-                  ->constrained('users', 'id_usuario') // 'users' es el nombre de la tabla, 'id_usuario' es la PK.
-                  ->onDelete('cascade'); // Si el usuario autor se elimina, se borran sus registros.
+            $table->index(['id_entidad_afectada', 'tipo_entidad_afectada'], 'hist_ent_afect_idx');
+            $table->index('fecha_accion');
 
-            // Clave foránea para id_concepto_accion
-            $table->foreign('id_concepto_accion') // Se usa foreign() aquí porque no es una convención de Laravel 'tabla_id'
-                  ->references('id_concepto_accion') // La PK en 'concepto_accion'.
-                  ->on('concepto_accion') // Nombre de la tabla referenciada.
-                  ->onDelete('restrict'); // Si un concepto se elimina, no se borra el registro.
-
-            // Clave foránea para id_usuario_afectado (renombrado a id_uafectado en la migración por tu request)
-            // Asume que la PK en 'users' se llama 'id_usuario'.
-            $table->foreignId('id_usuario_afectado')
-                  ->constrained('users', 'id_usuario') // 'users' es el nombre de la tabla, 'id_usuario' es la PK.
-                  ->onDelete('cascade');
-
-            $table->timestamps();
+            $table->foreign('id_concepto_accion') 
+                  ->references('id_concepto_accion') 
+                  ->on('concepto_accion') 
+                  ->onDelete('restrict'); 
         });
     }
 
@@ -56,6 +48,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registros_historicos');
+        Schema::dropIfExists('registro_historico');
     }
 };

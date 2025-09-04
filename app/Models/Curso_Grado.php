@@ -17,6 +17,7 @@ class Curso_Grado extends Model
         'id_curso',
         'id_grado',
         'año_escolar',
+        'estado',
     ];
 
     public function curso()

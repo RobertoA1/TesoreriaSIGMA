@@ -1,10 +1,17 @@
 <?php
 
-use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('index');
-});
+require __DIR__ . '/auth/routes.php';
 
-Route::get('/login', [LoginController::class, 'index']);
+Route::middleware(['auth'])->group(function(){
+    require __DIR__ . '/academica/routes.php';
+    require __DIR__ . '/alumnos/routes.php';
+    require __DIR__ . '/administrativa/routes.php';
+    require __DIR__ . '/financiera/routes.php';
+    require __DIR__ . '/personal/routes.php';
+    require __DIR__ . '/reportes/routes.php';
+    require __DIR__ . '/familiar/routes.php';
+
+    Route::get('/tests', [\App\Http\Controllers\Tests\CRUDTestController::class, 'index']);
+});

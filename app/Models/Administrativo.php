@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Administrativo extends Model
 {
-    /** @use HasFactory<\Database\Factories\AdministrativoFactory> */
     use HasFactory;
 
     protected $fillable = [
+        'id_usuario',
         'apellido_paterno',
         'apellido_materno',
         'primer_nombre',
@@ -22,7 +22,8 @@ class Administrativo extends Model
         'seguro_social',
         'fecha_ingreso',
         'cargo',
-        'sueldo'
+        'sueldo',
+        'estado',
     ];
 
     protected $primaryKey = 'id_administrativo';

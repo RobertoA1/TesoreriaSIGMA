@@ -43,7 +43,7 @@
         <ul :class="sidebarToggle ? 'lg:hidden' : 'flex'" class="flex flex-col gap-1 mt-2 menu-dropdown pl-9">
             @foreach ($items as $item)
                 <li>
-                    <a href="{{ $links[$item] ?? '#'}}" class="menu-dropdown-item group" :class="page === '{{ $item }}' ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive'">
+                    <a href="{{ route($links[$item] ?? 'principal')}}" class="menu-dropdown-item group" :class="page === '{{ $item }}' ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive'">
                         {{ $item }}
                     </a>
                 </li>

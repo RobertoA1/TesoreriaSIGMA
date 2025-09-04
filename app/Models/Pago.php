@@ -17,7 +17,7 @@ class Pago extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'nro_recibo',
+        'id_deuda',
         'fecha_pago',
         'monto',
         'observaciones',
@@ -33,6 +33,21 @@ class Pago extends Model
             'monto' => 'decimal:2',     
             'estado' => 'boolean',      
         ];
+    }
+
+    public function deuda()
+    {
+        return $this->belongsTo(\App\Models\Deuda::class, 'id_deuda', 'id_deuda');
+    }
+
+    public function conceptoPago()
+    {
+        return $this->deuda ? $this->deuda->conceptoPago() : null;
+    }
+
+    public function alumno()
+    {
+        return $this->deuda ? $this->deuda->alumno() : null;
     }
 
 }

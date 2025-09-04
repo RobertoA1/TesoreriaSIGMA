@@ -13,11 +13,10 @@ class Seccion extends Model
 
     public $incrementing = false;
 
-    protected $primaryKey = ['id_grado', 'nombreSeccion'];
-
     protected $fillable = [
         'id_grado',
-        'nombre_seccion'
+        'nombreSeccion',
+        'estado'
     ];
 
     public function grado()
@@ -25,5 +24,38 @@ class Seccion extends Model
         return $this->belongsTo(Grado::class, 'id_grado', 'id_grado');
     }
 
+    public function niveleducativo(){
+        return $this->hasOneThrough(
+            NivelEducativo::class,
+            Grado::class,
+            'id_grado',
+            'id_nivel',
+            'id_grado',
+            'id_nivel'
+        );
+    }
+
+    public function matriculas()
+    {
+        return $this->hasMany(Matricula::class, 'id_grado', 'id_grado')
+                    ->where('nombreSeccion', $this->nombreSeccion);
+    }
+
+    public function catedras()
+    {
+        return $this->hasMany(Catedra::class, 'id_grado', 'id_grado')
+                    ->where('secciones_nombreSeccion', $this->nombreSeccion);
+    }
+    public static function findByCompositeKeyOrFail($idGrado, $nombreSeccion)
+    {
+        return self::where('id_grado', $idGrado)
+                  ->where('nombreSeccion', $nombreSeccion)
+                  ->firstOrFail();
+    }
+
+    //public function alumnos()
+    //{
+     //   return $this->hasMany(Alumno::class)
+    //}
 
 }

@@ -19,6 +19,7 @@ class Catedra extends Model
         'año_escolar',
         'id_grado',
         'secciones_nombreSeccion',
+        'estado',
     ];
     public function cursoGrado()
     {
@@ -34,5 +35,23 @@ class Catedra extends Model
     {
         return $this->belongsTo(Curso::class, 'id_curso', 'id_curso');
     } 
+
+    public function grado()
+    {
+        return $this->belongsTo(Grado::class, 'id_grado', 'id_grado');
+    }
+
+    public function seccion()
+    {
+        return $this->hasOne(Seccion::class, 'id_grado', 'id_grado')
+            ->where('nombreSeccion', $this->secciones_nombreSeccion);
+    }
+
+    public function getSeccionRelacionadaAttribute()
+    {
+        return Seccion::where('id_grado', $this->id_grado)
+            ->where('nombreSeccion', $this->secciones_nombreSeccion)
+            ->first();
+    }
 
 }

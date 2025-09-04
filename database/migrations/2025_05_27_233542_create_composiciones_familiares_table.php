@@ -15,6 +15,7 @@ return new class extends Migration
             $table->unsignedInteger('id_alumno');
             $table->unsignedInteger('id_familiar');
             $table->primary(['id_alumno', 'id_familiar']);
+            $table->string('parentesco');
 
             $table->foreign('id_alumno')
                 ->references('id_alumno') 

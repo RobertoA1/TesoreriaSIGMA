@@ -71,7 +71,7 @@
         <img class="dark:hidden" src="{{ asset('images/colegio_sigma_logo.svg')}}" alt="Logo" />
         <img
           class="hidden dark:block"
-          src="src="{{ asset('images/colegio_sigma_logo.svg')}}"
+          src="{{ asset('images/colegio_sigma_logo.svg')}}"
           alt="Logo"
         />
       </a>
@@ -612,11 +612,19 @@
           href="#"
           @click.prevent="dropdownOpen = ! dropdownOpen"
         >
+        <!--
           <span class="mr-3 h-11 w-11 overflow-hidden rounded-full">
             <img src="./images/user/owner.jpg" alt="User" />
           </span>
+        -->
+          @php
+            $user = Auth::user();
+            $name = $user->username;
+            $apellido = "";
+            $cargo = 'Usuario'
+          @endphp
 
-          <span class="text-theme-sm mr-1 block font-medium"> Musharof </span>
+          <span class="text-theme-sm mr-1 block font-medium"> {{ $name }}</span>
 
           <svg
             :class="dropdownOpen && 'rotate-180'"
@@ -646,12 +654,12 @@
             <span
               class="text-theme-sm block font-medium text-gray-700 dark:text-gray-400"
             >
-              Musharof Chowdhury
+              {{ $name }}
             </span>
             <span
               class="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400"
             >
-              randomuser@pimjo.com
+              {{ $cargo }}
             </span>
           </div>
 
@@ -678,7 +686,7 @@
                     fill=""
                   />
                 </svg>
-                Edit profile
+                Editar perfil
               </a>
             </li>
             <li>
@@ -701,7 +709,7 @@
                     fill=""
                   />
                 </svg>
-                Account settings
+                Configuración
               </a>
             </li>
             <li>
@@ -724,11 +732,13 @@
                     fill=""
                   />
                 </svg>
-                Support
+                Soporte
               </a>
             </li>
           </ul>
-          <button
+
+          <form class="hidden" action="/logout" method="GET" id="logout"></form>
+          <button type="submit" form="logout"
             class="group text-theme-sm mt-3 flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
           >
             <svg
@@ -747,7 +757,7 @@
               />
             </svg>
 
-            Sign out
+            Cerrar Sesión
           </button>
         </div>
         <!-- Dropdown End -->

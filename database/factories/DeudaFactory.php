@@ -18,14 +18,15 @@ class DeudaFactory extends Factory
      */
     public function definition(): array
     {
+        $montoTotal = fake()->randomFloat(2, 0, 5000);
         return [
             'id_alumno' => Alumno::factory(),
             'id_concepto' => ConceptoPago::factory(),
             'fecha_limite' => fake()->dateTimeBetween('now', '+1 year'),
-            'monto_total' => fake()->numberBetween(0, 5000),
+            'monto_total' => $montoTotal,
             'periodo' => fake()->randomElement(['2024', '2025', '2026', '2027', '2028']),
-            'monto_a_cuenta' => fake()->numberBetween(0, 1000),
-            'monto_adelantado' => fake()->numberBetween(0, 1000),
+            'monto_a_cuenta' => $montoTotal,
+            'monto_adelantado' => 0,
             'observacion' => fake()->optional(0.2)->sentence(20),
             'estado' => '1'
         ];

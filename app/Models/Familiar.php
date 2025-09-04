@@ -25,12 +25,24 @@ class Familiar extends Model
         'otros_nombres',
         'numero_contacto',
         'correo_electronico',
+        'estado',
     ];
 
+
+    protected $casts = [
+        'estado' => 'boolean',
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'id_usuario', 'id_usuario');
+    }
+
+    public function alumnos()
+    {
+        return $this->belongsToMany(Alumno::class, 'composiciones_familiares', 'id_familiar', 'id_alumno')
+        ->withPivot('parentesco')
+        ->withTimestamps();
     }
 
 }

@@ -12,13 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('detalle_pago', function (Blueprint $table) {
+
+            $table->increments('id_detalle');
+
             $table->unsignedInteger('id_pago');
+            
+            $table->string('nro_recibo', 20)->nullable();
 
-            $table->unsignedInteger('id_deuda');
-
-            $table->primary(['id_pago', 'id_deuda']);
-
-            $table->unsignedInteger('id_concepto');
+            $table->primary(['id_detalle', 'id_pago']);
 
             $table->dateTime('fecha_pago');
 
@@ -29,16 +30,6 @@ return new class extends Migration
                   ->references('id_pago')
                   ->on('pagos')
                   ->onDelete('cascade'); 
-
-            $table->foreign('id_deuda')
-                  ->references('id_deuda')
-                  ->on('deudas')
-                  ->onDelete('cascade'); 
-
-            $table->foreign('id_concepto')
-                  ->references('id_concepto')
-                  ->on('conceptos_pago')
-                  ->onDelete('cascade');
 
             $table->boolean("estado")->default(true);
             $table->timestamps();

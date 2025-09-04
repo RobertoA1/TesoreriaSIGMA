@@ -11,15 +11,15 @@ class DetallePago extends Model
 
     protected $table = 'detalle_pago'; 
 
-    protected $primaryKey = ['id_pago', 'id_deuda'];
+    protected $primaryKey = ['id_detalle','id_pago'];
 
     public $incrementing = false;
 
 
     protected $fillable = [
+        'id_detalle',
         'id_pago',
-        'id_deuda',
-        'id_concepto',
+        'nro_recibo',
         'fecha_pago',
         'monto',
         'observacion',
