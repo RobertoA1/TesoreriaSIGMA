@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('password', 255);
             $table->dateTime('last_login')->nullable();
             $table->string('tipo', 25);
+            $table->string('foto', 255)->default('default.jpg');
             $table->boolean('estado')->default(true);
             $table->rememberToken();
             $table->timestamps();
