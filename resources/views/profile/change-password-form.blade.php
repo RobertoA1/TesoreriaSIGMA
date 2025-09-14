@@ -1,13 +1,6 @@
-@extends('base.administrativo.blank')
-
-@section('titulo')
-Cambiar Contraseña
-@endsection
-
-@section('contenido')
 <div class="p-8 m-4 bg-gray-100 dark:bg-white/[0.03] rounded-2xl">
     <!-- Header -->
-    <div class="flex pb-6 justify-between items-center border-b border-gray-200 dark:border-gray-700">
+    <div class="flex pb-6 justify-between items-center border-b border-gray-200 dark:border-gray-700 mb-8">
         <div class="flex items-center gap-4">
             <div class="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -19,14 +12,14 @@ Cambiar Contraseña
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Actualiza tu contraseña de forma segura</p>
             </div>
         </div>
-        <a href="{{ route('perfil.edit') }}" 
+        <a href="{{ $returnUrl }}" 
             class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors">
             ← Volver al Perfil
         </a>
     </div>
 
     <!-- Password Change Form -->
-    <div class="mt-8 max-w-2xl">
+    <div class="max-w-2xl">
         @if(session('success'))
             <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                 <div class="flex items-center">
@@ -51,7 +44,7 @@ Cambiar Contraseña
                            id="current_password" 
                            name="current_password" 
                            required
-                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pr-12 {{ $errors->has('current_password') ? 'border-red-500 focus:ring-red-500' : '' }}"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pr-12 {{ $errors?->has('current_password') ? 'border-red-500 focus:ring-red-500' : '' }}"
                            placeholder="Ingresa tu contraseña actual">
                     
                     <button type="button" 
@@ -64,14 +57,14 @@ Cambiar Contraseña
                     </button>
                 </div>
                 
-                @error('current_password')
+                @if($errors?->has('current_password'))
                     <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center animate-pulse">
                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                         </svg>
-                        {{ $message }}
+                        {{ $errors->first('current_password') }}
                     </p>
-                @enderror
+                @endif
             </div>
             
             <!-- New Password -->
@@ -85,7 +78,7 @@ Cambiar Contraseña
                                name="password" 
                                required
                                oninput="checkPasswordStrength(this.value)"
-                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pr-12 {{ $errors->has('password') ? 'border-red-500 focus:ring-red-500' : '' }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pr-12 {{ $errors?->has('password') ? 'border-red-500 focus:ring-red-500' : '' }}"
                                placeholder="Ingresa tu nueva contraseña">
                         
                         <button type="button" 
@@ -128,14 +121,14 @@ Cambiar Contraseña
                         </div>
                     </div>
                     
-                    @error('password')
+                    @if($errors?->has('password'))
                         <p class="text-sm text-red-600 dark:text-red-400 flex items-center animate-pulse">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                             </svg>
-                            {{ $message }}
+                            {{ $errors->first('password') }}
                         </p>
-                    @enderror
+                    @endif
                 </div>
             </div>
             
@@ -169,7 +162,7 @@ Cambiar Contraseña
             
             <!-- Submit Button -->
             <div class="flex justify-end gap-3 pt-6">
-                <a href="{{ route('perfil.edit') }}" 
+                <a href="{{ $returnUrl }}" 
                     class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors">
                     Cancelar
                 </a>
@@ -275,4 +268,3 @@ function checkPasswordMatch() {
     }
 }
 </script>
-@endsection

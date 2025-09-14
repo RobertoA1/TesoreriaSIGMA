@@ -209,6 +209,7 @@ Editar Perfil - Administrativo
                     'name' => 'sueldo',
                     'error' => $errors->first('sueldo') ?? false,
                     'value' => old('sueldo') ?? $admin->sueldo ?? '',
+                    'readonly' => true,
                     'step' => '0.01',
                     'min' => '0'
                 ])

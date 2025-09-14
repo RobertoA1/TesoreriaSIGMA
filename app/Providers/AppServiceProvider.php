@@ -148,6 +148,10 @@ class AppServiceProvider extends ServiceProvider
             'datos' => [
                 'view' => ['Familiar'],
             ],
+            'perfil' => [
+                'view' => ['Familiar']
+            ]
+            ,
             'matriculas' => [
                 'view' => ['Familiar'],
             ],

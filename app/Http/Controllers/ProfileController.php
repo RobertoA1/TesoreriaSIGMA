@@ -9,6 +9,14 @@ use Illuminate\Validation\Rules\Password;
 use App\Models\Personal;
 use App\Models\Administrativo;
 use App\Models\Familiar;
+use App\Helpers\Home\Familiar\FamiliarHeaderComponent;
+use App\Helpers\Home\Familiar\FamiliarSidebarComponent;
+use App\Helpers\Tables\CRUDTableComponent;
+use App\Helpers\ProfilePage;
+use App\Helpers\Tables\AdministrativoSidebarComponent;
+use App\Helpers\Tables\AdministrativoHeaderComponent;
+use App\Helpers\ProfileEditContent;
+use App\Helpers\ChangePasswordPage;
 
 class ProfileController extends Controller
 {
@@ -55,7 +63,7 @@ class ProfileController extends Controller
                         'id_departamento' => $personal->id_departamento ?? ''
                     ]);
                 }
-                return view('profile.personal.edit', compact('data', 'personal'));
+                //return view('profile.personal.edit', compact('data', 'personal'));
 
             case 'administrativo':
                 $admin = Administrativo::where('id_usuario', $user->id_usuario)->first();
@@ -76,7 +84,7 @@ class ProfileController extends Controller
                         'sueldo' => $admin->sueldo ?? ''
                     ]);
                 }
-                return view('profile.administrativo.edit', compact('data', 'admin'));
+                //return view('profile.administrativo.edit', compact('data', 'admin'));
 
             case 'familiar':
                 $familiar = Familiar::where('id_usuario', $user->id_usuario)->first();
@@ -90,13 +98,47 @@ class ProfileController extends Controller
                         'numero_contacto' => $familiar->numero_contacto ?? '',
                         'correo_electronico' => $familiar->correo_electronico ?? ''
                     ]);
-                }
-                return view('profile.familiar.edit', compact('data', 'familiar'));
 
-            default:
-                // Vista genérica en caso de que no coincida
-                return view('profile.edit', compact('data'));
+                    $header = new FamiliarHeaderComponent();
+                    $header->alumnos = $familiar->alumnos->toArray();
+                    
+                    $alumnoSesion = session('alumno'); 
+                    $header->alumnoSeleccionado = $alumnoSesion;
+
+                    
+                    break;
+                }
+
+                
         }
+
+
+        $content = ProfileEditContent::create($user, $user->tipo, $data);
+                
+        $page = ProfilePage::new()
+            ->title("Editar Perfil - " . ucfirst($user->tipo))
+            ->content($content);
+
+        
+
+        // Add sidebar based on user type
+        switch (strtolower($user->tipo)) {
+            case 'familiar':
+                if (isset($alumnoSesion) && $alumnoSesion) {
+                    $page->sidebar(new FamiliarSidebarComponent());
+                }
+                $page->header($header);
+                break;
+            case 'administrativo':
+                $page->header(new AdministrativoHeaderComponent());
+                $page->sidebar(new AdministrativoSidebarComponent());
+                break;
+            case 'personal':
+                //$page->sidebar(new PersonalSidebarComponent());
+                break;
+        }
+
+        return $page->render();
     }
 
 public function editEntry(Request $request)
@@ -254,11 +296,41 @@ public function editEntry(Request $request)
     {
         $user = Auth::user();
         
-        $data = [
-            'return' => route('perfil.edit'),
-            'user' => $user
-        ];
+        $changePasswordContent = ChangePasswordPage::create(
+            $user,
+            route('perfil.edit'), // URL de retorno
+            session('errors'),
+            session('success')
+        );
 
-        return view('profile.change-password', compact('data'));
+        // Creamos el "esqueleto" de la página igual que en edit()
+        $page = ProfilePage::new()
+            ->title("Cambiar Contraseña")
+            ->content($changePasswordContent);
+        $familiar = Familiar::where('id_usuario', $user->id_usuario)->first();
+        $alumnoSesion = session('alumno');
+        switch (strtolower($user->tipo)) {
+            case 'familiar':
+                $header = new FamiliarHeaderComponent();
+                $header->alumnos = $familiar->alumnos->toArray() ?? [];
+                $header->alumnoSeleccionado = $alumnoSesion;
+
+                if ($alumnoSesion) {
+                    $page->sidebar(new FamiliarSidebarComponent());
+                }
+                $page->header($header);
+                break;
+
+            case 'administrativo':
+                $page->header(new AdministrativoHeaderComponent());
+                $page->sidebar(new AdministrativoSidebarComponent());
+                break;
+
+            case 'personal':
+                // si luego creas un sidebar/header para personal
+                break;
+        }
+
+        return $page->render();
     }
 }

@@ -1,4 +1,4 @@
-@extends('base.administrativo.blank')
+@extends('base.usuario.blank')
 
 @section('titulo')
 Editar Perfil - Familiar
@@ -57,7 +57,7 @@ Editar Perfil - Familiar
                     'label' => 'Email',
                     'name' => 'email',
                     'error' => $errors->first('email') ?? false,
-                    'value' => old('email') ?? $data['default']['email']
+                    'value' => old('email') ?? $data['default']['correo_electronico']
                 ])
                 
                 @include('components.forms.combo', [
