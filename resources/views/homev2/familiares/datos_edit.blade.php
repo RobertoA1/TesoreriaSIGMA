@@ -1,36 +1,24 @@
-
-    <div class="p-8 m-4 bg-gray-100 dark:bg-white/[0.03] rounded-2xl">
+<div class="p-8 m-4 bg-gray-100 dark:bg-white/[0.03] rounded-2xl">
         <!-- Header -->
-        <div class="flex flex-col md:flex-row pb-6 justify-between items-center border-b border-gray-200 dark:border-gray-700">
-            <div class="flex flex-col items-center">
-                <div class="mt-6 pt-6 w-full md:w-auto md:mr-6">
-                    @include('components.forms.image', [
-                        'name' => 'foto',
-                        'currentImage' => $data['default']['foto_url'] ?? null,
-                        'error' => $errors?->first('foto') ?? false
-                    ])
-                </div>
-            </div>
-
-            <div class="mt-4 text-center md:text-left md:mt-0 md:flex-grow">
-                <h2 class="text-2xl font-bold dark:text-gray-200 text-gray-800">Estás viendo los datos de tu alumno</h2>
+        <div class="flex pb-6 justify-between items-center border-b border-gray-200 dark:border-gray-700">
+            <div>
+                <h2 class="text-2xl font-bold dark:text-gray-200 text-gray-800">Editar Alumno</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">ID: {{ $data['id'] }}</p>
             </div>
-
-            <div class="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
-                <a href="{{ route('familiar_dato_edit') }}"
-                    class="cursor-pointer inline-flex items-center justify-center gap-2 rounded-lg border border-green-300 bg-green-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:border-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+            <div class="flex gap-3">
+                <input form="form" type="submit"
+                    class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-green-300 bg-green-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:border-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+                    value="💾 Guardar Cambios"
                 >
-                    Editar Información del Alumno
-                </a>
                 <a href="{{ $data['return'] }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
-                    Volver
+                    Cancelar
                 </a>
             </div>
         </div>
-        <form method="POST" id="form" action="" class="mt-8">
+
+        <form method="POST" id="form" action="" class="mt-8" enctype="multipart/form-data">
             @method('PATCH')
             @csrf
             
@@ -43,29 +31,33 @@
                     Información Básica
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Código Educando',
                         'name' => Str::snake('Codigo Educando'),
                         'error' => $errors->first(Str::snake('Codigo Educando')) ?? false,
-                        'value' => old(Str::snake('Codigo Educando')) ?? $data['default']['codigo_educando']
+                        'value' => old(Str::snake('Codigo Educando')) ?? $data['default']['codigo_educando'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Código Modular',
                         'name' => Str::snake('Codigo Modular'),
                         'error' => $errors->first(Str::snake('Codigo Modular')) ?? false,
-                        'value' => old(Str::snake('Codigo Modular')) ?? $data['default']['codigo_modular']
+                        'value' => old(Str::snake('Codigo Modular')) ?? $data['default']['codigo_modular'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.date-año', [
                         'label' => 'Año de Ingreso',
                         'name' => Str::snake('Año de Ingreso'),
                         'error' => $errors->first(Str::snake('Año de Ingreso')) ?? false,
-                        'value' => old(Str::snake('Año de Ingreso')) ?? $data['default']['año_ingreso']
+                        'value' => old(Str::snake('Año de Ingreso')) ?? $data['default']['año_de_ingreso'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'DNI',
                         'name' => Str::snake('DNI'),
                         'error' => $errors->first(Str::snake('DNI')) ?? false,
-                        'value' => old(Str::snake('DNI')) ?? $data['default']['d_n_i']
+                        'value' => old(Str::snake('DNI')) ?? $data['default']['d_n_i'],
+                        'readonly' => true
                     ])
                 </div>
             </div>
@@ -79,31 +71,45 @@
                     Información Personal
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Apellido Paterno',
                         'name' => Str::snake('Apellido Paterno'),
                         'error' => $errors->first(Str::snake('Apellido Paterno')) ?? false,
-                        'value' => old(Str::snake('Apellido Paterno')) ?? $data['default']['apellido_paterno']
+                        'value' => old(Str::snake('Apellido Paterno')) ?? $data['default']['apellido_paterno'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Apellido Materno',
                         'name' => Str::snake('Apellido Materno'),
                         'error' => $errors->first(Str::snake('Apellido Materno')) ?? false,
-                        'value' => old(Str::snake('Apellido Materno')) ?? $data['default']['apellido_materno']
+                        'value' => old(Str::snake('Apellido Materno')) ?? $data['default']['apellido_materno'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Primer Nombre',
                         'name' => Str::snake('Primer Nombre'),
                         'error' => $errors->first(Str::snake('Primer Nombre')) ?? false,
-                        'value' => old(Str::snake('Primer Nombre')) ?? $data['default']['primer_nombre']
+                        'value' => old(Str::snake('Primer Nombre')) ?? $data['default']['primer_nombre'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Otros Nombres',
                         'name' => Str::snake('Otros Nombres'),
                         'error' => $errors->first(Str::snake('Otros Nombres')) ?? false,
-                        'value' => old(Str::snake('Otros Nombres')) ?? $data['default']['otros_nombres']
+                        'value' => old(Str::snake('Otros Nombres')) ?? $data['default']['otros_nombres'],
+                        'readonly' => true
                     ])
                 </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h4 class="text-md font-medium text-gray-800 dark:text-gray-200 mb-4">Foto de Perfil</h4>
+                @include('components.forms.image-upload', [
+                    'name' => 'foto',
+                    'label' => 'Foto de Perfil',
+                    'currentImage' => $data['default']['foto_url'] ?? null,
+                    'error' => $errors?->first('foto') ?? false
+                ])
             </div>
 
             <!-- Información Demográfica -->
@@ -115,33 +121,36 @@
                     Información Demográfica
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.combo', [
                         'label' => 'Sexo',
                         'name' => Str::snake('Sexo'),
                         'error' => $errors->first(Str::snake('Sexo')) ?? false,
                         'value' => old(Str::snake('Sexo')) ?? $data['default'][Str::snake('Sexo')],
                         'options' => $data['sexos'],
-                        'options_attributes' => ['id', 'descripcion']
+                        'options_attributes' => ['id', 'descripcion'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.date-readonly', [
+                    @include('components.forms.date', [
                         'label' => 'Fecha Nacimiento',
                         'name' => Str::snake('Fecha Nacimiento'),
                         'error' => $errors->first(Str::snake('Fecha Nacimiento')) ?? false,
-                        'value' => old(Str::snake('Fecha Nacimiento')) ?? $data['default']['fecha_nacimiento']
+                        'value' => old(Str::snake('Fecha Nacimiento')) ?? $data['default']['fecha_nacimiento'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Teléfono',
                         'name' => Str::snake('Telefono'),
                         'error' => $errors->first(Str::snake('Telefono')) ?? false,
                         'value' => old(Str::snake('Telefono')) ?? $data['default']['telefono']
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.combo', [
                         'label' => 'Escala',
                         'name' => Str::snake('Escala'),
                         'error' => $errors->first(Str::snake('Escala')) ?? false,
                         'value' => old(Str::snake('Escala')) ?? $data['default'][Str::snake('Escala')],
                         'options' => $data['escalas'],
-                        'options_attributes' => ['id', 'descripcion']
+                        'options_attributes' => ['id', 'descripcion'],
+                        'readonly' => true
                     ])
                 </div>
             </div>
@@ -156,18 +165,17 @@
                     Ubicación Geográfica
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.combo_dependient', [
                         'label' => 'País',
                         'name' => 'pais',
                         'error' => $errors->first(Str::snake('pais')) ?? false,
                         'placeholder' => 'Seleccionar país...',
-                        'value' => old(Str::snake('pais')) ?? $data['default'][Str::snake('pais')],
+                        'value' => old(Str::snake('país')) ?? $data['default'][Str::snake('país')],
                         'value_field' => 'id_pais',
                         'text_field' => 'descripcion',
-                        'options' => $data['paises'],
-                        'enabled' => true,
+                        'options' => $data['paises']
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.combo_dependient', [
                         'label' => 'Departamento',
                         'name' => 'departamento',
                         'error' => $errors->first(Str::snake('departamento')) ?? false,
@@ -180,7 +188,7 @@
                         'options' => $data['departamentos'],
                         'enabled' => false,
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.combo_dependient', [
                         'label' => 'Provincia',
                         'name' => 'provincia',
                         'error' => $errors->first(Str::snake('provincia')) ?? false,
@@ -193,7 +201,7 @@
                         'options' => $data['provincias'],
                         'enabled' => false,
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.combo_dependient', [
                         'label' => 'Distrito',
                         'name' => 'distrito',
                         'error' => $errors->first(Str::snake('distrito')) ?? false,
@@ -218,7 +226,7 @@
                     Información Cultural y Religiosa
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.combo', [
                         'label' => 'Lengua Materna',
                         'name' => Str::snake('Lengua Materna'),
                         'error' => $errors->first(Str::snake('Lengua Materna')) ?? false,
@@ -226,7 +234,7 @@
                         'options' => $data['lenguasmaternas'],
                         'options_attributes' => ['id', 'descripcion']
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.combo', [
                         'label' => 'Estado Civil',
                         'name' => Str::snake('Estado Civil'),
                         'error' => $errors->first(Str::snake('Estado Civil')) ?? false,
@@ -234,17 +242,18 @@
                         'options' => $data['estadosciviles'],
                         'options_attributes' => ['id', 'descripcion']
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Religión',
                         'name' => Str::snake('Religion'),
                         'error' => $errors->first(Str::snake('Religion')) ?? false,
                         'value' => old(Str::snake('Religion')) ?? $data['default']['religion']
                     ])
-                    @include('components.forms.date-readonly', [
+                    @include('components.forms.date', [
                         'label' => 'Fecha Bautizo',
                         'name' => Str::snake('Fecha Bautizo'),
                         'error' => $errors->first(Str::snake('Fecha Bautizo')) ?? false,
-                        'value' => old(Str::snake('Fecha Bautizo')) ?? $data['default']['fecha_bautizo']
+                        'value' => old(Str::snake('Fecha Bautizo')) ?? $data['default']['fecha_bautizo'],
+                        'readonly' => true
                     ])
                 </div>
             </div>
@@ -258,17 +267,19 @@
                     Información Educativa
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Parroquia de Bautizo',
                         'name' => Str::snake('Parroquia de Bautizo'),
                         'error' => $errors->first(Str::snake('Parroquia de Bautizo')) ?? false,
-                        'value' => old(Str::snake('Parroquia de Bautizo')) ?? $data['default']['parroquia_de_bautizo']
+                        'value' => old(Str::snake('Parroquia de Bautizo')) ?? $data['default']['parroquia_de_bautizo'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Colegio de Procedencia',
                         'name' => Str::snake('Colegio de Procedencia'),
                         'error' => $errors->first(Str::snake('Colegio de Procedencia')) ?? false,
-                        'value' => old(Str::snake('Colegio de Procedencia')) ?? $data['default']['colegio_de_procedencia']
+                        'value' => old(Str::snake('Colegio de Procedencia')) ?? $data['default']['colegio_de_procedencia'],
+                        'readonly' => true
                     ])
                 </div>
             </div>
@@ -283,20 +294,20 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="md:col-span-2">
-                        @include('components.forms.string-ineditable-real', [
+                        @include('components.forms.string', [
                             'label' => 'Dirección',
                             'name' => Str::snake('Direccion'),
                             'error' => $errors->first(Str::snake('Direccion')) ?? false,
                             'value' => old(Str::snake('Direccion')) ?? $data['default']['direccion']
                         ])
                     </div>
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Medio de Transporte',
                         'name' => Str::snake('Medio de Transporte'),
                         'error' => $errors->first(Str::snake('Medio de Transporte')) ?? false,
                         'value' => old(Str::snake('Medio de Transporte')) ?? $data['default']['medio_de_transporte']
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Tiempo de Demora',
                         'name' => Str::snake('Tiempo de demora'),
                         'error' => $errors->first(Str::snake('Tiempo de demora')) ?? false,
@@ -314,29 +325,33 @@
                     Información de Vivienda
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Material Vivienda',
                         'name' => Str::snake('Material Vivienda'),
                         'error' => $errors->first(Str::snake('Material Vivienda')) ?? false,
-                        'value' => old(Str::snake('Material Vivienda')) ?? $data['default']['material_vivienda']
+                        'value' => old(Str::snake('Material Vivienda')) ?? $data['default']['material_vivienda'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Energía Eléctrica',
                         'name' => Str::snake('Energia Electrica'),
                         'error' => $errors->first(Str::snake('Energia Electrica')) ?? false,
-                        'value' => old(Str::snake('Energia Electrica')) ?? $data['default']['energia_electrica']
+                        'value' => old(Str::snake('Energia Electrica')) ?? $data['default']['energia_electrica'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Agua Potable',
                         'name' => Str::snake('Agua Potable'),
                         'error' => $errors->first(Str::snake('Agua Potable')) ?? false,
-                        'value' => old(Str::snake('Agua Potable')) ?? $data['default']['agua_potable']
+                        'value' => old(Str::snake('Agua Potable')) ?? $data['default']['agua_potable'],
+                        'readonly' => true
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Desagüe',
                         'name' => Str::snake('Desague'),
                         'error' => $errors->first(Str::snake('Desague')) ?? false,
-                        'value' => old(Str::snake('Desague')) ?? $data['default']['desague']
+                        'value' => old(Str::snake('Desague')) ?? $data['default']['desague'],
+                        'readonly' => true
                     ])
                 </div>
             </div>
@@ -350,25 +365,25 @@
                     Información Socioeconómica
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'SS.HH.',
                         'name' => Str::snake('SS_HH'),
                         'error' => $errors->first(Str::snake('SS_HH')) ?? false,
                         'value' => old(Str::snake('SS_HH')) ?? $data['default']['s_s__h_h']
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Número de Habitaciones',
                         'name' => Str::snake('Numero de Habitaciones'),
                         'error' => $errors->first(Str::snake('Numero de Habitaciones')) ?? false,
                         'value' => old(Str::snake('Numero de Habitaciones')) ?? $data['default']['numero_de_habitaciones']
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Número de Habitantes',
                         'name' => Str::snake('Numero de Habitantes'),
                         'error' => $errors->first(Str::snake('Numero de Habitantes')) ?? false,
                         'value' => old(Str::snake('Numero de Habitantes')) ?? $data['default']['numero_de_habitantes']
                     ])
-                    @include('components.forms.string-ineditable-real', [
+                    @include('components.forms.string', [
                         'label' => 'Situación de Vivienda',
                         'name' => Str::snake('Situacion de vivienda'),
                         'error' => $errors->first(Str::snake('Situacion de vivienda')) ?? false,
@@ -385,8 +400,13 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
-                    Volver
+                    Cancelar
                 </a>
+                
+                <input form="form" type="submit"
+                    class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-green-300 bg-green-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:border-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+                    value="💾 Guardar Cambios"
+                >
             </div>
         </form>
     </div>

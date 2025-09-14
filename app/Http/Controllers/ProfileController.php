@@ -104,12 +104,8 @@ class ProfileController extends Controller
                     
                     $alumnoSesion = session('alumno'); 
                     $header->alumnoSeleccionado = $alumnoSesion;
-
-                    
                     break;
                 }
-
-                
         }
 
 
@@ -120,7 +116,6 @@ class ProfileController extends Controller
             ->content($content);
 
         
-
         // Add sidebar based on user type
         switch (strtolower($user->tipo)) {
             case 'familiar':

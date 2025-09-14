@@ -7,20 +7,20 @@
         {{ $label }}
     </label>
     
-    <div class="searchable-select-container relative" data-name="{{ Str::snake($label) }}">
+    <div class="searchable-select-container relative" data-name="{{ Str::snake($label) }}" data-readonly="{{ $readonly ?? false ? 'true' : 'false' }}">
         <!-- Input principal -->
         <div class="relative">
             <input 
                 type="text" 
-                class="searchable-select-input h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-12 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white/90 dark:placeholder:text-white/40 @if($error) border-red-500 dark:border-red-400 @endif" 
+                class="searchable-select-input h-11 w-full rounded-lg border px-4 py-2.5 pr-12 text-sm placeholder:text-gray-400 focus:outline-none @if($readonly ?? false) border-gray-200 bg-gray-50 text-gray-600 cursor-not-allowed dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 @else border-gray-300 bg-white text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white/90 dark:placeholder:text-white/40 @endif @if($error) border-red-500 dark:border-red-400 @endif" 
                 placeholder="Buscar {{ strtolower($label) }}..."
                 autocomplete="off"
                 data-value="{{ $value ?? '' }}"
                 readonly
-                style="cursor: pointer;"
+                style="cursor: {{ $readonly ?? false ? 'not-allowed' : 'pointer' }};"
             >
             <div class="searchable-select-arrow absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg class="w-5 h-5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 transition-transform duration-200 @if($readonly ?? false) text-gray-300 dark:text-gray-600 @else text-gray-400 @endif" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </div>
@@ -91,6 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const options = container.querySelectorAll('.searchable-select-option');
         const arrow = container.querySelector('.searchable-select-arrow svg');
         
+        // Check if readonly
+        const isReadonly = container.dataset.readonly === 'true';
+        
         let isOpen = false;
         let selectedValue = input.dataset.value || '';
         
@@ -130,8 +133,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set initial value when component loads
         setInitialValue();
         
-        // Open/close dropdown
+        // Open/close dropdown - skip if readonly
         input.addEventListener('click', function(e) {
+            if (isReadonly) return;
+            
             e.stopPropagation();
             if (isOpen) {
                 closeDropdown();
@@ -142,12 +147,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Real-time search
         searchInput.addEventListener('input', function() {
+            if (isReadonly) return;
             filterOptions(this.value);
         });
         
         // Option selection
         options.forEach(option => {
             option.addEventListener('click', function(e) {
+                if (isReadonly) return;
+                
                 e.stopPropagation();
                 selectOption(this);
             });
@@ -162,6 +170,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Keyboard navigation
         searchInput.addEventListener('keydown', function(e) {
+            if (isReadonly) return;
+            
             const visibleOptions = Array.from(options).filter(opt => 
                 opt.style.display !== 'none'
             );
@@ -198,6 +208,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         function openDropdown() {
+            if (isReadonly) return;
+            
             dropdown.style.display = 'block';
             if (arrow) arrow.style.transform = 'rotate(180deg)';
             isOpen = true;
@@ -220,6 +232,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         function selectOption(option) {
+            if (isReadonly) return;
+            
             // Clear previous selection
             options.forEach(opt => {
                 opt.classList.remove('selected', 'highlighted');
@@ -245,6 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         function highlightOption(option) {
+            if (isReadonly) return;
+            
             options.forEach(opt => opt.classList.remove('highlighted'));
             if (option) {
                 option.classList.add('highlighted');
@@ -252,6 +268,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         function filterOptions(searchTerm) {
+            if (isReadonly) return;
+            
             const term = searchTerm.toLowerCase().trim();
             
             options.forEach(option => {
