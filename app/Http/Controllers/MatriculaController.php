@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 
 class MatriculaController extends Controller
 {
-    
+
     private static function doSearch($sqlColumns, $search, $pagination, $appliedFilters = []){
-        
+
         $query = Matricula::where('estado', '=', '1')
         ->whereHas('alumno', fn($q) => $q->where('estado', 1))
         ->whereHas('grado', fn($q) => $q->where('estado', 1))
@@ -26,7 +26,7 @@ class MatriculaController extends Controller
                 ->whereColumn('secciones.nombreSeccion', 'matriculas.nombreSeccion')
                 ->where('secciones.estado', 1);
         });
-        
+
         if (isset($search)) {
             $query->where(function ($q) use ($search) {
                 // Buscar en columnas propias
@@ -55,7 +55,7 @@ class MatriculaController extends Controller
             });
         }
 
-        
+
 
         foreach ($appliedFilters as $filter) {
             $columnName = $filter['key'];
@@ -109,7 +109,7 @@ class MatriculaController extends Controller
     }
 
 
-   
+
     public function index(Request $request)
     {
         $sqlColumns = ["id_matricula","fecha_matricula","año_escolar","id_alumno","id_grado","nombreSeccion","escala","observaciones",];
@@ -202,11 +202,11 @@ class MatriculaController extends Controller
                 $itemmatricula->nombreSeccion,
                 $itemmatricula->escala,
                 $itemmatricula->observaciones
-            ]); 
+            ]);
         }
 
 
-        return view('gestiones.matricula.index', compact('data')); 
+        return view('gestiones.matricula.index', compact('data'));
 
     }
 
@@ -302,7 +302,7 @@ class MatriculaController extends Controller
             'escala' => $request->escala,
             'observaciones' => $request->observaciones
         ]);
-    
+
         $matricula->generarDeudas();
 
         return redirect(route('matricula_view', ['created' => true]));
@@ -344,7 +344,7 @@ class MatriculaController extends Controller
         }
 
         $matricula = Matricula::findOrFail($id);
-        
+
         $alumno = $matricula->alumno;
         $año = $matricula->año_escolar;
 
@@ -379,11 +379,11 @@ class MatriculaController extends Controller
         $grados = Grado::where("estado","=","1")->get();
 
         $secciones = Seccion::where("estado","=","1")->get();
-        
-        
+
+
 
         $data = [
-            'return' => route('grado_view', ['abort' => true]),
+            'return' => route('matricula_view', ['abort' => true]),
             'id' => $id,
             'alumnos' => $resultado_alumnos,
             'añosEscolares' => $añosEscolares,
@@ -400,7 +400,7 @@ class MatriculaController extends Controller
                 'fecha_matricula' => $fecha_matricula
             ]
         ];
-        
+
         return view('gestiones.matricula.edit', compact('data'));
     }
 
@@ -426,7 +426,7 @@ class MatriculaController extends Controller
                         ->where('id_grado', $seccionData['id_grado'])
                         ->where('nombreSeccion', $seccionData['nombreSeccion'])
                         ->exists();
-                    
+
                     if ($exists) {
                         $fail('Esta combinación de alumno, año escolar y sección ya existe.');
                     }
@@ -479,7 +479,7 @@ class MatriculaController extends Controller
 
         // Separar la clave compuesta
         $parts = explode('|', $seccionValue);
-        
+
         if (count($parts) !== 2) {
             throw new \InvalidArgumentException('Formato de sección inválido. Esperado: id_grado|nombreSeccion');
         }

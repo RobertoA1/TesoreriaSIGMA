@@ -144,20 +144,10 @@
             <input type="hidden" name="escala" id="escalaInput" value="">
 
             <!-- Botones de acción -->
-            <div class="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <a href="{{ $data['return'] }}"
-                    class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    Cancelar
-                </a>
-                <input form="form" type="submit"
-                    class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                    value="✨ Crear Matrícula"
-                >
-            </div>
+            <x-ui.section-botton
+                :returnUrl="$data['return']"
+                boton="✨ Crear Matrícula"
+            />
         </form>
     </div>
 @endsection
