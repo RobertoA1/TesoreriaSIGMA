@@ -57,8 +57,8 @@ class Alumno extends Model
         return [
             'fecha_nacimiento' => 'date',
             'fecha_bautizo' => 'date',
-            'año_ingreso' => 'integer', 
-            'num_habitaciones' => 'integer', 
+            'año_ingreso' => 'integer',
+            'num_habitaciones' => 'integer',
             'num_habitantes' => 'integer',
         ];
     }
