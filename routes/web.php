@@ -12,6 +12,7 @@ Route::middleware(['auth'])->group(function(){
     require __DIR__ . '/personal/routes.php';
     require __DIR__ . '/reportes/routes.php';
     require __DIR__ . '/familiar/routes.php';
+    require __DIR__ . '/perfil/routes.php';
 
     Route::get('/tests', [\App\Http\Controllers\Tests\CRUDTestController::class, 'index']);
 });
