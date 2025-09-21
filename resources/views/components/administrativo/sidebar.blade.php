@@ -104,7 +104,10 @@
                 'Reportes financieros',
                 'Estadísticas'
             ],
-            'links' => [],
+            'links' => [
+                'Reportes académicos' => 'reporte_academico_view',
+                'Reportes financieros' => 'reporte_financiero_view',
+            ],
             'icon' => 'reporte'
         ])
     @endcan
