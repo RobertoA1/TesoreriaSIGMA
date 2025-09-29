@@ -1,9 +1,9 @@
 @if ($paginator->lastPage() > 1)
   <div class="flex w-full justify-center gap-8 p-4 items-center">
-    
+
     {{-- Botón anterior --}}
     @if ($paginator->currentPage() > 1)
-      <a 
+      <a
         href="{{ request()->fullUrlWithQuery([$pageQuery => $paginator->currentPage() - 1]) }}"
         class="flex gap-2 items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
       >
@@ -21,7 +21,7 @@
 
     {{-- Botón siguiente --}}
     @if ($paginator->currentPage() < $paginator->lastPage())
-      <a 
+      <a
         href="{{ request()->fullUrlWithQuery([$pageQuery => $paginator->currentPage() + 1]) }}"
         class="flex gap-2 items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
       >
