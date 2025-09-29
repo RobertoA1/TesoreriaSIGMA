@@ -102,11 +102,11 @@
         @include('components.para-sidebar.dropdown-button', [
             'name' => 'Reportes y Estadísticas',
             'items' => [
-                'Reportes académicos',
-                'Reportes financieros',
-                'Estadísticas'
+                'Estadísticas académicas',
             ],
-            'links' => [],
+            'links' => [
+                'Estadísticas académicas' => 'reporte_academico_view',
+            ],
             'icon' => 'reporte'
         ])
     @endcan
