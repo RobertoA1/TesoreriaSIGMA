@@ -598,6 +598,10 @@
           href="#"
           @click.prevent="dropdownOpen = ! dropdownOpen"
         >
+
+        <span class="mr-3 h-11 w-11 overflow-hidden rounded-full">
+            <img src="{{ Auth::user()->foto_url }}" alt="User" class="h-full w-full object-cover" />
+        </span>
         <!--
           <span class="mr-3 h-11 w-11 overflow-hidden rounded-full">
             <img src="./images/user/owner.jpg" alt="User" />
@@ -636,17 +640,19 @@
           x-show="dropdownOpen"
           class="shadow-theme-lg dark:bg-gray-dark absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800"
         >
-          <div>
-            <span
-              class="text-theme-sm block font-medium text-gray-700 dark:text-gray-400"
-            >
-              {{ $name }}
+          <div class="flex items-center gap-3 mb-4">
+            <!-- Mini foto dentro del dropdown -->
+            <span class="h-10 w-10 overflow-hidden rounded-full">
+                <img src="{{ Auth::user()->foto_url }}" alt="User" class="h-full w-full object-cover" />
             </span>
-            <span
-              class="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400"
-            >
-              {{ $cargo }}
-            </span>
+            <div>
+                <span class="text-theme-sm block font-medium text-gray-700 dark:text-gray-400">
+                    {{ $name }}
+                </span>
+                <span class="text-theme-xs mt-0.5 block text-gray-500 dark:text-gray-400">
+                    {{ $cargo }}
+                </span>
+            </div>
           </div>
 
           <ul
@@ -654,7 +660,7 @@
           >
             <li>
               <a
-                href="profile.html"
+                href="{{route('perfil.edit')}}"
                 class="group text-theme-sm flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
               >
                 <svg

@@ -1,7 +1,7 @@
 {
   "paises": [
     {
-      "id_pais": "Perú",
+      "id_pais": "PERÚ",
       "descripcion": "Perú"
     }
   ],
@@ -9,127 +9,127 @@
     {
       "id_departamento": "AMAZONAS",
       "descripcion": "Amazonas",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "ANCASH",
       "descripcion": "Áncash",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "APURIMAC",
       "descripcion": "Apurímac",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "AREQUIPA",
       "descripcion": "Arequipa",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "AYACUCHO",
       "descripcion": "Ayacucho",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "CAJAMARCA",
       "descripcion": "Cajamarca",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "CALLAO",
       "descripcion": "Callao",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "CUSCO",
       "descripcion": "Cusco",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "HUANCAVELICA",
       "descripcion": "Huancavelica",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "HUANUCO",
       "descripcion": "Huánuco",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "ICA",
       "descripcion": "Ica",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "JUNIN",
       "descripcion": "Junín",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "LA_LIBERTAD",
       "descripcion": "La Libertad",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "LAMBAYEQUE",
       "descripcion": "Lambayeque",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "LIMA",
       "descripcion": "Lima",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "LORETO",
       "descripcion": "Loreto",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "MADRE_DE_DIOS",
       "descripcion": "Madre de Dios",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "MOQUEGUA",
       "descripcion": "Moquegua",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "PASCO",
       "descripcion": "Pasco",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "PIURA",
       "descripcion": "Piura",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "PUNO",
       "descripcion": "Puno",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "SAN_MARTIN",
       "descripcion": "San Martín",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "TACNA",
       "descripcion": "Tacna",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "TUMBES",
       "descripcion": "Tumbes",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     },
     {
       "id_departamento": "UCAYALI",
       "descripcion": "Ucayali",
-      "id_pais": "Perú"
+      "id_pais": "PERÚ"
     }
   ],
   "provincias": [
