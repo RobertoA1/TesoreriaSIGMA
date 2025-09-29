@@ -32,15 +32,16 @@
         </select>
     </div>
 
-    <div id="grado-evaluado-filter">
+    <!-- Falta implementar control de grados según nivel educativo -->
+    <div id="grado-evaluado-filter" hidden>
         <span>Grado</span>
         <select name="gradoEvaluado" id="grado-evaluado">
         </select>
     </div>
 </div>
 
-<div class="grid grid-cols-2 grid-rows-2 gap-4">
-    <div class="relative grid-span-1">
+<div class="grid grid-cols-2 grid-rows-3 gap-4 max-h-200 sm:max-h-150 lg:max-h-screen">
+    <div class="flex relative row-start-1 row-end-3 col-start-1 col-end-3 justify-center">
         <canvas class="text-white" id="myChart"></canvas>
     </div>
 </div>
@@ -95,7 +96,7 @@
         selectores.filtros.gradoEvaluado.clearOptions();
         selectores.filtros.gradoEvaluado.addOption({value: '', text: 'Todos'});
         selectores.filtros.gradoEvaluado.setValue('', true);
-        
+
         if (config.extra.grados)
             selectores.filtros.gradoEvaluado.addOption(config.extra.grados.map(grado => ({value: grado, text: grado})));
 
@@ -133,7 +134,8 @@
                 selectores.filtros.gradoEvaluado.disable();
                 selectores.filtros.gradoEvaluado.setValue('', true);
             } else {
-                selectores.filtros.gradoEvaluado.enable();
+                // Por implementar
+                // selectores.filtros.gradoEvaluado.enable();
             }
         });
         
@@ -166,7 +168,6 @@
                 var endpoint = selectores.tipoReporte.getValue();
                 const data = await requestGraphJS(endpoint, params);
                 loadChart(data);
-                loadGrados(chartCfg);
             });
         }
     }

@@ -24,7 +24,7 @@ return new class extends Migration
         ');
 
         DB::unprepared('
-            CREATE PROCEDURE IF NOT EXISTS alumnosRetirados(IN añoEscolarBase INT, IN añoEscolarSiguiente INT)
+            CREATE PROCEDURE IF NOT EXISTS alumnosRetiradosPorAño(IN añoEscolarBase INT, IN añoEscolarSiguiente INT)
             BEGIN
             SELECT COUNT(*) AS "retirados" FROM matriculas
                 WHERE año_escolar = añoEscolarBase AND id_alumno NOT IN (SELECT id_alumno FROM MATRICULAS WHERE año_escolar = añoEscolarSiguiente);
@@ -77,6 +77,178 @@ return new class extends Migration
                 GROUP BY m.año_escolar, ne.nombre_nivel, gr.nombre_grado, m.nombreSeccion;
             END
         ');
+
+        DB::unprepared('
+            CREATE PROCEDURE IF NOT EXISTS stats_alumnosNuevosVsAntiguosPorAño()
+            BEGIN
+                DECLARE añoMinimo INT;
+                DECLARE añoMaximo INT;
+                DECLARE i INT;
+                DECLARE total INT;
+                DECLARE antiguos INT;
+                DECLARE nuevos INT;
+                
+                SELECT
+                    año_escolar INTO añoMinimo
+                FROM matriculas
+                ORDER BY año_escolar ASC
+                LIMIT 1;
+                
+                SELECT
+                    año_escolar INTO añoMaximo
+                FROM matriculas
+                ORDER BY año_escolar DESC
+                LIMIT 1;
+                
+                CREATE TEMPORARY TABLE antiguosVsNuevos (
+                    año_escolar INT,
+                    antiguos		INT,
+                    nuevos		INT
+                );
+                
+                SET i = añoMinimo;
+                WHILE i <= añoMaximo DO
+                    SELECT
+                        COUNT(*) INTO total
+                    FROM matriculas
+                    WHERE año_escolar = i;
+                                                
+                    SELECT 
+                        COUNT(*) INTO antiguos
+                    FROM matriculas
+                    WHERE año_escolar = i
+                    AND id_alumno IN (
+                        SELECT
+                            id_alumno
+                        FROM matriculas
+                        WHERE año_escolar = i - 1
+                    );
+                    
+                    INSERT INTO antiguosVsNuevos (año_escolar, antiguos, nuevos) VALUES
+                    (i, IFNULL(antiguos, 0), IFNULL(total - antiguos, 0));
+                    
+                    SET i = i + 1;
+                END WHILE;
+                
+                SELECT * FROM antiguosVsNuevos;
+                
+                DROP TEMPORARY TABLE IF EXISTS antiguosVsNuevos;
+            END
+        ');
+        
+        DB::unprepared('
+            CREATE PROCEDURE IF NOT EXISTS stats_alumnosNuevosVsAntiguosPorNivelEducativo(añoEvaluado INT)
+            BEGIN
+                SELECT 
+                    ne.nombre_nivel AS "Nivel",
+                    SUM(CASE 
+                            WHEN m.id_alumno IN (
+                                SELECT id_alumno FROM matriculas WHERE año_escolar = añoEvaluado - 1
+                            ) THEN 1 ELSE 0 
+                        END) AS "Antiguos",
+                    SUM(CASE 
+                            WHEN m.id_alumno NOT IN (
+                                SELECT id_alumno FROM matriculas WHERE año_escolar = añoEvaluado - 1
+                            ) THEN 1 ELSE 0 
+                        END) AS "Nuevos"
+                FROM matriculas AS m
+                JOIN grados AS gr ON m.id_grado = gr.id_grado
+                JOIN niveles_educativos AS ne ON gr.id_nivel = ne.id_nivel
+                WHERE m.año_escolar = añoEvaluado
+                GROUP BY ne.nombre_nivel;
+            END
+        ');
+
+        DB::unprepared('
+            CREATE PROCEDURE IF NOT EXISTS stats_alumnosNuevosVsAntiguosPorGrado(añoEvaluado INT, idNivelEvaluado INT)
+            BEGIN
+                SELECT
+                gr.nombre_grado AS "Grado",
+                SUM(CASE 
+                        WHEN m.id_alumno IN (
+                            SELECT id_alumno FROM matriculas WHERE año_escolar = añoEvaluado - 1
+                        ) THEN 1 ELSE 0 
+                    END) AS "Antiguos",
+                SUM(CASE 
+                        WHEN m.id_alumno NOT IN (
+                            SELECT id_alumno FROM matriculas WHERE año_escolar = añoEvaluado - 1
+                        ) THEN 1 ELSE 0 
+                    END) AS "Nuevos"
+                FROM matriculas AS m
+                JOIN grados AS gr ON m.id_grado = gr.id_grado
+                JOIN niveles_educativos AS ne ON gr.id_nivel = ne.id_nivel
+                WHERE m.año_escolar = añoEvaluado AND ne.id_nivel = idNivelEvaluado
+                GROUP BY gr.nombre_grado;
+            END
+        ');
+
+        DB::unprepared('
+            CREATE PROCEDURE IF NOT EXISTS stats_alumnosRetiradosPorAño()
+            BEGIN
+                DECLARE añoMinimo INT;
+                DECLARE añoMaximo INT;
+                DECLARE i INT;
+                DECLARE retirados INT;
+                
+                SELECT
+                    año_escolar INTO añoMinimo
+                FROM matriculas
+                ORDER BY año_escolar ASC
+                LIMIT 1;
+                
+                SELECT
+                    año_escolar INTO añoMaximo
+                FROM matriculas
+                ORDER BY año_escolar DESC
+                LIMIT 1;
+                
+                CREATE TEMPORARY TABLE alumnosRetirados (
+                    año_escolar INT,
+                    retirados		INT
+                );
+                
+                SET i = añoMinimo;
+                WHILE i <= añoMaximo DO					
+                    SELECT 
+                        COUNT(*) INTO retirados
+                    FROM matriculas
+                    WHERE año_escolar = i - 1
+                    AND id_alumno NOT IN (
+                        SELECT
+                            id_alumno
+                        FROM matriculas
+                        WHERE año_escolar = i
+                    );
+                    
+                    INSERT INTO alumnosRetirados (año_escolar, retirados) VALUES
+                    (i, retirados);
+                    
+                    SET i = i + 1;
+                END WHILE;
+                
+                SELECT * FROM alumnosRetirados;
+                
+                DROP TEMPORARY TABLE IF EXISTS alumnosRetirados;
+            END
+        ');
+
+        DB::unprepared('
+            CREATE PROCEDURE IF NOT EXISTS stats_alumnosRetiradosPorNivelEducativo(añoEvaluado INT)
+            BEGIN
+                SELECT 
+                ne.nombre_nivel AS "Nivel",
+                SUM(CASE 
+                    WHEN m.id_alumno NOT IN (
+                        SELECT id_alumno FROM matriculas WHERE año_escolar = añoEvaluado
+                    ) THEN 1 ELSE 0 
+                END) AS "Retirados"
+                FROM matriculas AS m
+                JOIN grados AS gr ON m.id_grado = gr.id_grado
+                JOIN niveles_educativos AS ne ON gr.id_nivel = ne.id_nivel
+                WHERE m.año_escolar = añoEvaluado - 1
+                GROUP BY ne.nombre_nivel;
+            END
+        ');
     }
 
     /**
@@ -89,5 +261,10 @@ return new class extends Migration
         DB::unprepared('DROP PROCEDURE IF EXISTS obtenerRangoEdadesEnUnGrado');
         DB::unprepared('DROP PROCEDURE IF EXISTS stats_alumnosMatriculadosEnAñoEspecifico');
         DB::unprepared('DROP PROCEDURE IF EXISTS stats_alumnosMatriculadosEnNivelEducativoEspecifico');
+        DB::unprepared('DROP PROCEDURE IF EXISTS stats_alumnosNuevosVsAntiguosPorAño');
+        DB::unprepared('DROP PROCEDURE IF EXISTS stats_alumnosNuevosVsAntiguosPorNivelEducativo');
+        DB::unprepared('DROP PROCEDURE IF EXISTS stats_alumnosNuevosVsAntiguosPorGrado');
+        DB::unprepared('DROP PROCEDURE IF EXISTS stats_alumnosRetiradosPorAño');
+        DB::unprepared('DROP PROCEDURE IF EXISTS stats_alumnosRetiradosPorNivelEducativo');
     }
 };

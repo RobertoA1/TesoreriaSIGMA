@@ -267,57 +267,15 @@ class ReportesAcademicosController extends Controller
         return $nivelEducativo;
     }
 
-    public static function alumnosNuevosVsAntiguos(Request $request){
+    private static function alumnosNuevosVsAntiguosPorAño(Request $request){
         $matriculados = self::obtenerMatriculados();
         $añosEscolares = self::obtenerAñosEscolares($matriculados);
 
-        $añoEscolarEvaluado = $request->input('añoEvaluado');
+        $datos = DB::select('CALL stats_alumnosNuevosVsAntiguosPorAño()');
 
-        if ($añoEscolarEvaluado == null){
-            $añoEscolarEvaluado = $añosEscolares->last();
-        }
-
-        $añoEscolarAnteriorAlEvaluado = $añosEscolares->map(function($año) use ($añoEscolarEvaluado){
-                if ($año < $añoEscolarEvaluado){
-                    return $año;
-                }
-            })->filter()->last();
-
-        $nivelEducativoEvaluado = $request->input('nivelEducativo');
-
-        $idNivelEducativo = null;
-        if ($nivelEducativoEvaluado != null){
-            $nivelEducativoEvaluado = self::obtenerNivelEducativoPorNombre($nivelEducativoEvaluado);
-        } else {
-            $nivelEducativoEvaluado = NivelEducativo::where('estado', '=', true)
-                ->get()
-                ->first();
-        }
-        $idNivelEducativo = $nivelEducativoEvaluado->getKey();
-
-        $gradosDeNivelEducativo = Grado::where('estado', '=', true)
-            ->whereIdNivel($idNivelEducativo)
-            ->get();
-
-        $alumnosAntiguos = [];
-        $alumnosNuevos = [];
-        foreach ($gradosDeNivelEducativo as $grado) {
-            $total = self::obtenerAlumnosEnGrado($añoEscolarEvaluado, $grado->getKey())->count();
-
-            $nuevos = Matricula::whereEstado(true)
-                ->whereAñoEscolar($añoEscolarEvaluado)
-                ->whereIdGrado($grado->getKey())
-                ->whereNotIn('id_alumno',
-                    Matricula::whereEstado(true)
-                    ->whereAñoEscolar($añoEscolarAnteriorAlEvaluado)
-                    ->pluck('id_alumno'))
-                ->count();
-
-            $antiguos = $total - $nuevos;
-
-            array_push($alumnosNuevos, $nuevos);
-            array_push($alumnosAntiguos, $antiguos);
-        }
+        $años = collect($datos)->pluck('año_escolar')->toArray();
+        $alumnosNuevos = collect($datos)->pluck('nuevos')->toArray();
+        $alumnosAntiguos = collect($datos)->pluck('antiguos')->toArray();
 
         $nuevosDataset = new GraphJSDataset();
         $nuevosDataset->label("Alumnos Nuevos");
@@ -329,7 +287,7 @@ class ReportesAcademicosController extends Controller
 
         $graphJSData = new GraphJSDataAdapter();
         $graphJSData->type("bar");
-        $graphJSData->labels($gradosDeNivelEducativo->pluck('nombre_grado')->toArray());
+        $graphJSData->labels($años);
         $graphJSData->addDataset($nuevosDataset);
         $graphJSData->addDataset($antiguosDataset);
 
@@ -337,11 +295,109 @@ class ReportesAcademicosController extends Controller
         $data["extra"] = [
             "añosEscolares" => $añosEscolares,
             "nivelesEducativos" => NivelEducativo::where('estado', '=', true)->pluck('nombre_nivel'),
-            "actualNivelEducativo" => $nivelEducativoEvaluado->nombre_nivel,
-            "actualAñoEscolar" => $añoEscolarEvaluado,
         ];
 
         return response()->json($data);
+    }
+
+    private static function alumnosNuevosVsAntiguosPorNivelEducativo(Request $request){
+        $matriculados = self::obtenerMatriculados();
+        $añosEscolares = self::obtenerAñosEscolares($matriculados);
+
+        $añoEscolarEvaluado = $request->input('añoEscolar') ?? self::obtenerAñosEscolares(self::obtenerMatriculados())->last();
+
+        if ($añoEscolarEvaluado == null){
+            $añoEscolarEvaluado = $añosEscolares->last();
+        }
+
+        $datos = DB::select('CALL stats_alumnosNuevosVsAntiguosPorNivelEducativo(?)', [
+            $añoEscolarEvaluado
+        ]);
+
+        $nivelesEducativos = collect($datos)->pluck('Nivel')->toArray();
+        $alumnosNuevos = collect($datos)->pluck('Nuevos')->toArray();
+        $alumnosAntiguos = collect($datos)->pluck('Antiguos')->toArray();
+
+        $nuevosDataset = new GraphJSDataset();
+        $nuevosDataset->label("Alumnos Nuevos");
+        $nuevosDataset->data($alumnosNuevos);
+
+        $antiguosDataset = new GraphJSDataset();
+        $antiguosDataset->label("Alumnos Antiguos");
+        $antiguosDataset->data($alumnosAntiguos);
+
+        $graphJSData = new GraphJSDataAdapter();
+        $graphJSData->type("bar");
+        $graphJSData->labels($nivelesEducativos);
+        $graphJSData->addDataset($nuevosDataset);
+        $graphJSData->addDataset($antiguosDataset);
+
+        $data = $graphJSData->chartData();
+        $data["extra"] = [
+            "añosEscolares" => $añosEscolares,
+            "actualAñoEscolar" => $añoEscolarEvaluado,
+            "nivelesEducativos" => NivelEducativo::where('estado', '=', true)->pluck('nombre_nivel'),
+        ];
+
+        return response()->json($data);
+    }
+
+    private static function alumnosNuevosVsAntiguosPorGrado(Request $request){
+        $matriculados = self::obtenerMatriculados();
+        $añosEscolares = self::obtenerAñosEscolares($matriculados);
+        $nivelesEducativos = self::obtenerNivelesEducativos();
+
+        $añoEscolarEvaluado = $request->input('añoEscolar') ?? self::obtenerAñosEscolares(self::obtenerMatriculados())->last();
+
+        if ($añoEscolarEvaluado == null){
+            $añoEscolarEvaluado = $añosEscolares->last();
+        }
+
+        $nivelEducativoEvaluado = self::obtenerNivelEducativoPorNombre($request->input('nivelEducativo')) ?? self::obtenerNivelesEducativos()->first();
+
+        $datos = DB::select('CALL stats_alumnosNuevosVsAntiguosPorGrado(?, ?)', [
+            $añoEscolarEvaluado,
+            $nivelEducativoEvaluado->getKey()
+        ]);
+
+        $grados = collect($datos)->pluck('Grado')->toArray();
+        $alumnosNuevos = collect($datos)->pluck('Nuevos')->toArray();
+        $alumnosAntiguos = collect($datos)->pluck('Antiguos')->toArray();
+
+        $nuevosDataset = new GraphJSDataset();
+        $nuevosDataset->label("Alumnos Nuevos");
+        $nuevosDataset->data($alumnosNuevos);
+
+        $antiguosDataset = new GraphJSDataset();
+        $antiguosDataset->label("Alumnos Antiguos");
+        $antiguosDataset->data($alumnosAntiguos);
+
+        $graphJSData = new GraphJSDataAdapter();
+        $graphJSData->type("bar");
+        $graphJSData->labels($grados);
+        $graphJSData->addDataset($nuevosDataset);
+        $graphJSData->addDataset($antiguosDataset);
+
+        $data = $graphJSData->chartData();
+        $data["extra"] = [
+            "añosEscolares" => $añosEscolares,
+            "actualAñoEscolar" => $añoEscolarEvaluado,
+            "nivelesEducativos" => NivelEducativo::where('estado', '=', true)->pluck('nombre_nivel'),
+            "actualNivelEducativo" => $nivelEducativoEvaluado->nombre_nivel,
+            "grados" => Grado::where('estado', '=', true)
+                ->whereIdNivel($nivelEducativoEvaluado->getKey())
+                ->pluck('nombre_grado')
+        ];
+
+        return response()->json($data);
+
+    }
+
+    public static function alumnosNuevosVsAntiguos(Request $request){
+        if ($request->input('añoEscolar') == null) return self::alumnosNuevosVsAntiguosPorAño($request);
+        if ($request->input('nivelEducativo') == null) return self::alumnosNuevosVsAntiguosPorNivelEducativo($request);
+        if ($request->input('grado') == null) return self::alumnosNuevosVsAntiguosPorGrado($request);
+        return null;
     }
 
     private static function obtenerNivelesEducativos(){
@@ -406,37 +462,69 @@ class ReportesAcademicosController extends Controller
         return response()->json($data); 
     }
 
-    public static function alumnosRetirados(Request $request){
-        $matriculados = self::obtenerMatriculados();
-        $añosEscolares = self::obtenerAñosEscolares($matriculados);
+    private static function alumnosRetiradosPorAño(Request $request){
+        $datos = DB::select('CALL stats_alumnosRetiradosPorAño()');
 
-        $retiradosPorAño = array_fill(0, $añosEscolares->count() - 1, 0);
+        $añosEscolares = collect($datos)->pluck('año_escolar')->toArray();
+        $cantidades = collect($datos)->pluck('retirados')->toArray();
 
-        for ($i = 0; $i < $añosEscolares->count() - 1; $i++){
-            $añoEscolarEvaluado = $añosEscolares[$i];
-            $añoEscolarSiguiente = $añosEscolares[$i + 1];
-
-            // $añoEscolarEvaluado = $request->input('añoEvaluado') ?? $añosEscolares[$añosEscolares->count() - 2];
-            // $añoEscolarSiguiente = $request->input('añoEscolarSiguiente') ?? $añosEscolares->last();
-
-            $resultado = DB::select('CALL alumnosRetirados(?, ?)', [
-                $añoEscolarEvaluado,
-                $añoEscolarSiguiente
-            ]);
-
-            $retiradosPorAño[$i] = $resultado[0]->Retirados ?? 0;
-        }
-
-        $alumnosRetiradosDataset = new GraphJSDataset();
-        $alumnosRetiradosDataset->label("Alumnos Retirados");
-        $alumnosRetiradosDataset->data($retiradosPorAño);
+        $dataset = new GraphJSDataset();
+        $dataset->label("Alumnos Retirados");
+        $dataset->data($cantidades);
 
         $graphJSData = new GraphJSDataAdapter();
         $graphJSData->type("bar");
-        $graphJSData->labels($añosEscolares->slice(1)->values()->toArray());
-        $graphJSData->addDataset($alumnosRetiradosDataset);
+        $graphJSData->labels($añosEscolares);
+        $graphJSData->addDataset($dataset);
 
-        return response()->json($graphJSData->chartData());
+        $data = $graphJSData->chartData();
+        $data["extra"] = [
+            "añosEscolares" => $añosEscolares,
+            "nivelesEducativos" => [],
+        ];
+
+        return response()->json($data); 
+    }
+
+    private static function alumnosRetiradosPorNivelEducativo(Request $request){
+        $añosEscolares = self::obtenerAñosEscolares(self::obtenerMatriculados());
+
+        $añoEscolarEvaluado = $request->input('añoEscolar') ?? self::obtenerAñosEscolares(self::obtenerMatriculados())->last();
+
+        if ($añoEscolarEvaluado == null){
+            $añoEscolarEvaluado = $añosEscolares->last();
+        }
+
+        $datos = DB::select('CALL stats_alumnosRetiradosPorNivelEducativo(?)', [
+            $añoEscolarEvaluado
+        ]);
+
+        $nivelesEducativos = collect($datos)->pluck('Nivel')->toArray();
+        $cantidades = collect($datos)->pluck('Retirados')->toArray();
+
+        $dataset = new GraphJSDataset();
+        $dataset->label("Alumnos Retirados");
+        $dataset->data($cantidades);
+
+        $graphJSData = new GraphJSDataAdapter();
+        $graphJSData->type("bar");
+        $graphJSData->labels($nivelesEducativos);
+        $graphJSData->addDataset($dataset);
+
+        $data = $graphJSData->chartData();
+        $data["extra"] = [
+            "añosEscolares" => $añosEscolares,
+            "actualAñoEscolar" => $añoEscolarEvaluado,
+            "nivelesEducativos" => [],
+        ];
+
+        return response()->json($data); 
+    }
+
+    public static function alumnosRetirados(Request $request){
+        if ($request->input('añoEscolar') == null) return self::alumnosRetiradosPorAño($request);
+        if ($request->input('nivelEducativo') == null) return self::alumnosRetiradosPorNivelEducativo($request);
+        return null;
     }
 
     private static function obtenerIdGradoPorNombre($nombreGrado){
