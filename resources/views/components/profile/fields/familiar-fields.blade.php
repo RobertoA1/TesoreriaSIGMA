@@ -38,10 +38,10 @@
             'value' => old('apellido_materno') ?? $data['default']['apellido_materno'] ?? ''
         ])
 
-        @include('components.forms.string', [
+        @include('components.forms.profile.string', [
             'label' => 'DNI',
             'name' => 'dni',
-            'error' => $errors?->first('dni') ?? false,
+            'error' => session('errors')?->first('dni') ?? false,
             'value' => old('dni') ?? $data['default']['dni'] ?? ''
         ])
 

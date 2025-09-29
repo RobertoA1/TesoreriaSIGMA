@@ -16,18 +16,6 @@
             'error' => $errors?->first('username') ?? false,
             'value' => old('username') ?? $data['default']['username']
         ])
-
-        @include('components.forms.combo', [
-            'label' => 'Estado',
-            'name' => 'estado',
-            'error' => $errors?->first('estado') ?? false,
-            'value' => old('estado') ?? $data['default']['estado'],
-            'options' => [
-                ['id' => '1', 'nombre' => 'Activo'],
-                ['id' => '0', 'nombre' => 'Inactivo'],
-            ],
-            'options_attributes' => ['id', 'nombre']
-        ])
     </div>
 
     <!-- Foto de Perfil -->
