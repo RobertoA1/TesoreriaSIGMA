@@ -1,5 +1,5 @@
 class GraphJSApi {
-    static baseUrl = window.location.protocol + window.location.host + '/api/graphjs/';
+    static baseUrl = window.location.protocol + '//' + window.location.host + '/api/graphjs/';
     
     static async get(endpoint, params = {}) {
         const url = new URL(this.baseUrl + endpoint);

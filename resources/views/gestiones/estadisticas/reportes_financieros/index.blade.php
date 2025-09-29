@@ -1,9 +1,9 @@
 @extends('base.administrativo.blank')
 
 @section('titulo')
-    Reportes Académicos
+    Reportes Financieros
 @endsection
 
 @section('contenido')
-    sdasd
+    <p>Los reportes financieros aún no están implementados.</p>
 @endsection
