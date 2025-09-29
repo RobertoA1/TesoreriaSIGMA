@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\DepartamentoAcademicoController;
+use App\Http\Controllers\ReporteFinancieroController;
 
-Route::get('/', [DepartamentoAcademicoController::class, 'index'])
+Route::get('/', [ReporteFinancieroController::class, 'index'])
     ->name('view');
