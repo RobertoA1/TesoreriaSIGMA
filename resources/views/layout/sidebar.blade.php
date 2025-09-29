@@ -39,7 +39,7 @@
             class="menu-group-title"
             :class="sidebarToggle ? 'lg:hidden' : ''"
           >
-            MENU
+            MENU 
           </span>
 
           <svg

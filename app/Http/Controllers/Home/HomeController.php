@@ -29,7 +29,6 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller {
     public static function index(Request $request){
-        // Se debería implementar con la vista administrativo.
         return static::familiarIndex($request);
     }
 
@@ -58,12 +57,14 @@ class HomeController extends Controller {
         $alumnoSesion = $request->session()->get('alumno');
         $header->alumnoSeleccionado = $alumnoSesion;
 
+        $content = CRUDTableComponent::new()
+            ->title("Página principal")
+            ->build();
+
         $page = CRUDTablePage::new()
             ->title("Selección de Alumno")
-            ->header($header);
-        
-        $content = CRUDTableComponent::new()
-            ->title("Página principal");
+            ->header($header)
+            ->content($content);
 
         return $page->render();
     }
@@ -71,7 +72,7 @@ class HomeController extends Controller {
     public static function definirSesion(Request $request){
         $alumno = Alumno::findOrFail($request->input('idalumno'));
         $request->session()->put('alumno', $alumno);
-
-        return redirect(route('principal'));
+        return redirect()->back();
+        //return redirect(route('principal'));
     }
 }

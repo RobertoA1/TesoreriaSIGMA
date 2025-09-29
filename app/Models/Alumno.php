@@ -49,6 +49,7 @@ class Alumno extends Model
         'num_habitantes',
         'situacion_vivienda',
         'escala',
+        'foto',
         'estado',
     ];
 
@@ -56,8 +57,8 @@ class Alumno extends Model
         return [
             'fecha_nacimiento' => 'date',
             'fecha_bautizo' => 'date',
-            'año_ingreso' => 'integer', 
-            'num_habitaciones' => 'integer', 
+            'año_ingreso' => 'integer',
+            'num_habitaciones' => 'integer',
             'num_habitantes' => 'integer',
         ];
     }
@@ -67,6 +68,13 @@ class Alumno extends Model
         return $this->belongsToMany(Familiar::class, 'composiciones_familiares', 'id_alumno', 'id_familiar')
                     ->withPivot('parentesco')
                     ->withTimestamps();
+    }
+
+    public function getFotoUrlAttribute()
+    {
+        return $this->foto
+            ? asset('storage/alumnos/' . $this->foto)
+            : asset('storage/alumnos/default.jpg');
     }
 
 }

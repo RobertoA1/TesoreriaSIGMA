@@ -48,6 +48,7 @@ return new class extends Migration
             $table->integer('num_habitantes')->nullable();
             $table->string('situacion_vivienda', 100)->nullable();
             $table->char('escala', 2)->nullable();
+            $table->string('foto', 255)->default('default.jpg');
             $table->boolean('estado')->default(true);
             $table->timestamps();
         });

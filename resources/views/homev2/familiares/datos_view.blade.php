@@ -1,20 +1,35 @@
 
     <div class="p-8 m-4 bg-gray-100 dark:bg-white/[0.03] rounded-2xl">
         <!-- Header -->
-        <div class="flex pb-6 justify-between items-center border-b border-gray-200 dark:border-gray-700">
-            <div>
+        <div class="flex flex-col md:flex-row pb-6 justify-between items-center border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col items-center">
+                <div class="mt-6 pt-6 w-full md:w-auto md:mr-6">
+                    @include('components.forms.image', [
+                        'name' => 'foto',
+                        'currentImage' => $data['default']['foto_url'] ?? null,
+                        'error' => $errors?->first('foto') ?? false
+                    ])
+                </div>
+            </div>
+
+            <div class="mt-4 text-center md:text-left md:mt-0 md:flex-grow">
                 <h2 class="text-2xl font-bold dark:text-gray-200 text-gray-800">Estás viendo los datos de tu alumno</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">ID: {{ $data['id'] }}</p>
             </div>
-            <div class="flex gap-3">
+
+            <div class="flex flex-col md:flex-row gap-3 mt-4 md:mt-0">
+                <a href="{{ route('familiar_dato_edit') }}"
+                    class="cursor-pointer inline-flex items-center justify-center gap-2 rounded-lg border border-green-300 bg-green-500 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:border-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+                >
+                    Editar Información del Alumno
+                </a>
                 <a href="{{ $data['return'] }}"
-                    class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                     Volver
                 </a>
             </div>
         </div>
-
         <form method="POST" id="form" action="" class="mt-8">
             @method('PATCH')
             @csrf

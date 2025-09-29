@@ -22,6 +22,7 @@ class User extends Authenticatable
         'tipo',
         'password',
         'estado',
+        'foto',
     ];
 
     protected $primaryKey = 'id_usuario';
@@ -46,5 +47,12 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
         ];
+    }
+
+    public function getFotoUrlAttribute()
+    {
+        return $this->foto
+            ? asset('storage/users/' . $this->foto)
+            : asset('images/default.jpg');
     }
 }
