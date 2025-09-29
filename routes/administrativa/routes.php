@@ -31,3 +31,11 @@ Route::group([
 ], function(){
     require __DIR__ . '/usuarios.php';
 });
+
+Route::group([
+    'prefix' => 'validacion_pago',
+    'as' => 'validacion_pago_',
+    'middleware' => ['can:access-resource,"administrativa"'],
+], function(){
+    require __DIR__ . '/validacion_pago.php';
+});
