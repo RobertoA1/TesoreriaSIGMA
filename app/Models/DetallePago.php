@@ -15,6 +15,7 @@ class DetallePago extends Model
 
     public $incrementing = false;
 
+
     protected $fillable = [
         'id_detalle',
         'id_pago',
@@ -23,19 +24,16 @@ class DetallePago extends Model
         'monto',
         'observacion',
         'estado',
-        'metodo_pago',
-        'voucher_path',
-        'voucher_texto',
-        'estado_validacion'
     ];
+
 
     protected function casts(): array
     {
         return [
             'fecha_pago' => 'datetime', 
             'monto' => 'decimal:2',
-            'estado' => 'boolean',
+            'estado' => 'boolean',   
         ];
     }
-}
 
+}

@@ -65,7 +65,6 @@
             'items' => [
                 'Usuarios',
                 'Administrativos',
-                'Validación de Pago',
                 'Conceptos de Acción',
                 'Historial de Acciones',
             ],
@@ -73,7 +72,6 @@
                 'Conceptos de Acción' => 'principal',
                 'Administrativos' => 'administrativo_view',
                 'Historial de Acciones' => 'historial_de_acciones_view',
-                'Validación de Pago' => 'validacion_pago_view',
             ],
             'icon' => 'maletin'
         ])
