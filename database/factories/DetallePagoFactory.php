@@ -18,16 +18,12 @@ class DetallePagoFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_pago' => Pago::factory(),
+            'id_pago'=> Pago::factory(),
             'nro_recibo' => fake()->unique()->numerify('REC-#####'),
             'fecha_pago' => fake()->dateTimeBetween('-1 year', 'now'),
             'monto' => fake()->numberBetween(0, 1000),
             'observacion' => fake()->optional()->sentence(),
-            'estado' => '1',
-            'metodo_pago' => $this->faker->randomElement(['tarjeta', 'yape', 'paypal', 'transferencia']),
-            'voucher_path' => null,
-            'voucher_texto' => null,
-            'estado_validacion' => 'pendiente',
+            'estado' => '1'
         ];
     }
 }
