@@ -20,14 +20,11 @@ use Illuminate\Database\Seeder;
 use Faker\Factory as FakerFactory;
 class ConceptosSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
+    
     public function run(): void
     {
         // Deshabilitamos temporalmente el registro de acciones, ya que estamos ejecutando un seeder.
         LogsActions::disable();
-
 
         ConceptoAccion::create(
             [
@@ -92,11 +89,6 @@ class ConceptosSeeder extends Seeder
             $datosdepartamentos[] = $nuevodepartamento;
         }
 
-
-
-
-
-
         $niveleseducativos = [
             [
                 'nombre_nivel'=>'Inicial',
@@ -123,7 +115,6 @@ class ConceptosSeeder extends Seeder
             );
             $datosniveleseducativos[] = $nuevoniveleducativo;
         }
-
 
         $datosgrados = [];
 
@@ -228,7 +219,6 @@ class ConceptosSeeder extends Seeder
             }
             
         }
-
 
         $añosescolares = [
             2025,2026
@@ -367,14 +357,7 @@ class ConceptosSeeder extends Seeder
             }
         }
 
-
-
-
-
         // Restablecemos el registro de acciones.
         LogsActions::enable();
     }
-
-
-
 }

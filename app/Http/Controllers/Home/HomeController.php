@@ -29,7 +29,6 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller {
     public static function index(Request $request){
-        // Se debería implementar con la vista administrativo.
         return static::familiarIndex($request);
     }
 
