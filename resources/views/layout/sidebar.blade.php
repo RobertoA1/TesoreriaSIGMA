@@ -62,7 +62,7 @@
 
         <ul class="flex flex-col gap-4 mb-6">
 
-        @yield(section: 'opciones')
+        @yield('opciones')
         </ul>
       </div>
     </nav>
