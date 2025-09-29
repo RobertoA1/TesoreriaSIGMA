@@ -182,8 +182,10 @@ public function editEntry(Request $request)
                 break;
 
             case 'familiar':
+                $familiar = Familiar::where('id_usuario', $user->id_usuario)->first();
+                $idFamiliar = $familiar ? $familiar->idFamiliar : 'NULL';
                 $specificValidation = [
-                    'dni' => 'required|string|max:20',
+                    'dni' => 'required|string|max:20|unique:familiares,dni,' . $idFamiliar . ',idFamiliar',
                     'apellido_paterno' => 'required|string|max:50',
                     'apellido_materno' => 'required|string|max:50',
                     'primer_nombre' => 'required|string|max:50',
@@ -193,7 +195,6 @@ public function editEntry(Request $request)
                 ];
                 break;
         }
-
         $data = $request->validate(array_merge($baseValidation, $specificValidation));
 
         

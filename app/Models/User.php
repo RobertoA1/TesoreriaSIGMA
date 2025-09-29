@@ -53,6 +53,6 @@ class User extends Authenticatable
     {
         return $this->foto
             ? asset('storage/users/' . $this->foto)
-            : asset('storage/users/default.jpg');
+            : asset('images/default.jpg');
     }
 }
