@@ -100,13 +100,10 @@
         @include('components.para-sidebar.dropdown-button', [
             'name' => 'Reportes y Estadísticas',
             'items' => [
-                'Reportes académicos',
-                'Reportes financieros',
-                'Estadísticas'
+                'Estadísticas académicas',
             ],
             'links' => [
-                'Reportes académicos' => 'reporte_academico_view',
-                'Reportes financieros' => 'reporte_financiero_view',
+                'Estadísticas académicas' => 'reporte_academico_view',
             ],
             'icon' => 'reporte'
         ])
