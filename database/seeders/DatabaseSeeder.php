@@ -21,7 +21,6 @@ use App\Models\NivelEducativo;
 use App\Models\Pago;
 use App\Models\Personal;
 use App\Models\Seccion;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Observers\Traits\LogsActions;
 use Illuminate\Database\Seeder;
 
@@ -32,43 +31,32 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Deshabilitamos temporalmente el registro de acciones, ya que estamos ejecutando un seeder.
+        // Deshabilitamos temporalmente el registro de acciones
         LogsActions::disable();
 
+        // Ejecutamos los seeders en orden
+        $this->call([
+            ConceptosSeeder::class,
+            UsuariosSeeder::class,
+            AlumnosSeeder::class,
+        ]);
+
+        // El resto de factories y creación de datos
         User::factory(5)->create();
         Administrativo::factory(5)->create();
         Alumno::factory(5)->create();
         ComposicionFamiliar::factory(5)->create();
 
-        ConceptoAccion::create(
-            [
-                'accion' => 'VER',
-            ]);
-        
-        ConceptoAccion::create(
-            [
-                'accion' => 'EDITAR',
-            ]);
-
-        ConceptoAccion::create(
-            [
-                'accion' => 'ELIMINAR',
-            ]);
-
-        ConceptoAccion::create(
-            [
-                'accion' => 'RESTAURAR',
-            ]);
-
-        ConceptoAccion::create(
-            [
-                'accion' => 'CREAR',
-            ]);
+        ConceptoAccion::create(['accion' => 'VER']);
+        ConceptoAccion::create(['accion' => 'EDITAR']);
+        ConceptoAccion::create(['accion' => 'ELIMINAR']);
+        ConceptoAccion::create(['accion' => 'RESTAURAR']);
+        ConceptoAccion::create(['accion' => 'CREAR']);
 
         $meses = [
-                'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
-                'JULIO', 'AGOSTO', 'SETIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
-                ];
+            'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+            'JULIO', 'AGOSTO', 'SETIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+        ];
         $anios = [2025, 2026];
         $escalas = [
             'A' => 500.00,
@@ -106,7 +94,7 @@ class DatabaseSeeder extends Seeder
         Seccion::factory(5)->create();
         Catedra::factory(5)->create();
 
-        // Restablecemos el registro de acciones.
+        // Restablecemos el registro de acciones AL FINAL
         LogsActions::enable();
     }
 }

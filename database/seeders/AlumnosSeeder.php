@@ -18,7 +18,7 @@ class AlumnosSeeder extends Seeder
     public function run()
     {
 
-        LogsActions::disable();
+        //LogsActions::disable();
 
         $faker = Faker::create('es_PE');
         $anioActual = Carbon::now()->year;
@@ -142,7 +142,7 @@ class AlumnosSeeder extends Seeder
             }
         }
 
-        LogsActions::enable();
+        //LogsActions::enable();
 
     }
 }

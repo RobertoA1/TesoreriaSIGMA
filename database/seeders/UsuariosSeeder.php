@@ -31,7 +31,7 @@ class UsuariosSeeder extends Seeder
     public function run(): void
     {
         // Deshabilitamos temporalmente el registro de acciones, ya que estamos ejecutando un seeder.
-        LogsActions::disable();
+        //LogsActions::disable();
 
         Administrativo::create([
             'id_usuario' => User::factory([
@@ -61,7 +61,7 @@ class UsuariosSeeder extends Seeder
                 'password' => bcrypt("12345"),
                 'tipo' => 'Administrativo',
             ])->create()->id_usuario,
-            
+
             'apellido_paterno' => fake()->lastName(),
             'apellido_materno' => fake()->lastName(),
             'primer_nombre' => fake()->firstName(),
@@ -82,14 +82,14 @@ class UsuariosSeeder extends Seeder
         $fechaNacimiento = Carbon::now()->subYears(10)->format('Y-m-d');
         $fechaBautizo = Carbon::now()->subYears(9)->format('Y-m-d');
 
-        
+
 
 
         // Restablecemos el registro de acciones.
-        LogsActions::enable();
+        //LogsActions::enable();
     }
 
 
-    
+
 
 }
