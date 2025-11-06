@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('detalle_pago', function (Blueprint $table) {
@@ -32,13 +29,21 @@ return new class extends Migration
                   ->onDelete('cascade'); 
 
             $table->boolean("estado")->default(true);
+
+            // Campos para pagos online/transferencias
+            $table->string('metodo_pago', 50)->nullable();
+            $table->string('voucher_path')->nullable();
+            $table->text('voucher_texto')->nullable();
+
+            $table->boolean('validado_por_ia')->default(false);
+            $table->decimal('porcentaje_confianza', 5, 2)->nullable();
+            $table->text('razon_ia')->nullable();
+            $table->enum('estado_validacion', ['pendiente', 'validado', 'rechazado'])->default('pendiente');
+
             $table->timestamps();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::dropIfExists('detalle_pago');

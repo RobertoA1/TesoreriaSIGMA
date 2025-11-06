@@ -11,9 +11,8 @@ class DetallePago extends Model
 
     protected $table = 'detalle_pago'; 
 
-    protected $primaryKey = ['id_detalle','id_pago'];
-
-    public $incrementing = false;
+    protected $primaryKey = 'id_detalle';
+    public $incrementing = true;
 
     protected $fillable = [
         'id_detalle',
@@ -26,16 +25,27 @@ class DetallePago extends Model
         'metodo_pago',
         'voucher_path',
         'voucher_texto',
-        'estado_validacion'
+        'estado_validacion',
+        'validado_por_ia',
+        'porcentaje_confianza',
+        'razon_ia'
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'fecha_pago' => 'datetime',
+        'monto' => 'decimal:2',
+        'estado' => 'boolean',
+        'validado_por_ia' => 'boolean',
+        'porcentaje_confianza' => 'decimal:2'
+    ];
+
+    public function pago()
     {
-        return [
-            'fecha_pago' => 'datetime', 
-            'monto' => 'decimal:2',
-            'estado' => 'boolean',
-        ];
+        return $this->belongsTo(Pago::class, 'id_pago', 'id_pago');
+    }
+
+    public function estaValidado()
+    {
+        return $this->estado_validacion === 'validado';
     }
 }
-

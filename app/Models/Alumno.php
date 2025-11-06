@@ -69,4 +69,14 @@ class Alumno extends Model
                     ->withTimestamps();
     }
 
+    public function matriculas()
+    {
+        return $this->hasMany(Matricula::class, 'id_alumno', 'id_alumno');
+    }
+
+    public function deudas()
+    {
+        return $this->hasMany(Deuda::class, 'id_alumno', 'id_alumno');
+    }
+
 }

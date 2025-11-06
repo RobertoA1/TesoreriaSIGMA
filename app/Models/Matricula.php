@@ -67,8 +67,9 @@ class Matricula extends Model
         for ($mes = $mesActual; $mes <= 12; $mes++) {
             $nombreMes = $meses[$mes];
 
-            // Buscar concepto de pago
-            $concepto = ConceptoPago::where('descripcion', "MENSUALIDAD $nombreMes $anio ESCALA $escala")
+            // Buscar concepto de pago con el formato correcto: "OCTUBRE 2025" y escala "A"
+            $concepto = ConceptoPago::where('descripcion', "$nombreMes $anio")
+                ->where('escala', $escala)
                 ->where('estado', true)
                 ->first();
 

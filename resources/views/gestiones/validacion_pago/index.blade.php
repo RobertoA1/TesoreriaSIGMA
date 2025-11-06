@@ -63,9 +63,8 @@
         ])
       @endif
 
-      @include('layout.tables.table-pagos', $data)    
+      @include('layout.tables.table-validacion_pagos', $data)    
 @endsection
-
 
 @section('custom-js')
   <script src="{{ asset('js/tables.js') }}"></script>

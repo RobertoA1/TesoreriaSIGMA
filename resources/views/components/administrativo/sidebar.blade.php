@@ -86,17 +86,19 @@
             'items' => [
                 'Conceptos de pago',
                 'Pagos',
-                'Deudas'
+                'Deudas',
+                'Orden de Pago'
             ],
             'links' => [
                 'Conceptos de pago' => 'concepto_de_pago_view',
                 'Pagos' => 'pago_view',
-                'Deudas' => 'deuda_view'
+                'Deudas' => 'deuda_view',
+                'Orden de Pago' => 'orden_pago_view'
             ],
             'icon' => 'monedas'
         ])
     @endcan
-
+    
     {{-- Reportes y Estadísticas --}}
     @can('access-resource', 'reportes')
         @include('components.para-sidebar.dropdown-button', [

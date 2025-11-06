@@ -179,17 +179,41 @@
 @section('custom-js')
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const gradoSelect = document.getElementById('grado');
-        const seccionSelect = document.getElementById('seccion');
-        // Cuando cambie el grado
-        gradoSelect.addEventListener('change', function () {
-            if (gradoSelect.value) {
-                seccionSelect.disabled = false;
-            } else {
-                seccionSelect.disabled = true;
-                seccionSelect.value = ''; // Opcional: limpia selección
-            }
-        });
+        // Los IDs correctos que genera el componente combo_dependient
+        const gradoInput = document.getElementById('combo_grado_hidden');
+        const seccionContainer = document.querySelector('[data-field-name="seccion"]');
+        const seccionButton = document.getElementById('combo_seccion');
+        
+        console.log('Grado hidden input:', gradoInput);
+        console.log('Seccion container:', seccionContainer);
+        console.log('Seccion button:', seccionButton);
+        
+        if (gradoInput && seccionContainer) {
+            // Escuchar cambios en el input hidden de grado
+            gradoInput.addEventListener('change', function () {
+                const gradoValue = this.value;
+                console.log('Grado changed to:', gradoValue);
+                
+                // Verificar cuántas opciones de sección están disponibles para este grado
+                const seccionOptions = seccionContainer.querySelectorAll('.combo-option');
+                let visibleCount = 0;
+                
+                seccionOptions.forEach(option => {
+                    const parentValue = option.dataset.parent;
+                    console.log('Seccion option:', option.dataset.text, 'Parent:', parentValue, 'Should show:', parentValue === gradoValue);
+                    
+                    if (parentValue === gradoValue) {
+                        visibleCount++;
+                    }
+                });
+                
+                console.log('Total secciones visibles para grado', gradoValue, ':', visibleCount);
+                
+                if (visibleCount === 0) {
+                    console.warn('⚠️ No hay secciones disponibles para el grado seleccionado');
+                }
+            });
+        }
     });
     </script>
 

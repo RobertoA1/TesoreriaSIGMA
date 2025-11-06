@@ -23,3 +23,11 @@ Route::group([
 ], function(){
     require __DIR__ . '/deudas.php';
 });
+
+Route::group([
+    'prefix' => 'orden-pago',
+    'as' => 'orden_pago_',
+    'middleware' => ['can:access-resource,"financiera"'],
+], function(){
+    require __DIR__ . '/orden_pago.php';
+});

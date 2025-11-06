@@ -54,5 +54,8 @@ class Deuda extends Model
         return $this->belongsTo(\App\Models\ConceptoPago::class, 'id_concepto', 'id_concepto');
     }
 
-
+    public function detallesOrdenPago()
+    {
+        return $this->hasMany(DetalleOrdenPago::class, 'id_deuda', 'id_deuda');
+    }
 }
